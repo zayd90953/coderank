@@ -1,22 +1,41 @@
 # CodeRank Developer Diary
 
-## Day 1 - 31 July 2026
+## Session 1
+Date: 30 July 2026
 
-### Mission
-Set up the Flutter development environment and initialize the CodeRank project.
+- Flutter installed
+- GitHub created
+- First project created
 
-### Completed
-- Installed and verified Flutter
-- Fixed Android SDK configuration
-- Accepted Android SDK licenses
-- Created Flutter project using `flutter create`
-- Opened the project in Android Studio
+---
 
-### Learned
-- What Flutter is
-- What `flutter create` does
-- Basic Flutter project structure
-- Importance of `main.dart`
+## Session 2
+Date: 3 August 2026
 
-### Next Goal
-Run the default app and understand the generated project.
+Completed:
+✅ App icon
+✅ App name
+✅ Branding
+✅ Theme
+✅ Splash Screen
+✅ Animated Splash
+✅ Folder Structure
+✅ GitHub Push
+
+Learned:
+- Flutter project structure
+- Git workflow
+- Assets
+- AnimationController
+- Tween
+- Hot Reload vs Hot Restart
+
+Problems Solved:
+- pubspec.yaml typo
+- Asset loading issue
+- SplashScreen widget error
+
+Next Session:
+- Onboarding
+- Login UI
+- Navigation

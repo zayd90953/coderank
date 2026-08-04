@@ -13,11 +13,8 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-
   late AnimationController _controller;
-
-  late Animation<double> _logoScale;
-  late Animation<double> _textOpacity;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -28,27 +25,13 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1800),
     );
 
-    _logoScale = Tween<double>(
-      begin: 0.85,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    _textOpacity = Tween<double>(
+    _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
     ).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(
-          0.45,
-          1.0,
-          curve: Curves.easeIn,
-        ),
+        curve: Curves.easeInOut,
       ),
     );
 
@@ -56,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 3), () {
       // TODO:
-      // Navigate to onboarding screen.
+      // Navigate to Onboarding Screen
     });
   }
 
@@ -68,55 +51,39 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: AppColors.primary,
 
       body: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-
-            return Column(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Transform.translate(
+            offset: const Offset(0, -35),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
-
-                Transform.scale(
-                  scale: _logoScale.value,
-                  child: Image.asset(
-                    "assets/branding/splash_logo.png",
-                    width: 120,
-                  ),
+                Image.asset(
+                  "assets/branding/splash_logo.png",
+                  width: 300,
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 16),
 
-                Opacity(
-                  opacity: _textOpacity.value,
-                  child: Column(
-                    children: [
-
-                      Text(
-                        "CodeRank",
-                        style: AppTextStyles.title,
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      Text(
-                        "Practice. Improve. Rank Higher.",
-                        style: AppTextStyles.subtitle,
-                      ),
-
-                    ],
-                  ),
+                Text(
+                  "CodeRank",
+                  style: AppTextStyles.title,
                 ),
 
+                const SizedBox(height: 6),
+
+                Text(
+                  "Practice. Improve. Rank Higher.",
+                  style: AppTextStyles.subtitle,
+                  textAlign: TextAlign.center,
+                ),
               ],
-            );
-
-          },
+            ),
+          ),
         ),
       ),
     );
