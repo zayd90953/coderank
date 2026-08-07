@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../data/onboarding_data.dart';
+import '../../welcome/presentation/welcome_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -142,7 +142,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             curve: Curves.easeInOut,
                           );
                         } else {
-                          // TODO: Navigate to Login
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const WelcomeScreen(),
+                            ),
+                          );
                         }
                       },
                       child: Text(
