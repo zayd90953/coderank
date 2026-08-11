@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import 'question/question_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
   const PracticeScreen({super.key});
@@ -24,7 +25,6 @@ class PracticeScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
@@ -48,13 +48,26 @@ class PracticeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 28),
+
+            // Physics
             _SubjectCard(
               icon: Icons.bolt_rounded,
               title: "Physics",
               subtitle: "Practice Physics questions",
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const QuestionScreen(
+                      subject: "Physics",
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 14),
+
+            // Chemistry
             _SubjectCard(
               icon: Icons.science_rounded,
               title: "Chemistry",
@@ -62,6 +75,8 @@ class PracticeScreen extends StatelessWidget {
               onTap: () {},
             ),
             const SizedBox(height: 14),
+
+            // Biology
             _SubjectCard(
               icon: Icons.biotech_rounded,
               title: "Biology",

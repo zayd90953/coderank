@@ -1,0 +1,261 @@
+import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
+
+class ResultsScreen extends StatelessWidget {
+  final String subject;
+  final int score;
+  final int totalQuestions;
+
+  const ResultsScreen({
+    super.key,
+    required this.subject,
+    required this.score,
+    required this.totalQuestions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final percentage =
+    totalQuestions == 0 ? 0 : ((score / totalQuestions) * 100).round();
+
+    final incorrect = totalQuestions - score;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F7FC),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+
+              // Success icon
+              Container(
+                width: 82,
+                height: 82,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.10),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.emoji_events_rounded,
+                  color: AppColors.primary,
+                  size: 44,
+                ),
+              ),
+
+              const SizedBox(height: 22),
+
+              const Text(
+                "Practice Complete!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Great work! Here's how you performed.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.subtitle,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Score card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 28,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: const Color(0xFFE7E3F0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      subject,
+                      style: TextStyle(
+                        color: AppColors.subtitle,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      "$score / $totalQuestions",
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    const Text(
+                      "Score",
+                      style: TextStyle(
+                        color: AppColors.text,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _StatItem(
+                            icon: Icons.check_circle_rounded,
+                            value: "$score",
+                            label: "Correct",
+                            iconColor: Colors.green,
+                          ),
+                        ),
+                        Expanded(
+                          child: _StatItem(
+                            icon: Icons.cancel_rounded,
+                            value: "$incorrect",
+                            label: "Incorrect",
+                            iconColor: Colors.red,
+                          ),
+                        ),
+                        Expanded(
+                          child: _StatItem(
+                            icon: Icons.percent_rounded,
+                            value: "$percentage%",
+                            label: "Accuracy",
+                            iconColor: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Practice again
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    "Practice Again",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Back to practice
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.3,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    "Back to Practice",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color iconColor;
+
+  const _StatItem({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: iconColor,
+          size: 24,
+        ),
+        const SizedBox(height: 7),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppColors.text,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.subtitle,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+}
