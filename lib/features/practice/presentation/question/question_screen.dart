@@ -22,7 +22,22 @@ class _QuestionScreenState extends State<QuestionScreen> {
   bool answered = false;
   int score = 0;
 
-  final List<QuestionModel> questions = QuestionData.physicsQuestions;
+  late final List<QuestionModel> questions;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.subject == "Physics") {
+      questions = QuestionData.physicsQuestions;
+    } else if (widget.subject == "Chemistry") {
+      questions = QuestionData.chemistryQuestions;
+    } else if (widget.subject == "Biology") {
+      questions = QuestionData.biologyQuestions;
+    } else {
+      questions = [];
+    }
+  }
 
   void _checkAnswer() {
     if (selectedAnswer == null) return;

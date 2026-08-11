@@ -72,7 +72,16 @@ class PracticeScreen extends StatelessWidget {
               icon: Icons.science_rounded,
               title: "Chemistry",
               subtitle: "Practice Chemistry questions",
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const QuestionScreen(
+                      subject: "Chemistry",
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 14),
 
@@ -81,7 +90,16 @@ class PracticeScreen extends StatelessWidget {
               icon: Icons.biotech_rounded,
               title: "Biology",
               subtitle: "Practice Biology questions",
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const QuestionScreen(
+                      subject: "Biology",
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
