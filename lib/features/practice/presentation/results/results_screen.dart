@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../question/question_screen.dart';
+import '../practice_screen.dart';
 
 class ResultsScreen extends StatelessWidget {
   final String subject;
@@ -158,7 +160,14 @@ class ResultsScreen extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => QuestionScreen(
+                          subject: subject,
+                        ),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -186,8 +195,13 @@ class ResultsScreen extends StatelessWidget {
                 height: 56,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PracticeScreen(),
+                      ),
+                          (route) => route.isFirst,
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
