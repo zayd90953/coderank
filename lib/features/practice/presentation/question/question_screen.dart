@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../data/question_data.dart';
+import '../../models/question_model.dart';
 import '../results/results_screen.dart';
 
 class QuestionScreen extends StatefulWidget {
@@ -20,45 +22,16 @@ class _QuestionScreenState extends State<QuestionScreen> {
   bool answered = false;
   int score = 0;
 
-  final List<Map<String, dynamic>> questions = [
-    {
-      "question":
-      "A particle is moving with a velocity of 20 m/s. What is its velocity after the same motion continues?",
-      "options": ["10 m/s", "20 m/s", "30 m/s", "40 m/s"],
-      "answer": 1,
-      "explanation":
-      "The velocity remains 20 m/s when the same motion continues.",
-    },
-    {
-      "question":
-      "Which physical quantity is measured in metres per second (m/s)?",
-      "options": ["Acceleration", "Force", "Velocity", "Energy"],
-      "answer": 2,
-      "explanation":
-      "Velocity is the rate of change of displacement and is measured in m/s.",
-    },
-    {
-      "question":
-      "What happens to the velocity of an object when its acceleration is zero?",
-      "options": [
-        "It always increases",
-        "It remains constant",
-        "It becomes zero",
-        "It always decreases",
-      ],
-      "answer": 1,
-      "explanation":
-      "When acceleration is zero, the velocity remains constant.",
-    },
-  ];
+  final List<QuestionModel> questions = QuestionData.physicsQuestions;
 
   void _checkAnswer() {
     if (selectedAnswer == null) return;
 
-    final correctAnswer = questions[currentQuestion]["answer"]as int;
+    final correctAnswer = questions[currentQuestion].correctAnswer;
 
     setState(() {
       answered = true;
+
       if (selectedAnswer == correctAnswer) {
         score++;
       }
@@ -93,8 +66,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
   @override
   Widget build(BuildContext context) {
     final question = questions[currentQuestion];
-    final options = List<String>.from(question["options"]);
-    final correctAnswer = question["answer"] as int;
+    final options = question.options;
+    final correctAnswer = question.correctAnswer;
     final progress = (currentQuestion + 1) / questions.length;
 
     return Scaffold(
@@ -121,6 +94,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Question number and percentage
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -142,7 +116,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: 8),
+
+            // Progress bar
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
@@ -154,9 +131,12 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 ),
               ),
             ),
+
             const SizedBox(height: 28),
+
+            // Question
             Text(
-              question["question"],
+              question.question,
               style: const TextStyle(
                 color: AppColors.text,
                 fontSize: 21,
@@ -164,7 +144,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 28),
+
+            // Answer options
             ...List.generate(
               options.length,
                   (index) {
@@ -192,7 +175,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                             : isWrong
                             ? Colors.red.withValues(alpha: 0.08)
                             : isSelected
-                            ? AppColors.primary.withValues(alpha: 0.08)
+                            ? AppColors.primary.withValues(
+                          alpha: 0.08,
+                        )
                             : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
@@ -209,6 +194,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       ),
                       child: Row(
                         children: [
+                          // Option letter
                           Container(
                             width: 38,
                             height: 38,
@@ -226,15 +212,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
                             child: Text(
                               String.fromCharCode(65 + index),
                               style: TextStyle(
-                                color:
-                                isSelected || isCorrect || isWrong
+                                color: isSelected || isCorrect || isWrong
                                     ? Colors.white
                                     : AppColors.text,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
+
                           const SizedBox(width: 14),
+
+                          // Option text
                           Expanded(
                             child: Text(
                               options[index],
@@ -245,11 +233,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
                               ),
                             ),
                           ),
+
+                          // Correct / wrong icon
                           if (isCorrect)
                             const Icon(
                               Icons.check_circle_rounded,
                               color: Colors.green,
                             ),
+
                           if (isWrong)
                             const Icon(
                               Icons.cancel_rounded,
@@ -262,7 +253,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 );
               },
             ),
+
             const SizedBox(height: 10),
+
+            // Explanation
             if (answered)
               Container(
                 width: double.infinity,
@@ -275,8 +269,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 ),
                 child: Text(
                   selectedAnswer == correctAnswer
-                      ? "Correct! ${question["explanation"]}"
-                      : "Not quite. ${question["explanation"]}",
+                      ? "Correct! ${question.explanation}"
+                      : "Not quite. ${question.explanation}",
                   style: TextStyle(
                     color: selectedAnswer == correctAnswer
                         ? Colors.green.shade700
@@ -287,7 +281,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   ),
                 ),
               ),
+
             const SizedBox(height: 20),
+
+            // Check / Next button
             SizedBox(
               width: double.infinity,
               height: 56,
