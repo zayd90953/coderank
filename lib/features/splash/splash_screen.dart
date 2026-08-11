@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
-import '../onboarding/screens/onboarding_screen.dart';
+import '../../app/auth_gate.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,12 +19,10 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-
     _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
@@ -35,15 +32,13 @@ class _SplashScreenState extends State<SplashScreen>
         curve: Curves.easeInOut,
       ),
     );
-
     _controller.forward();
-
     Timer(const Duration(seconds: 3), () {
-
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const OnboardingScreen(),
+          builder: (_) => const AuthGate(),
         ),
       );
     });
@@ -59,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
-
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -72,16 +66,12 @@ class _SplashScreenState extends State<SplashScreen>
                   "assets/branding/splash_logo.png",
                   width: 300,
                 ),
-
                 const SizedBox(height: 16),
-
                 Text(
                   "CodeRank",
                   style: AppTextStyles.title,
                 ),
-
                 const SizedBox(height: 6),
-
                 Text(
                   "Practice. Improve. Rank Higher.",
                   style: AppTextStyles.subtitle,

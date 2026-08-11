@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../features/splash/splash_screen.dart';
+import 'auth_gate.dart';
 import 'theme.dart';
 
 class CodeRankApp extends StatelessWidget {
