@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../models/practice_session.dart';
 import '../question/question_screen.dart';
 import '../practice_screen.dart';
 
 class ResultsScreen extends StatelessWidget {
-  final String subject;
-  final int score;
-  final int totalQuestions;
+  final PracticeSession session;
 
   const ResultsScreen({
     super.key,
-    required this.subject,
-    required this.score,
-    required this.totalQuestions,
+    required this.session,
   });
 
   @override
   Widget build(BuildContext context) {
-    final percentage =
-    totalQuestions == 0 ? 0 : ((score / totalQuestions) * 100).round();
-
-    final incorrect = totalQuestions - score;
+    final percentage = session.accuracy.round();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F7FC),
@@ -31,7 +25,6 @@ class ResultsScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
 
-              // Success icon
               Container(
                 width: 82,
                 height: 82,
@@ -71,7 +64,6 @@ class ResultsScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // Score card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -88,7 +80,7 @@ class ResultsScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      subject,
+                      session.subject,
                       style: TextStyle(
                         color: AppColors.subtitle,
                         fontSize: 14,
@@ -99,7 +91,7 @@ class ResultsScreen extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     Text(
-                      "$score / $totalQuestions",
+                      "${session.correctAnswers} / ${session.totalQuestions}",
                       style: const TextStyle(
                         color: AppColors.primary,
                         fontSize: 42,
@@ -125,7 +117,7 @@ class ResultsScreen extends StatelessWidget {
                         Expanded(
                           child: _StatItem(
                             icon: Icons.check_circle_rounded,
-                            value: "$score",
+                            value: "${session.correctAnswers}",
                             label: "Correct",
                             iconColor: Colors.green,
                           ),
@@ -133,7 +125,7 @@ class ResultsScreen extends StatelessWidget {
                         Expanded(
                           child: _StatItem(
                             icon: Icons.cancel_rounded,
-                            value: "$incorrect",
+                            value: "${session.incorrectAnswers}",
                             label: "Incorrect",
                             iconColor: Colors.red,
                           ),
@@ -148,13 +140,22 @@ class ResultsScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                    if (session.unansweredQuestions > 0) ...[
+                      const SizedBox(height: 20),
+                      _StatItem(
+                        icon: Icons.hourglass_empty_rounded,
+                        value: "${session.unansweredQuestions}",
+                        label: "Unanswered",
+                        iconColor: Colors.orange,
+                      ),
+                    ],
                   ],
                 ),
               ),
 
               const SizedBox(height: 28),
 
-              // Practice again
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -164,7 +165,7 @@ class ResultsScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => QuestionScreen(
-                          subject: subject,
+                          subject: session.subject,
                         ),
                       ),
                     );
@@ -189,7 +190,6 @@ class ResultsScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Back to practice
               SizedBox(
                 width: double.infinity,
                 height: 56,

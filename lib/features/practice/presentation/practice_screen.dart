@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import 'question/question_screen.dart';
+import 'setup/practice_setup_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
   const PracticeScreen({super.key});
@@ -58,7 +59,7 @@ class PracticeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const QuestionScreen(
+                    builder: (_) => const PracticeSetupScreen(
                       subject: "Physics",
                     ),
                   ),
@@ -76,7 +77,7 @@ class PracticeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const QuestionScreen(
+                    builder: (_) => const PracticeSetupScreen(
                       subject: "Chemistry",
                     ),
                   ),
@@ -94,7 +95,7 @@ class PracticeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const QuestionScreen(
+                    builder: (_) => const PracticeSetupScreen(
                       subject: "Biology",
                     ),
                   ),

@@ -30,6 +30,8 @@ flutter:
     - assets/branding/
     - assets/onboarding/
     - assets/icons/
+    - assets/practice/diagrams/
+    - lib/features/practice/data/questions.json
 
 flutter_launcher_icons:
   android: true
