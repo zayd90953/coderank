@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../shared/services/auth_service.dart';
 import 'signup_screen.dart';
 import 'forgot_password.dart';
+import '../../home/presentation/home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -55,7 +56,13 @@ class _SignInScreenState extends State<SignInScreen> {
       if (!mounted) return;
 
       // Return to AuthGate
-      Navigator.popUntil(context, (route) => route.isFirst);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
+            (route) => false,
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 

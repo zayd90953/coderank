@@ -141,6 +141,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
     _timer = null;
   }
 
+  void _retryLoading() {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+    _loadQuestions();
+  }
+
   void _timeExpired() {
     if (answered) return;
 
@@ -264,13 +272,46 @@ class _QuestionScreenState extends State<QuestionScreen> {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text(
-              'Unable to load questions.\n\n$errorMessage',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.text,
-                fontSize: 15,
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Unable to load questions.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.text,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.subtitle,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _retryLoading,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    "Retry",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

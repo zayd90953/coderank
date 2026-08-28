@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../data/onboarding_data.dart';
 import '../../welcome/presentation/welcome_screen.dart';
 
@@ -10,9 +12,36 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  static const String _onboardingCompletedKey =
+      'onboarding_completed';
+
   final PageController _pageController = PageController();
 
   int currentPage = 0;
+
+  Future<void> _completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool(
+      _onboardingCompletedKey,
+      true,
+    );
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const WelcomeScreen(),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +49,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -31,15 +59,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   });
                 },
                 itemBuilder: (context, index) {
-
                   final item = onboardingData[index];
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                    ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment:
+                      MainAxisAlignment.center,
                       children: [
-
                         Expanded(
                           flex: 5,
                           child: Image.asset(
@@ -85,17 +114,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 vertical: 24,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
                 children: [
-
                   TextButton(
-                    onPressed: () {
-                      _pageController.animateToPage(
-                        onboardingData.length - 1,
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut,
-                      );
-                    },
+                    onPressed: _completeOnboarding,
                     child: const Text(
                       "Skip",
                       style: TextStyle(
@@ -109,15 +132,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     children: List.generate(
                       onboardingData.length,
                           (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: currentPage == index ? 24 : 8,
+                        duration:
+                        const Duration(milliseconds: 250),
+                        margin:
+                        const EdgeInsets.symmetric(
+                          horizontal: 4,
+                        ),
+                        width:
+                        currentPage == index ? 24 : 8,
                         height: 8,
                         decoration: BoxDecoration(
                           color: currentPage == index
                               ? const Color(0xFF5F00FF)
                               : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius:
+                          BorderRadius.circular(20),
                         ),
                       ),
                     ),
@@ -127,31 +156,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     height: 48,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5F00FF),
+                        backgroundColor:
+                        const Color(0xFF5F00FF),
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                        padding:
+                        const EdgeInsets.symmetric(
+                          horizontal: 28,
+                        ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius:
+                          BorderRadius.circular(14),
                         ),
                       ),
                       onPressed: () {
-                        if (currentPage < onboardingData.length - 1) {
+                        if (currentPage <
+                            onboardingData.length - 1) {
                           _pageController.nextPage(
-                            duration: const Duration(milliseconds: 350),
+                            duration: const Duration(
+                              milliseconds: 350,
+                            ),
                             curve: Curves.easeInOut,
                           );
                         } else {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const WelcomeScreen(),
-                            ),
-                          );
+                          _completeOnboarding();
                         }
                       },
                       child: Text(
-                        currentPage == onboardingData.length - 1
+                        currentPage ==
+                            onboardingData.length - 1
                             ? "Get Started"
                             : "Next",
                         style: const TextStyle(

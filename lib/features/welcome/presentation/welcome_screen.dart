@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../features/auth/presentation/signin_screen.dart';
 import '../../auth/presentation/signin_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {

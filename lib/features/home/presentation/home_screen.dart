@@ -227,7 +227,14 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.assignment_rounded,
                       title: "Mock Test",
                       subtitle: "Test yourself",
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PracticeScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
