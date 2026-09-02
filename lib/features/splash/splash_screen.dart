@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../app/auth_gate.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../core/theme/color_palette.dart';
 import '../onboarding/screens/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -79,8 +79,12 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Read the active brand color once. The splash is short-lived and
+    // we don't expect a palette change to happen during it, so a direct
+    // read is enough (no need to wire a ValueListenableBuilder here).
+    final palette = ColorPaletteController.instance.current;
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: palette.primary,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,

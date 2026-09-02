@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/color_palette.dart';
 import '../question/question_screen.dart';
 
 class PracticeSetupScreen extends StatefulWidget {
@@ -30,6 +31,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = ColorPaletteController.instance.current;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F7FC),
       appBar: AppBar(
@@ -160,10 +162,10 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.07),
+                color: palette.primary.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: palette.primary.withValues(alpha: 0.15),
                 ),
               ),
               child: Row(
@@ -172,12 +174,12 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
                     width: 46,
                     height: 46,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.10),
+                      color: palette.primary.withValues(alpha: 0.10),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.auto_awesome_rounded,
-                      color: AppColors.primary,
+                      color: palette.primary,
                     ),
                   ),
 
@@ -232,7 +234,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: palette.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -266,11 +268,12 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = ColorPaletteController.instance.current;
     return Row(
       children: [
         Icon(
           icon,
-          color: AppColors.primary,
+          color: palette.primary,
           size: 21,
         ),
         const SizedBox(width: 9),
@@ -300,6 +303,7 @@ class _ChoiceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = ColorPaletteController.instance.current;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -310,12 +314,12 @@ class _ChoiceChip extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withValues(alpha: 0.10)
+              ? palette.primary.withValues(alpha: 0.10)
               : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected
-                ? AppColors.primary
+                ? palette.primary
                 : const Color(0xFFE7E3F0),
             width: selected ? 1.5 : 1,
           ),
@@ -324,7 +328,7 @@ class _ChoiceChip extends StatelessWidget {
           label,
           style: TextStyle(
             color: selected
-                ? AppColors.primary
+                ? palette.primary
                 : AppColors.text,
             fontSize: 14,
             fontWeight: FontWeight.w700,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/color_palette.dart';
 import '../../models/practice_session.dart';
 import '../question/question_screen.dart';
 import '../practice_screen.dart';
@@ -15,6 +16,7 @@ class ResultsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final percentage = session.accuracy.round();
+    final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F7FC),
@@ -29,12 +31,12 @@ class ResultsScreen extends StatelessWidget {
                 width: 82,
                 height: 82,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.10),
+                  color: palette.primary.withValues(alpha: 0.10),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.emoji_events_rounded,
-                  color: AppColors.primary,
+                  color: palette.primary,
                   size: 44,
                 ),
               ),
@@ -92,8 +94,8 @@ class ResultsScreen extends StatelessWidget {
 
                     Text(
                       "${session.correctAnswers} / ${session.totalQuestions}",
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: palette.primary,
                         fontSize: 42,
                         fontWeight: FontWeight.bold,
                       ),
@@ -135,7 +137,7 @@ class ResultsScreen extends StatelessWidget {
                             icon: Icons.percent_rounded,
                             value: "$percentage%",
                             label: "Accuracy",
-                            iconColor: AppColors.primary,
+                            iconColor: palette.primary,
                           ),
                         ),
                       ],
@@ -171,7 +173,7 @@ class ResultsScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: palette.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -204,9 +206,9 @@ class ResultsScreen extends StatelessWidget {
                     );
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(
-                      color: AppColors.primary,
+                    foregroundColor: palette.primary,
+                    side: BorderSide(
+                      color: palette.primary,
                       width: 1.3,
                     ),
                     shape: RoundedRectangleBorder(

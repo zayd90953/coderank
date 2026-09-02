@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/theme/color_palette.dart';
 import '../data/onboarding_data.dart';
 import '../../welcome/presentation/welcome_screen.dart';
 
@@ -45,6 +46,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = ColorPaletteController.instance.current;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -119,10 +121,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   TextButton(
                     onPressed: _completeOnboarding,
-                    child: const Text(
+                    child: Text(
                       "Skip",
                       style: TextStyle(
-                        color: Color(0xFF5F00FF),
+                        color: palette.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -143,7 +145,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           color: currentPage == index
-                              ? const Color(0xFF5F00FF)
+                              ? palette.primary
                               : Colors.grey.shade300,
                           borderRadius:
                           BorderRadius.circular(20),
@@ -157,7 +159,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                        const Color(0xFF5F00FF),
+                        palette.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding:

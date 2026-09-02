@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import 'question/question_screen.dart';
+import '../../../core/theme/color_palette.dart';
 import 'setup/practice_setup_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
@@ -8,6 +8,7 @@ class PracticeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = ColorPaletteController.instance.current;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F7FC),
       appBar: AppBar(
@@ -55,6 +56,7 @@ class PracticeScreen extends StatelessWidget {
               icon: Icons.bolt_rounded,
               title: "Physics",
               subtitle: "Practice Physics questions",
+              palette: palette,
               onTap: () {
                 Navigator.push(
                   context,
@@ -73,6 +75,7 @@ class PracticeScreen extends StatelessWidget {
               icon: Icons.science_rounded,
               title: "Chemistry",
               subtitle: "Practice Chemistry questions",
+              palette: palette,
               onTap: () {
                 Navigator.push(
                   context,
@@ -91,6 +94,7 @@ class PracticeScreen extends StatelessWidget {
               icon: Icons.biotech_rounded,
               title: "Biology",
               subtitle: "Practice Biology questions",
+              palette: palette,
               onTap: () {
                 Navigator.push(
                   context,
@@ -114,12 +118,14 @@ class _SubjectCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final ColorPalette palette;
 
   const _SubjectCard({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
+    required this.palette,
   });
 
   @override
@@ -143,12 +149,12 @@ class _SubjectCard extends StatelessWidget {
               width: 58,
               height: 58,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                color: palette.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
                 icon,
-                color: AppColors.primary,
+                color: palette.primary,
                 size: 29,
               ),
             ),

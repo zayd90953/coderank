@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/color_palette.dart';
 import '../../data/question_repository.dart';
 import '../../models/question_model.dart';
 import '../../models/practice_session.dart';
@@ -217,6 +218,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = ColorPaletteController.instance.current;
     if (isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFFF8F7FC),
@@ -239,9 +241,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
             ),
           ),
         ),
-        body: const Center(
+        body: Center(
           child: CircularProgressIndicator(
-            color: AppColors.primary,
+            color: palette.primary,
           ),
         ),
       );
@@ -296,7 +298,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 ElevatedButton(
                   onPressed: _retryLoading,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: palette.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -418,7 +420,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 Text(
                   "${(progress * 100).round()}%",
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: palette.primary,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
@@ -436,8 +438,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 backgroundColor:
                 const Color(0xFFE6E2EE),
                 valueColor:
-                const AlwaysStoppedAnimation<Color>(
-                  AppColors.primary,
+                AlwaysStoppedAnimation<Color>(
+                  palette.primary,
                 ),
               ),
             ),
@@ -455,7 +457,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     size: 18,
                     color: timerIsLow
                         ? Colors.red
-                        : AppColors.primary,
+                        : palette.primary,
                   ),
 
                   const SizedBox(width: 5),
@@ -586,7 +588,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           alpha: 0.08,
                         )
                             : isSelected
-                            ? AppColors
+                            ? palette
                             .primary
                             .withValues(
                           alpha: 0.08,
@@ -604,7 +606,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                               : isWrong
                               ? Colors.red
                               : isSelected
-                              ? AppColors
+                              ? palette
                               .primary
                               : const Color(
                             0xFFE7E3F0,
@@ -634,7 +636,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                   : isWrong
                                   ? Colors.red
                                   : isSelected
-                                  ? AppColors
+                                  ? palette
                                   .primary
                                   : const Color(
                                 0xFFF1EFF6,
@@ -765,10 +767,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 style:
                 ElevatedButton.styleFrom(
                   backgroundColor:
-                  AppColors.primary,
+                  palette.primary,
 
                   disabledBackgroundColor:
-                  AppColors.primary
+                  palette.primary
                       .withValues(
                     alpha: 0.35,
                   ),

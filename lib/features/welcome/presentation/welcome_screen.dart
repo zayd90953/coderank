@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_text_styles.dart';
+import '../../../core/theme/color_palette.dart';
 import '../../auth/presentation/signin_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -10,6 +9,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
+    final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,7 +41,7 @@ class WelcomeScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: compact ? 26 : 30,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: palette.primary,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -53,13 +53,13 @@ class WelcomeScreen extends StatelessWidget {
                       // HEADING
                       // ─────────────────────────────
 
-                      Text(
+                      const Text(
                         "Your Journey to\nNEET Success Starts Here",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: compact ? 27 : 30,
+                          fontSize: 27,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1F2937),
+                          color: Color(0xFF1F2937),
                           height: 1.2,
                         ),
                       ),
@@ -70,13 +70,13 @@ class WelcomeScreen extends StatelessWidget {
                       // SUBTITLE
                       // ─────────────────────────────
 
-                      Text(
+                      const Text(
                         "Your AI-powered companion for NEET preparation.\nPractice smarter, analyze your performance,\nand rank higher.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: compact ? 14 : 16,
-                          color: const Color(0xFF6B7280),
-                          height: compact ? 1.45 : 1.6,
+                          fontSize: 14,
+                          color: Color(0xFF6B7280),
+                          height: 1.45,
                         ),
                       ),
 
@@ -93,7 +93,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: palette.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -150,8 +150,8 @@ class WelcomeScreen extends StatelessWidget {
                             );
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: AppColors.primary,
+                            side: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                             shape: RoundedRectangleBorder(
@@ -164,13 +164,13 @@ class WelcomeScreen extends StatelessWidget {
                               Icon(
                                 Icons.email_outlined,
                                 size: compact ? 25 : 28,
-                                color: AppColors.primary,
+                                color: palette.primary,
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 "Continue with Email",
                                 style: TextStyle(
-                                  color: AppColors.primary,
+                                  color: palette.primary,
                                   fontSize: compact ? 16 : 18,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -216,7 +216,7 @@ class WelcomeScreen extends StatelessWidget {
                             child: Text(
                               "Sign In",
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: palette.primary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: compact ? 12 : 14,
                               ),

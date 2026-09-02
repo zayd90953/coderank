@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/auth_service.dart';
 import 'signup_screen.dart';
 import 'forgot_password.dart';
@@ -104,9 +105,10 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
+    final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -150,7 +152,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               style: TextStyle(
                                 fontSize: compact ? 22 : 25,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: palette.primary,
                                 letterSpacing: 0.4,
                               ),
                             ),
@@ -199,6 +201,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: compact ? 14 : 15,
+                        ),
                         decoration: InputDecoration(
                           hintText: "Enter your email",
                           hintStyle: TextStyle(
@@ -211,7 +217,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F8FA),
+                          fillColor: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFF8F8FA),
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 14 : 17,
@@ -226,8 +234,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -249,6 +257,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         textInputAction: TextInputAction.done,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: compact ? 14 : 15,
+                        ),
                         decoration: InputDecoration(
                           hintText: "Enter your password",
                           hintStyle: TextStyle(
@@ -275,7 +287,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F8FA),
+                          fillColor: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFF8F8FA),
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 14 : 17,
@@ -290,8 +304,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -323,7 +337,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           child: Text(
                             "Forgot Password?",
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: palette.primary,
                               fontSize: compact ? 12 : 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -339,10 +353,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _signIn,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: palette.primary,
                             foregroundColor: Colors.white,
                             disabledBackgroundColor:
-                            AppColors.primary.withValues(alpha: 0.6),
+                            palette.primary.withValues(alpha: 0.6),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -466,7 +480,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               "Sign Up",
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: palette.primary,
                                 fontSize: compact ? 12 : 14,
                                 fontWeight: FontWeight.bold,
                               ),

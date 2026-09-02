@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -68,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       // Save user's name
-      final user = FirebaseAuth.instance.currentUser;
+      final user = _authService.currentUser;
       await user?.updateDisplayName(name);
       await user?.reload();
 
@@ -112,6 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
+    final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -154,7 +156,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               style: TextStyle(
                                 fontSize: compact ? 22 : 25,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: palette.primary,
                                 letterSpacing: 0.4,
                               ),
                             ),
@@ -230,8 +232,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -280,8 +282,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -344,8 +346,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -408,8 +410,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -424,10 +426,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _createAccount,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: palette.primary,
                             foregroundColor: Colors.white,
                             disabledBackgroundColor:
-                            AppColors.primary.withValues(alpha: 0.6),
+                            palette.primary.withValues(alpha: 0.6),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -542,7 +544,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text(
                               "Sign In",
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: palette.primary,
                                 fontSize: compact ? 12 : 14,
                                 fontWeight: FontWeight.bold,
                               ),

@@ -26,26 +26,43 @@ class QuestionRepository {
       ) async {
     final questions = await _loadQuestions();
 
-    final filtered = questions
+    return questions
         .where((question) => question.subject == subject)
         .toList();
+  }
 
-    final diagramQuestions =
-    filtered.where((question) => question.diagramId != null).toList();
+  /// Return every question in the bank, regardless of subject.
+  Future<List<QuestionModel>> getAllQuestions() async {
+    return _loadQuestions();
+  }
 
-    print('Repository: total questions = ${questions.length}');
-    print('Repository: requested subject = "$subject"');
-    print('Repository: filtered questions = ${filtered.length}');
-    print('Repository: diagram questions = ${diagramQuestions.length}');
+  /// Compose a NEET-style mock test paper: `[Physics] [Chemistry] [Biology]`,
+  /// in that order, with each section capped at the requested count.
+  ///
+  /// If a subject's pool has fewer questions than [physicsCount] / [chemCount]
+  /// / [bioCount], the available questions are returned and the section is
+  /// simply shorter. The total length is therefore bounded by the size of the
+  /// underlying pool, never inflated with duplicates.
+  Future<List<QuestionModel>> getMockTestQuestions({
+    required int physicsCount,
+    required int chemCount,
+    required int bioCount,
+  }) async {
+    final all = await _loadQuestions();
 
-    if (diagramQuestions.isNotEmpty) {
-      print(
-        'Repository: first diagram = '
-            '${diagramQuestions.first.id} -> '
-            '${diagramQuestions.first.diagramId}',
-      );
-    }
+    final physics = all
+        .where((q) => q.subject == 'Physics')
+        .take(physicsCount)
+        .toList();
+    final chemistry = all
+        .where((q) => q.subject == 'Chemistry')
+        .take(chemCount)
+        .toList();
+    final biology = all
+        .where((q) => q.subject == 'Biology')
+        .take(bioCount)
+        .toList();
 
-    return filtered;
+    return [...physics, ...chemistry, ...biology];
   }
 }

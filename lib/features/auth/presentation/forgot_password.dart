@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/color_palette.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -21,6 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
+    final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -67,7 +69,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               style: TextStyle(
                                 fontSize: compact ? 22 : 25,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: palette.primary,
                                 letterSpacing: 0.4,
                               ),
                             ),
@@ -143,8 +145,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
+                            borderSide: BorderSide(
+                              color: palette.primary,
                               width: 1.5,
                             ),
                           ),
@@ -159,7 +161,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: palette.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -185,13 +187,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           },
                           icon: Icon(
                             Icons.arrow_back_rounded,
-                            color: AppColors.primary,
+                            color: palette.primary,
                             size: compact ? 17 : 19,
                           ),
                           label: Text(
                             "Back to Sign In",
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: palette.primary,
                               fontSize: compact ? 13 : 14,
                               fontWeight: FontWeight.w600,
                             ),
