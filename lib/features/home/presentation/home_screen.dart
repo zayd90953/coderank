@@ -1,14 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/firebase_user_util.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../daily_challenge/presentation/daily_challenge_screen.dart';
+import '../../mock_test/presentation/mock_test_chooser_screen.dart';
 import '../../navigation/main_nav_screen.dart';
 import '../../practice/presentation/practice_screen.dart';
 import '../../practice/presentation/setup/practice_setup_screen.dart';
+import '../../profile/presentation/profile_screen.dart';
 
 /// The Home tab. Mirrors the `home_wanted.jpeg` reference:
 /// time-based greeting + rank-progress subtitle, XP/streak/tier
@@ -45,7 +47,7 @@ class HomeScreen extends StatelessWidget {
         : "Student";
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: ValueListenableBuilder<UserProgressData>(
           valueListenable: UserProgressService.instance.progressNotifier,
@@ -61,6 +63,7 @@ class HomeScreen extends StatelessWidget {
                     name: name,
                     user: user,
                     data: data,
+                    onAvatarTap: () => _openProfile(context),
                   ),
                   const SizedBox(height: 22),
 
@@ -77,8 +80,8 @@ class HomeScreen extends StatelessWidget {
                         child: _ActionCard(
                           palette: palette,
                           icon: Icons.menu_book_rounded,
-                          iconColor: const Color(0xFF0EA5E9),
-                          iconBg: const Color(0xFFE0F2FE),
+                          iconColor: AppColors.physics,
+                          iconBg: AppColors.surfaceElevated,
                           title: "Practice",
                           subtitle: "Subject MCQs",
                           badge: "5,000+ Qs",
@@ -90,12 +93,12 @@ class HomeScreen extends StatelessWidget {
                         child: _ActionCard(
                           palette: palette,
                           icon: Icons.timer_rounded,
-                          iconColor: const Color(0xFFF59E0B),
-                          iconBg: const Color(0xFFFFFBEB),
+                          iconColor: AppColors.warning,
+                          iconBg: AppColors.surfaceElevated,
                           title: "Mock Test",
                           subtitle: "Timed Exam",
                           badge: "Exam Mode",
-                          onTap: () => _openPractice(context),
+                          onTap: () => _openMockTest(context),
                         ),
                       ),
                     ],
@@ -105,6 +108,8 @@ class HomeScreen extends StatelessWidget {
                   // Daily NEET Challenge card
                   _DailyChallengeCard(
                     palette: palette,
+                    isCompleted: UserProgressService
+                        .instance.dailyChallengeCompletedToday(),
                     onTap: () => _openDailyChallenge(context),
                   ),
 
@@ -197,10 +202,24 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  void _openMockTest(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MockTestChooserScreen()),
+    );
+  }
+
   void _openDailyChallenge(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const DailyChallengeScreen()),
+    );
+  }
+
+  void _openProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
   }
 }
@@ -215,6 +234,7 @@ class _GreetingHeader extends StatelessWidget {
   final String name;
   final User? user;
   final UserProgressData data;
+  final VoidCallback onAvatarTap;
 
   const _GreetingHeader({
     required this.palette,
@@ -222,6 +242,7 @@ class _GreetingHeader extends StatelessWidget {
     required this.name,
     required this.user,
     required this.data,
+    required this.onAvatarTap,
   });
 
   @override
@@ -240,7 +261,7 @@ class _GreetingHeader extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.text,
+                  color: AppColors.textPrimary,
                   letterSpacing: -0.4,
                 ),
               ),
@@ -249,7 +270,7 @@ class _GreetingHeader extends StatelessWidget {
                 _subtitleFor(data),
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.subtitle,
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                   height: 1.4,
                 ),
@@ -286,21 +307,26 @@ class _GreetingHeader extends StatelessWidget {
             ),
           ),
         const SizedBox(width: 8),
-        // Tier avatar circle
-        Container(
-          width: 38,
-          height: 38,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: palette.primary,
-            shape: BoxShape.circle,
-          ),
-          child: Text(
-            initials,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 14,
+        // Tier avatar circle — tap to open Profile (P4-3: profile entry).
+        Material(
+          color: palette.primary,
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onAvatarTap,
+            customBorder: const CircleBorder(),
+            child: Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              child: Text(
+                initials,
+                style: const TextStyle(
+                  color: AppColors.surface,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
+              ),
             ),
           ),
         ),
@@ -369,7 +395,7 @@ class _ProgressCard extends StatelessWidget {
                 child: Text(
                   "Your Progress",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
@@ -398,7 +424,7 @@ class _ProgressCard extends StatelessWidget {
                     Text(
                       "${data.xpPoints} XP · ${data.tier}",
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.surface,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -475,7 +501,7 @@ class _ProgressCard extends StatelessWidget {
                     Text(
                       "Deep Analytics",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.surface,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -483,7 +509,7 @@ class _ProgressCard extends StatelessWidget {
                     SizedBox(width: 4),
                     Icon(
                       Icons.arrow_forward_rounded,
-                      color: Colors.white,
+                      color: AppColors.surface,
                       size: 14,
                     ),
                   ],
@@ -510,7 +536,7 @@ class _ProgressStat extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.surface,
             fontSize: 21,
             fontWeight: FontWeight.w800,
           ),
@@ -545,7 +571,7 @@ class _SectionTitle extends StatelessWidget {
       style: const TextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w800,
-        color: AppColors.text,
+        color: AppColors.textPrimary,
         letterSpacing: -0.2,
       ),
     );
@@ -576,7 +602,7 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -585,7 +611,7 @@ class _ActionCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFEDEAF5)),
+            border: Border.all(color: AppColors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -628,7 +654,7 @@ class _ActionCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.text,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -636,7 +662,7 @@ class _ActionCard extends StatelessWidget {
                 subtitle,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: AppColors.subtitle,
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -650,14 +676,25 @@ class _ActionCard extends StatelessWidget {
 
 class _DailyChallengeCard extends StatelessWidget {
   final ColorPalette palette;
+
+  /// A-3: when true, the right-hand CTA flips to a "✅ Done today" pill
+  /// (muted, non-actionable) so the user can see at a glance that today's
+  /// daily is already done. Tapping the card still opens the launcher,
+  /// which shows the locked-state button.
+  final bool isCompleted;
+
   final VoidCallback onTap;
 
-  const _DailyChallengeCard({required this.palette, required this.onTap});
+  const _DailyChallengeCard({
+    required this.palette,
+    required this.isCompleted,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
@@ -666,7 +703,7 @@ class _DailyChallengeCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEDEAF5)),
+            border: Border.all(color: AppColors.border),
           ),
           child: Row(
             children: [
@@ -675,7 +712,7 @@ class _DailyChallengeCard extends StatelessWidget {
                 height: 50,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFE9D6),
+                  color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Text("🔥", style: TextStyle(fontSize: 24)),
@@ -690,37 +727,67 @@ class _DailyChallengeCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      "Solve today's high-yield set & earn +50 XP",
+                      isCompleted
+                          ? "Today's challenge complete — come back tomorrow"
+                          : "Solve today's high-yield set & earn +50 XP",
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.subtitle.withValues(alpha: 0.95),
+                        color: AppColors.textSecondary.withValues(alpha: 0.95),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: palette.primary,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Text(
-                  "Solve",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
+              if (isCompleted)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("✅", style: TextStyle(fontSize: 12)),
+                      SizedBox(width: 4),
+                      Text(
+                        "Done today",
+                        style: TextStyle(
+                          color: AppColors.success,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: palette.primary,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Text(
+                    "Solve",
+                    style: TextStyle(
+                      color: AppColors.surface,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -753,7 +820,7 @@ class _SubjectTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -762,7 +829,7 @@ class _SubjectTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFEDEAF5)),
+            border: Border.all(color: AppColors.border),
           ),
           child: Column(
             children: [
@@ -782,7 +849,7 @@ class _SubjectTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.text,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -815,7 +882,7 @@ class _RankCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
@@ -824,7 +891,7 @@ class _RankCard extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEDEAF5)),
+            border: Border.all(color: AppColors.border),
           ),
           child: Row(
             children: [
@@ -852,7 +919,7 @@ class _RankCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     SizedBox(height: 2),
@@ -860,7 +927,7 @@ class _RankCard extends StatelessWidget {
                       "See where you stand on the leaderboard",
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.subtitle,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -869,7 +936,7 @@ class _RankCard extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 14,
-                color: AppColors.subtitle,
+                color: AppColors.textSecondary,
               ),
             ],
           ),

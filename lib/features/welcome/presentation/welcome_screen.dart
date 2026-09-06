@@ -1,6 +1,110 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
+import '../../../shared/services/auth_service.dart';
+import '../../../shared/widgets/exit_confirmation_scope.dart';
 import '../../auth/presentation/signin_screen.dart';
+import '../../navigation/main_nav_screen.dart';
+
+/// Triggers the real Google Sign-In flow. On success navigates to
+/// [MainNavScreen]. On the user cancelling the account picker, this
+/// is a silent no-op. On any other error, shows an error dialog.
+///
+/// P1-2 wiring: replaces the previous "Coming Soon" placeholder. The
+/// account picker is forced every time via
+/// [GoogleSignIn.disconnect] inside [AuthService.signInWithGoogle]
+/// (see AuthService for why).
+Future<void> _signInWithGoogle(BuildContext context) async {
+  try {
+    await AuthService.instance.signInWithGoogle();
+    if (!context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MainNavScreen()),
+      (route) => false,
+    );
+  } on GoogleSignInCancelled {
+    // User dismissed the picker — silent no-op.
+  } on FirebaseAuthException catch (e) {
+    if (!context.mounted) return;
+    await _showGoogleErrorDialog(
+      context,
+      _googleErrorMessage(e),
+    );
+  } catch (e) {
+    if (!context.mounted) return;
+    await _showGoogleErrorDialog(
+      context,
+      "Google sign-in failed. Please try again.",
+    );
+  }
+}
+
+String _googleErrorMessage(FirebaseAuthException e) {
+  switch (e.code) {
+    case 'account-exists-with-different-credential':
+      return "An account already exists with this email using a different sign-in method. Please use email and password instead.";
+    case 'invalid-credential':
+    case 'invalid-verification-code':
+    case 'invalid-verification-id':
+      return "Google sign-in failed because the credential is invalid. Please try again.";
+    case 'network-request-failed':
+      return "Network error. Please check your connection and try again.";
+    case 'operation-not-allowed':
+      return "Google sign-in is not enabled for this project. Please contact support.";
+    default:
+      return "Google sign-in failed. Please try again.";
+  }
+}
+
+Future<void> _showGoogleErrorDialog(
+    BuildContext context, String message) async {
+  final palette = ColorPaletteController.instance.current;
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      title: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: AppColors.error, size: 24),
+          const SizedBox(width: 10),
+          const Text(
+            "Sign-In Failed",
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        message,
+        style: const TextStyle(
+            fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: palette.primary,
+            foregroundColor: AppColors.textOnPrimary,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            "OK",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -12,9 +116,10 @@ class WelcomeScreen extends StatelessWidget {
     final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
+        child: ExitConfirmationScope(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: ConstrainedBox(
@@ -32,7 +137,7 @@ class WelcomeScreen extends StatelessWidget {
                       SizedBox(height: compact ? 55 : 60),
 
                       Image.asset(
-                        "assets/branding/logo_purple.png",
+                        "assets/branding/logo_green.png",
                         width: compact ? 190 : 250,
                       ),
 
@@ -59,7 +164,7 @@ class WelcomeScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 27,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2937),
+                          color: AppColors.textPrimary,
                           height: 1.2,
                         ),
                       ),
@@ -75,7 +180,7 @@ class WelcomeScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF6B7280),
+                          color: AppColors.textSecondary,
                           height: 1.45,
                         ),
                       ),
@@ -91,7 +196,7 @@ class WelcomeScreen extends StatelessWidget {
                         width: double.infinity,
                         height: compact ? 56 : 60,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () => _signInWithGoogle(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: palette.primary,
                             foregroundColor: Colors.white,
@@ -106,8 +211,8 @@ class WelcomeScreen extends StatelessWidget {
                               Container(
                                 width: compact ? 36 : 39,
                                 height: compact ? 36 : 39,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: AppColors.background,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -192,7 +297,7 @@ class WelcomeScreen extends StatelessWidget {
                           Text(
                             "Already have an account?",
                             style: TextStyle(
-                              color: Colors.black54,
+                              color: AppColors.textSecondary,
                               fontSize: compact ? 12 : 14,
                             ),
                           ),
@@ -234,6 +339,7 @@ class WelcomeScreen extends StatelessWidget {
           },
         ),
       ),
+        ),
     );
   }
 }

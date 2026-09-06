@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
+import '../../../shared/widgets/back_button_to_home.dart';
 import 'setup/practice_setup_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
@@ -10,19 +11,15 @@ class PracticeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: AppColors.text,
-        ),
+        leading: const BackButtonToHome(),
         title: const Text(
           "Practice",
           style: TextStyle(
-            color: AppColors.text,
+            color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -38,7 +35,7 @@ class PracticeScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -46,7 +43,7 @@ class PracticeScreen extends StatelessWidget {
               "Choose a subject and start solving questions.",
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.subtitle,
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 28),
@@ -137,10 +134,10 @@ class _SubjectCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: const Color(0xFFE7E3F0),
+            color: AppColors.border,
           ),
         ),
         child: Row(
@@ -168,7 +165,7 @@ class _SubjectCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.text,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -176,7 +173,7 @@ class _SubjectCard extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.subtitle,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],
@@ -185,7 +182,7 @@ class _SubjectCard extends StatelessWidget {
             const Icon(
               Icons.arrow_forward_ios_rounded,
               size: 17,
-              color: AppColors.subtitle,
+              color: AppColors.textSecondary,
             ),
           ],
         ),

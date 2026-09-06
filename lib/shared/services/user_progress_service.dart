@@ -100,6 +100,14 @@ class UserProgressData {
   final Map<String, SubjectStat> subjectStats;
   final List<SessionRecord> history;
 
+  // ── A-3: Daily NEET Challenge ─────────────────────────────────────────
+  // `lastDailyChallengeDate` is the local "YYYY-MM-DD" on which the user
+  // last completed the daily challenge. Empty string = never done. The
+  // daily is one-per-day; the launcher reads `lastDailyChallengeDate`
+  // against today to decide whether to show the locked-state button.
+  final String lastDailyChallengeDate;
+  final int dailyChallengeXpEarned;
+
   const UserProgressData({
     this.totalQuestions = 0,
     this.totalCorrect = 0,
@@ -111,6 +119,8 @@ class UserProgressData {
     this.lastActiveDate = '',
     this.subjectStats = const {},
     this.history = const [],
+    this.lastDailyChallengeDate = '',
+    this.dailyChallengeXpEarned = 0,
   });
 
   double get overallAccuracy =>
@@ -188,6 +198,8 @@ class UserProgressData {
         'subjectStats':
             subjectStats.map((key, value) => MapEntry(key, value.toJson())),
         'history': history.map((e) => e.toJson()).toList(),
+        'lastDailyChallengeDate': lastDailyChallengeDate,
+        'dailyChallengeXpEarned': dailyChallengeXpEarned,
       };
 
   factory UserProgressData.fromJson(Map<String, dynamic> json) {
@@ -222,6 +234,9 @@ class UserProgressData {
       lastActiveDate: json['lastActiveDate'] as String? ?? '',
       subjectStats: parsedStats,
       history: parsedHistory,
+      lastDailyChallengeDate:
+          json['lastDailyChallengeDate'] as String? ?? '',
+      dailyChallengeXpEarned: json['dailyChallengeXpEarned'] as int? ?? 0,
     );
   }
 }
@@ -289,6 +304,8 @@ class UserProgressService {
         lastActiveDate: today,
         subjectStats: data.subjectStats,
         history: data.history,
+        lastDailyChallengeDate: data.lastDailyChallengeDate,
+        dailyChallengeXpEarned: data.dailyChallengeXpEarned,
       );
     }
 
@@ -317,6 +334,8 @@ class UserProgressService {
         lastActiveDate: today,
         subjectStats: data.subjectStats,
         history: data.history,
+        lastDailyChallengeDate: data.lastDailyChallengeDate,
+        dailyChallengeXpEarned: data.dailyChallengeXpEarned,
       );
     }
 
@@ -380,6 +399,8 @@ class UserProgressService {
       lastActiveDate: _todayString(),
       subjectStats: updatedSubjectStats,
       history: updatedHistory,
+      lastDailyChallengeDate: currentData.lastDailyChallengeDate,
+      dailyChallengeXpEarned: currentData.dailyChallengeXpEarned,
     );
 
     progressNotifier.value = updatedData;
@@ -401,6 +422,8 @@ class UserProgressService {
       lastActiveDate: currentData.lastActiveDate,
       subjectStats: currentData.subjectStats,
       history: currentData.history,
+      lastDailyChallengeDate: currentData.lastDailyChallengeDate,
+      dailyChallengeXpEarned: currentData.dailyChallengeXpEarned,
     );
     progressNotifier.value = updatedData;
     await _persist(updatedData);
@@ -419,6 +442,41 @@ class UserProgressService {
     );
     progressNotifier.value = clearedData;
     await _persist(clearedData);
+  }
+
+  // ── A-3: Daily NEET Challenge ─────────────────────────────────────────
+
+  /// True iff the user has completed today's daily challenge.
+  bool dailyChallengeCompletedToday() {
+    final today = _todayString();
+    return progressNotifier.value.lastDailyChallengeDate == today;
+  }
+
+  /// Stamp today's date as "daily challenge completed" and accumulate the
+  /// XP earned from the daily into the all-time total. Call this AFTER
+  /// `recordSession` (which records the 10-question session XP) and AFTER
+  /// `addXp(50)` (which awards the +50 completion bonus). The [xpEarned]
+  /// arg here is the sum of those two — we add it to the
+  /// `dailyChallengeXpEarned` running total.
+  Future<void> markDailyChallengeCompleted({required int xpEarned}) async {
+    final currentData = progressNotifier.value;
+    final updatedData = UserProgressData(
+      totalQuestions: currentData.totalQuestions,
+      totalCorrect: currentData.totalCorrect,
+      totalIncorrect: currentData.totalIncorrect,
+      totalUnanswered: currentData.totalUnanswered,
+      totalSessions: currentData.totalSessions,
+      xpPoints: currentData.xpPoints,
+      streakDays: currentData.streakDays,
+      lastActiveDate: currentData.lastActiveDate,
+      subjectStats: currentData.subjectStats,
+      history: currentData.history,
+      lastDailyChallengeDate: _todayString(),
+      dailyChallengeXpEarned:
+          currentData.dailyChallengeXpEarned + xpEarned,
+    );
+    progressNotifier.value = updatedData;
+    await _persist(updatedData);
   }
 
   Future<void> _persist(UserProgressData data) async {

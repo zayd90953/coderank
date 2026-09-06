@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../features/practice/models/question_model.dart';
 import '../../../shared/widgets/back_button_to_home.dart';

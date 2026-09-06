@@ -1,0 +1,151 @@
+# CodeRank — Master Checklist
+
+**Project:** CodeRank — Flutter/Dart Android NEET exam prep app  
+**Foundation:** Existing codebase (Firebase/Google Sign-In working, navigation shell, question repository, 2,500 questions, existing assets)  
+**Goal:** A complete adaptive NEET tutoring app — not an MVP, a genuinely good v1 — built on top of the existing foundation, one item at a time.  
+**Current date:** September 2026
+
+---
+
+## Hard rules — Claude Code must never violate these
+
+1. **One item at a time.** Do only the single item you're on. Do not start the next, even if it seems fast or related.
+2. **No fake completions.** No placeholders, stubs, or easier substitutes reported as done. If incomplete, mark `PARTIAL` or `BLOCKED` with exactly what's missing.
+3. **Trace before claiming done.** Only mark `DONE` after confirming the actual behavior, not just that a file was touched.
+4. **Audit before redesigning.** Before any UI rework item, list what you're about to change and why. Do not redesign beyond the scope of the item — scope creep is what caused the P2-1/P2-2 regression.
+5. **External setup stops you.** If something needs Firebase console, API keys, or credentials outside the codebase, stop and ask.
+6. **Every item ends with a two-part report:**
+   - Plain-English summary (2-4 sentences, no code terms, no file names) — what changed, what it means for how the app behaves.
+   - Status line: `DONE` / `PARTIAL` / `BLOCKED` with one line on what's missing if not DONE.
+7. **Stop and wait** after every report. Do not proceed until told to continue.
+8. **Windows PowerShell environment.** Do not use Unix-only shell commands (sed, grep, awk). Use PowerShell-native equivalents or make file edits directly through file-editing tools.
+
+---
+
+## Design contract — reference this on every UI item
+
+Claude Code must read and follow this before touching any screen. This is the visual identity of CodeRank — nothing should be built that contradicts it.
+
+**Philosophy:** Dark-first, bold, game-like. This app competes for attention with social media and games — it needs to feel like it belongs there, not like a textbook.
+
+**Color system:**
+- Background: near-black (`#0D0D0D`) as default — dark mode is the primary mode, not an afterthought
+- Surface cards: dark grey (`#1A1A1A`), not white — cards sit on the dark background, not float above white
+- Text: high-contrast white (`#FFFFFF`) for primary, mid-grey (`#9E9E9E`) for secondary
+- Error/destructive: `#FF4D4D`
+
+**Primary accent — choose ONE of the following (user to confirm before A-1):**
+
+| Option | Name | Hex | Character | Best paired secondary |
+|---|---|---|---|---|
+| 🟣 A | Deep Purple (current brand) | `#6200FF` | Premium, focused — familiar but safe for the category | Electric Lime `#C6FF00` |
+| 🟠 B | Coral Orange | `#FF6B35` | High-energy, warm, stands out from ed-tech defaults | Deep Purple `#6200FF` |
+| 🔴 C | Coral Red | `#FF3B30` | Bold, urgent, aggressive — strongest "game" signal | Electric Lime `#C6FF00` |
+| 🟢 D | Electric Green | `#39D353` | Alive, growth-coded, Duolingo energy — most addictive feel | Deep Purple `#6200FF` |
+
+**Honest ranking for CodeRank's stated goals (Gen-Z, game-like, stands out):**
+1. **Electric Green `#39D353`** — strongest pull, growth/progress connotations map perfectly to exam prep, rare in Indian ed-tech
+2. **Coral Orange `#FF6B35`** — high energy without clashing with a purple logo, very distinctive in the category
+3. **Deep Purple `#6200FF`** — viable and brand-consistent, but the most common choice in this space — needs the boldest execution to stand out
+4. **Coral Red `#FF3B30`** — most aggressive, hardest to use on large surfaces without feeling stressful — better as an accent than a primary
+
+**Until confirmed, Claude Code should use Deep Purple `#6200FF` as the placeholder primary** — it matches the existing brand and can be swapped to any of the above by changing a single token in `app_colors.dart` once the user decides.
+
+**Typography:**
+- Display/headlines/scores: a rounded, personality-forward font (e.g. Nunito or Space Grotesk) — never the Flutter default
+- Body/question text: a clean, highly legible font optimized for reading under time pressure (e.g. Inter or DM Sans)
+- Two fonts maximum. Consistent hierarchy throughout.
+
+**Game-like mechanics (must be present, not optional):**
+- Streak counter with real visual weight — not a small badge, a satisfying animated moment when it grows
+- XP/level system with a genuine level-up event (animation, color flash) — not a quiet label change
+- Shareable achievement cards — "Top 5% this week" styled to be screenshot-worthy
+- Friend/cohort leaderboard — competing with people you know, not anonymous strangers
+
+**Micro-interactions:**
+- Correct answer: subtle satisfying animation + sound (optional but recommended)
+- Session complete: genuine reward moment, not just a stats table
+- Level-up: full-screen moment, not a toast notification
+
+---
+
+## Progress tracker
+
+### Completed (do not redo)
+- [x] P1-1: Google Sign-In core auth — DONE
+- [x] P1-2: Google Sign-In follow-ups (account picker, Account section, disconnect()) — DONE
+- [x] P1-3a: Mock Test screen (45Q / 2hr timed mode) — DONE
+- [x] P1-4: Bottom nav bar disappearing after email login — DONE
+- [x] P1-5: Dark mode (login screens, text field visibility) — DONE
+- [x] P1-6: Android scrolling screenshot support — DONE
+- [x] P1-7: Back gesture exits app — DONE
+- [x] P2-1: Home screen rework (congestion, badges, rank label) — DONE
+- [x] P2-2: Student Profile rework (avatars, settings sections, Firebase auto-fill) — DONE
+- [x] P4-1 through P4-6: Regression fixes (routing bug, dead buttons, back navigation, exit dialog, error styling, settings audit) — ALL DONE
+- [x] A-1: Design system implementation (typography + color tokens applied app-wide) — DONE
+- [x] A-2: Dark mode onboarding image blending (soft radial glow treatment, in-code) — DONE
+- [x] A-3: Daily NEET Challenge — real flow (date-seeded 10Q selector, 45s/question timer, +50 XP completion bonus, per-day lock, results screen, home "Done today" pill) — DONE
+- [x] A-4: Mock Test mode — keep both Full-Length (180Q/3hr) and Quick (45Q/2hr) as distinct entry points; differentiated landing screens (indigo vs orange hero), shared format widgets, Home routes through a chooser — DONE
+- [x] A-5: Performance Analytics — kept the existing hero/subject-mastery/insights/history layout and added three new sections: 7-day accuracy trend strip with streak dots, "Focus this week" weak-area callout (subject-level), and trending pills on each subject mastery card — DONE
+
+### Remaining — work through in this order
+- [ ] A-6: Practice Hub — Gen-Z redesign
+- [ ] A-7: Practice setup screens — redesign (not just restyle)
+- [ ] A-8: Real ranking system (computed from actual user data, not hardcoded)
+- [ ] A-9: App-wide production polish pass
+- [ ] R-1: Extend question data model to new schema (see QUESTION_SCHEMA.md)
+- [ ] R-2: Update question repository for chapter/topic/bloom-level queries
+- [ ] R-3: Weak-area tracking service
+- [ ] R-4: Diagnostic test flow (new feature)
+- [ ] R-5: Recommendation engine (what to study next)
+- [ ] R-6: Home screen — recommendation-first rework (builds on A-5 redesign)
+- [ ] R-7: Explanation display upgrade (common wrong reasoning)
+- [ ] R-8: Time-pacing features in practice/mock sessions
+- [ ] R-9: Mock test scoring calibration (predicted score/percentile)
+
+**Note on A-4 (Full NEET Paper vs Mock Test):** Resolved — kept both. Full-Length (180Q/3hr, indigo) is the real-deal NEET exam, Quick (45Q/2hr, orange) is the warm-up. Home routes to a chooser between the two. See A-4 entry in Completed.
+
+---
+
+## Item descriptions
+
+### A-1: Design system implementation
+Read the Design Contract above carefully. Create a `lib/core/design/` folder with:
+- `app_colors.dart` — all color tokens as named constants (background, surface, primary, secondary accent, text primary, text secondary)
+- `app_typography.dart` — the two-font system with named text styles (display, headline, body, caption)
+- `app_theme.dart` — a full `ThemeData` (dark as default) built from these tokens
+
+Then do a sweep of every screen and replace any hardcoded color or font reference with the design token equivalents. Do NOT redesign layouts in this item — this is token-replacement only. Confirm `flutter analyze` is clean and the app still builds before marking done.
+
+### A-2: Dark mode onboarding image blending
+The onboarding images are flat assets that don't blend with the dark background in dark mode — they look pasted on. Add dark-mode-appropriate image variants OR a container/blend treatment so they integrate naturally with the dark background. Do not redesign the onboarding flow itself.
+
+### A-3: Daily NEET Challenge — real screen
+Replace the current "Coming soon" placeholder. Daily Challenge should have its own dedicated flow: a curated set of 5-10 high-yield questions (pulled from the existing question bank, varied subjects), presented with a daily timer/deadline feel, rewarding +50 XP on completion. This is distinct from regular practice and from the mock test.
+
+### A-4: Full NEET Paper mode — confirm and implement
+Confirm with the user whether Full NEET Paper (180Q/3hr) should stay as a separate mode from Mock Test (45Q/2hr) or be collapsed into one. Wait for confirmation before implementing. If kept separate, ensure it's genuinely distinct in setup, UI, and results — not just the same mock test screen with a different question count.
+
+### A-5: Performance Analytics — Gen-Z redesign
+Currently plain and functional — needs a redesign that balances Gen-Z visual energy with clean readability. Reference the Design Contract. This screen becomes the visual reference point for the whole app — get it right here before touching A-6/A-7. Subject mastery bars, accuracy trends, streak history, and weak-area summary should all be present. Avoid generic chart library defaults — make this feel like a reward screen, not a spreadsheet.
+
+### A-6: Practice Hub — Gen-Z redesign
+Same design direction as A-5. Apply to the Practice tab. Keep all existing functionality — this is a visual and interaction upgrade, not a feature change.
+
+### A-7: Practice setup screens redesign
+The current 3-option-groups + 1-summary-card pattern across Physics/Chemistry/Biology setup should be fundamentally reconsidered, not just restyled. The goal is a setup flow that feels fast and purposeful, not like filling out a form.
+
+### A-8: Real ranking system
+Replace the static/hardcoded "Unranked" placeholder with a genuine ranking computed from real user data stored in Firebase — accuracy, questions solved, XP — across the actual user base. Leaderboard should show both global rank and friend/cohort rank once friend system exists (friend system is a future item — for now, global ranking only).
+
+### A-9: Production polish pass
+Once A-1 through A-8 and R-1 through R-8 are stable: micro-interactions (correct answer feedback, session complete moment, level-up event), sound design hooks (optional, just structure), shareable achievement cards, and a final pass for consistency and completeness across every screen.
+
+### R-1 through R-9: Tutoring engine
+See QUESTION_SCHEMA.md for the data model spec. R-1 through R-9 build the adaptive tutoring engine: schema extension, repository queries by chapter/topic, weak-area tracking, diagnostic test, recommendation engine, recommendation-first home screen, explanation upgrades, time-pacing, and mock test score calibration. These depend on the question bank being re-tagged — R-1 and R-2 can be built against the existing (partially-tagged) bank, with full functionality coming as tagging progresses.
+
+---
+
+## How to run this file
+
+Name one item (e.g. "do A-1 from CODERANK.md"), get the two-part report, test/verify, then move to the next. Never batch multiple items. The design contract section must be read before any UI item — reference it explicitly in the instruction, e.g. "do A-5 from CODERANK.md, reading the Design Contract section first."

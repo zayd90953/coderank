@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/user_preferences_service.dart';
 import '_sheet_chrome.dart';

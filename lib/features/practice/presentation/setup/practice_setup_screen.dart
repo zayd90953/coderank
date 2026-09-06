@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
+import '../../../../shared/widgets/back_button_to_home.dart';
 import '../question/question_screen.dart';
 
 class PracticeSetupScreen extends StatefulWidget {
@@ -33,19 +34,15 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: AppColors.text,
-        ),
+        leading: const BackButtonToHome(),
         title: Text(
           '${widget.subject} Practice',
           style: const TextStyle(
-            color: AppColors.text,
+            color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -59,7 +56,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
             const Text(
               'Set up your practice',
               style: TextStyle(
-                color: AppColors.text,
+                color: AppColors.textPrimary,
                 fontSize: 27,
                 fontWeight: FontWeight.bold,
               ),
@@ -70,7 +67,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
             Text(
               'Choose how you want to practice ${widget.subject}.',
               style: TextStyle(
-                color: AppColors.subtitle,
+                color: AppColors.textSecondary,
                 fontSize: 14,
               ),
             ),
@@ -192,7 +189,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
                         const Text(
                           'Your practice',
                           style: TextStyle(
-                            color: AppColors.text,
+                            color: AppColors.textPrimary,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -203,7 +200,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
                               '$selectedDifficulty • '
                               '${selectedTime == null ? 'No time limit' : '$selectedTime sec/question'}',
                           style: TextStyle(
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             fontSize: 13,
                           ),
                         ),
@@ -221,7 +218,10 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  // P4-REGRESSION #3: use push (not pushReplacement) so the
+                  // device back gesture pops to setup instead of exiting the
+                  // app (setup itself has its own back path).
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => QuestionScreen(
@@ -280,7 +280,7 @@ class _SectionTitle extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: AppColors.text,
+            color: AppColors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -320,7 +320,7 @@ class _ChoiceChip extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? palette.primary
-                : const Color(0xFFE7E3F0),
+                : AppColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -329,7 +329,7 @@ class _ChoiceChip extends StatelessWidget {
           style: TextStyle(
             color: selected
                 ? palette.primary
-                : AppColors.text,
+                : AppColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),

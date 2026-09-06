@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../shared/services/user_preferences_service.dart';
 
-/// A user-selectable brand color preset.
+/// The single brand color preset for CodeRank.
 ///
-/// The app supports three presets today; this is intentionally a small
-/// enumeration so we can ship a fast, focused "color theme" picker without
-/// becoming a theming system. Subject colors (Physics / Chemistry / Biology)
+/// Only [brandGreen] exists. Subject colors (Physics / Chemistry / Biology)
 /// and achievement colors (gold, fire) are NOT modeled here — they are
-/// domain colors that should stay constant regardless of which brand preset
-/// the student picks.
+/// domain colors that stay constant regardless of the brand preset.
 class ColorPalette {
-  /// Stable identifier persisted in [UserPreferencesService].
-  /// One of `'purple'` / `'ocean'` / `'forest'`.
+  /// Stable identifier. Currently always `'green'`.
   final String id;
 
-  /// Human-readable label, e.g. `'Brand Purple'`.
+  /// Human-readable label, e.g. `'Electric Green'`.
   final String label;
 
   /// The seed/brand color used for `ColorScheme.fromSeed` and direct
@@ -44,74 +40,37 @@ class ColorPalette {
 
   // ── Presets ───────────────────────────────────────────────────────────
 
-  /// The default CodeRank brand purple. Matches the colors used in the
-  /// existing onboarding / marketing screens.
-  static const ColorPalette brandPurple = ColorPalette(
-    id: 'purple',
-    label: 'Brand Purple',
-    primary: Color(0xFF5F00FF),
-    primarySubtle: Color(0xFFF3EDFF),
-    heroCardGradient: LinearGradient(
-      colors: [Color(0xFF4A00D4), Color(0xFF7312FF), Color(0xFF913FFF)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    accentGradient: LinearGradient(
-      colors: [Color(0xFF5F00FF), Color(0xFF8B35FF)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  );
-
-  /// Cool sky / ocean blue — for students who prefer a calmer, academic
-  /// feel over the energetic purple.
-  static const ColorPalette oceanBlue = ColorPalette(
-    id: 'ocean',
-    label: 'Ocean Blue',
-    primary: Color(0xFF0EA5E9),
-    primarySubtle: Color(0xFFE0F2FE),
-    heroCardGradient: LinearGradient(
-      colors: [Color(0xFF0369A1), Color(0xFF0EA5E9), Color(0xFF38BDF8)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    accentGradient: LinearGradient(
-      colors: [Color(0xFF0284C7), Color(0xFF0EA5E9)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  );
-
-  /// Forest green — for students who prefer a grounded, study-focused
-  /// aesthetic.
-  static const ColorPalette forestGreen = ColorPalette(
-    id: 'forest',
-    label: 'Forest Green',
-    primary: Color(0xFF10B981),
+  /// Electric Green — the CodeRank brand accent (per CODERANK.md).
+  /// The only active preset; all others have been removed.
+  static const ColorPalette brandGreen = ColorPalette(
+    id: 'green',
+    label: 'Electric Green',
+    primary: Color(0xFF39D353),
     primarySubtle: Color(0xFFD1FAE5),
     heroCardGradient: LinearGradient(
-      colors: [Color(0xFF047857), Color(0xFF10B981), Color(0xFF34D399)],
+      colors: [Color(0xFF1F8A35), Color(0xFF39D353), Color(0xFF6BE381)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
     accentGradient: LinearGradient(
-      colors: [Color(0xFF059669), Color(0xFF10B981)],
+      colors: [Color(0xFF1F8A35), Color(0xFF39D353)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
   );
 
-  /// All selectable presets, in display order. Drives the color picker.
-  static const List<ColorPalette> all = [brandPurple, oceanBlue, forestGreen];
+  /// All selectable presets. Only [brandGreen] remains — the color picker
+  /// has been removed per the user's request.
+  static const List<ColorPalette> all = [brandGreen];
 
   /// Look up a palette by its persisted id. Falls back to
-  /// [brandPurple] for any unknown / future id, so a corrupted or
+  /// [brandGreen] for any unknown / future id, so a corrupted or
   /// older pref value can never break the app.
   static ColorPalette byId(String id) {
     for (final p in all) {
       if (p.id == id) return p;
     }
-    return brandPurple;
+    return brandGreen;
   }
 }
 
@@ -122,8 +81,7 @@ class ColorPalette {
 ///   * One instance per app lifetime.
 ///   * `paletteNotifier` fires on every change so widgets can rebuild
 ///     via [ValueListenableBuilder] / [ListenableBuilder].
-///   * `set(...)` writes through to [UserPreferencesService] so the
-///     choice survives a relaunch.
+///   * `set(...)` is a no-op (only one preset remains).
 ///
 /// The `MaterialApp` is wired to listen to this notifier in
 /// `lib/app/app.dart`, so the entire app re-tints on `set` without a
@@ -133,27 +91,23 @@ class ColorPaletteController {
   static final ColorPaletteController instance = ColorPaletteController._();
 
   final ValueNotifier<ColorPalette> paletteNotifier =
-      ValueNotifier<ColorPalette>(ColorPalette.brandPurple);
+      ValueNotifier<ColorPalette>(ColorPalette.brandGreen);
 
   ColorPalette get current => paletteNotifier.value;
 
   /// Persist a new palette id and notify listeners. Returns the
   /// resolved [ColorPalette] (so callers can use the typed object).
+  /// Since only [brandGreen] remains, this is now a no-op that always
+  /// returns [brandGreen]. Kept for forward-compatibility.
   Future<ColorPalette> set(String id) async {
-    final next = ColorPalette.byId(id);
-    paletteNotifier.value = next;
-    await UserPreferencesService.instance.setColorThemeId(id);
-    return next;
+    paletteNotifier.value = ColorPalette.brandGreen;
+    return ColorPalette.brandGreen;
   }
 
   /// Re-read the persisted id (e.g. after [UserPreferencesService] has
   /// finished bootstrapping from disk on app launch) and update the
-  /// notifier if it differs. Idempotent.
+  /// notifier if it differs. Idempotent. Only [brandGreen] exists now.
   void hydrateFromPrefs() {
-    final id = UserPreferencesService.instance.current.colorThemeId;
-    final next = ColorPalette.byId(id);
-    if (next.id != paletteNotifier.value.id) {
-      paletteNotifier.value = next;
-    }
+    paletteNotifier.value = ColorPalette.brandGreen;
   }
 }

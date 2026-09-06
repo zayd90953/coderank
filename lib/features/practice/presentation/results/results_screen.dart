@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
+import '../../../../shared/widgets/back_button_to_home.dart';
 import '../../models/practice_session.dart';
 import '../question/question_screen.dart';
 import '../practice_screen.dart';
@@ -19,10 +20,24 @@ class ResultsScreen extends StatelessWidget {
     final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButtonToHome(),
+        title: const Text(
+          "Results",
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
           child: Column(
             children: [
               const SizedBox(height: 20),
@@ -49,7 +64,7 @@ class ResultsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text,
+                  color: AppColors.textPrimary,
                 ),
               ),
 
@@ -60,7 +75,7 @@ class ResultsScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.subtitle,
+                  color: AppColors.textSecondary,
                 ),
               ),
 
@@ -73,10 +88,10 @@ class ResultsScreen extends StatelessWidget {
                   horizontal: 20,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: const Color(0xFFE7E3F0),
+                    color: AppColors.border,
                   ),
                 ),
                 child: Column(
@@ -84,7 +99,7 @@ class ResultsScreen extends StatelessWidget {
                     Text(
                       session.subject,
                       style: TextStyle(
-                        color: AppColors.subtitle,
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -106,7 +121,7 @@ class ResultsScreen extends StatelessWidget {
                     const Text(
                       "Score",
                       style: TextStyle(
-                        color: AppColors.text,
+                        color: AppColors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -121,7 +136,7 @@ class ResultsScreen extends StatelessWidget {
                             icon: Icons.check_circle_rounded,
                             value: "${session.correctAnswers}",
                             label: "Correct",
-                            iconColor: Colors.green,
+                            iconColor: AppColors.success,
                           ),
                         ),
                         Expanded(
@@ -129,7 +144,7 @@ class ResultsScreen extends StatelessWidget {
                             icon: Icons.cancel_rounded,
                             value: "${session.incorrectAnswers}",
                             label: "Incorrect",
-                            iconColor: Colors.red,
+                            iconColor: AppColors.error,
                           ),
                         ),
                         Expanded(
@@ -149,7 +164,7 @@ class ResultsScreen extends StatelessWidget {
                         icon: Icons.hourglass_empty_rounded,
                         value: "${session.unansweredQuestions}",
                         label: "Unanswered",
-                        iconColor: Colors.orange,
+                        iconColor: AppColors.warning,
                       ),
                     ],
                   ],
@@ -163,7 +178,9 @@ class ResultsScreen extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    // P4-REGRESSION #3: use push (not pushReplacement) so
+                    // device back has a route to pop to.
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => QuestionScreen(
@@ -258,7 +275,7 @@ class _StatItem extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            color: AppColors.text,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -267,7 +284,7 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: AppColors.subtitle,
+            color: AppColors.textSecondary,
             fontSize: 12,
           ),
         ),

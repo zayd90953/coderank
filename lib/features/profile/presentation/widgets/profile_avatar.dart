@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 
 /// Renders the user's profile avatar with a brand-color gradient ring
@@ -32,25 +33,28 @@ class ProfileAvatar extends StatelessWidget {
     return trimmed.substring(0, 1).toUpperCase();
   }
 
-  Widget _initialsFallback() => CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.white,
-        child: Text(
-          _initial,
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w900,
-            color: palette.primary,
-          ),
+  Widget _initialsFallback() {
+    final surface = AppColors.surface;
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: surface,
+      child: Text(
+        _initial,
+        style: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w900,
+          color: palette.primary,
         ),
-      );
+      ),
+    );
+  }
 
   Widget _buildInner() {
     // 1) Preset avatar wins if the user explicitly picked one.
     if (assetKey != null) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         child: ClipOval(
           child: Image.asset(
             'assets/avatars/avatar_$assetKey.png',
@@ -67,7 +71,7 @@ class ProfileAvatar extends StatelessWidget {
     if (googlePhotoUrl != null && googlePhotoUrl!.isNotEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         child: ClipOval(
           child: Image.network(
             googlePhotoUrl!,

@@ -1,8 +1,101 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/auth_service.dart';
+import '../../../shared/widgets/exit_confirmation_scope.dart';
+import '../../navigation/main_nav_screen.dart';
+
+/// P1-2: real Google Sign-In from the sign-up screen. On success,
+/// routes to [MainNavScreen] (same as email sign-in). On picker
+/// cancel, silent no-op. On any other error, an error dialog.
+Future<void> _signInWithGoogle(BuildContext context) async {
+  try {
+    await AuthService.instance.signInWithGoogle();
+    if (!context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MainNavScreen()),
+      (route) => false,
+    );
+  } on GoogleSignInCancelled {
+    // User dismissed the picker — silent no-op.
+  } on FirebaseAuthException catch (e) {
+    if (!context.mounted) return;
+    await _showGoogleErrorDialog(context, _googleErrorMessage(e));
+  } catch (e) {
+    if (!context.mounted) return;
+    await _showGoogleErrorDialog(
+      context,
+      "Google sign-in failed. Please try again.",
+    );
+  }
+}
+
+String _googleErrorMessage(FirebaseAuthException e) {
+  switch (e.code) {
+    case 'account-exists-with-different-credential':
+      return "An account already exists with this email using a different sign-in method. Please sign in with email and password instead.";
+    case 'invalid-credential':
+    case 'invalid-verification-code':
+    case 'invalid-verification-id':
+      return "Google sign-in failed because the credential is invalid. Please try again.";
+    case 'network-request-failed':
+      return "Network error. Please check your connection and try again.";
+    case 'operation-not-allowed':
+      return "Google sign-in is not enabled for this project. Please contact support.";
+    default:
+      return "Google sign-in failed. Please try again.";
+  }
+}
+
+Future<void> _showGoogleErrorDialog(
+    BuildContext context, String message) async {
+  final palette = ColorPaletteController.instance.current;
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      title: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: AppColors.error, size: 24),
+          const SizedBox(width: 10),
+          const Text(
+            "Sign-In Failed",
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        message,
+        style: const TextStyle(
+            fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: palette.primary,
+            foregroundColor: AppColors.textOnPrimary,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            "OK",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,6 +112,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  String? _nameError;
+  String? _emailError;
+  String? _passwordError;
+  String? _confirmPasswordError;
 
   @override
   void dispose() {
@@ -36,24 +133,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     // Validate fields
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields.")),
-      );
-      return;
-    }
+    setState(() {
+      _nameError = name.isEmpty ? "Please enter your name." : null;
+      _emailError = email.isEmpty ? "Please enter your email." : null;
+      _passwordError = password.isEmpty
+          ? "Please create a password."
+          : (password.length < 6
+              ? "Password must be at least 6 characters."
+              : null);
+      _confirmPasswordError = confirmPassword.isEmpty
+          ? "Please confirm your password."
+          : (password != confirmPassword
+              ? "Passwords do not match."
+              : null);
+    });
 
-    if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password must be at least 6 characters.")),
-      );
-      return;
-    }
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match.")),
-      );
+    if (_nameError != null ||
+        _emailError != null ||
+        _passwordError != null ||
+        _confirmPasswordError != null) {
       return;
     }
 
@@ -79,19 +177,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
-      String message = "Something went wrong.";
-
-      if (e.code == 'email-already-in-use') {
-        message = "An account already exists with this email.";
-      } else if (e.code == 'invalid-email') {
-        message = "Please enter a valid email address.";
-      } else if (e.code == 'weak-password') {
-        message = "Please choose a stronger password.";
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      // Route server errors to the appropriate field's red border.
+      setState(() {
+        if (e.code == 'email-already-in-use') {
+          _emailError = "An account already exists with this email.";
+          _passwordError = null;
+        } else if (e.code == 'invalid-email') {
+          _emailError = "Please enter a valid email address.";
+          _passwordError = null;
+        } else if (e.code == 'weak-password') {
+          _emailError = null;
+          _passwordError = "Please choose a stronger password.";
+        } else {
+          _passwordError = "Something went wrong. Please try again.";
+        }
+      });
     } catch (e) {
       if (!mounted) return;
 
@@ -116,9 +216,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
+        child: ExitConfirmationScope(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: ConstrainedBox(
@@ -136,7 +237,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         constraints: const BoxConstraints(),
                         icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                           size: compact ? 20 : 22,
                         ),
                       ),
@@ -147,7 +248,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: Column(
                           children: [
                             Image.asset(
-                              "assets/branding/logo_purple.png",
+                              "assets/branding/logo_green.png",
                               width: compact ? 85 : 105,
                             ),
                             const SizedBox(height: 6),
@@ -173,7 +274,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(
                             fontSize: compact ? 26 : 30,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.text,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ),
@@ -184,7 +285,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: compact ? 14 : 16,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             height: 1.35,
                           ),
                         ),
@@ -197,7 +298,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -205,19 +306,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: _nameController,
                         textCapitalization: TextCapitalization.words,
                         textInputAction: TextInputAction.next,
+                        onChanged: (_) {
+                          if (_nameError != null) {
+                            setState(() => _nameError = null);
+                          }
+                        },
+                        style: TextStyle(color: AppColors.textPrimary),
                         decoration: InputDecoration(
+                          errorText: _nameError,
                           hintText: "Enter your full name",
                           hintStyle: TextStyle(
-                            color: AppColors.subtitle.withValues(alpha: 0.7),
+                            color: AppColors.textMuted,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.person_outline_rounded,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F8FA),
+                          fillColor: AppColors.surfaceElevated,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -247,7 +355,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -255,19 +363,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
+                        onChanged: (_) {
+                          if (_emailError != null) {
+                            setState(() => _emailError = null);
+                          }
+                        },
+                        style: TextStyle(color: AppColors.textPrimary),
                         decoration: InputDecoration(
+                          errorText: _emailError,
                           hintText: "Enter your email",
                           hintStyle: TextStyle(
-                            color: AppColors.subtitle.withValues(alpha: 0.7),
+                            color: AppColors.textMuted,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F8FA),
+                          fillColor: AppColors.surfaceElevated,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -297,7 +412,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -305,15 +420,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         textInputAction: TextInputAction.next,
+                        onChanged: (_) {
+                          if (_passwordError != null) {
+                            setState(() => _passwordError = null);
+                          }
+                        },
+                        style: TextStyle(color: AppColors.textPrimary),
                         decoration: InputDecoration(
+                          errorText: _passwordError,
                           hintText: "Create a password",
                           hintStyle: TextStyle(
-                            color: AppColors.subtitle.withValues(alpha: 0.7),
+                            color: AppColors.textMuted,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.lock_outline_rounded,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             size: compact ? 21 : 23,
                           ),
                           suffixIcon: IconButton(
@@ -326,12 +448,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _obscurePassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: AppColors.subtitle,
+                              color: AppColors.textSecondary,
                               size: compact ? 21 : 23,
                             ),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F8FA),
+                          fillColor: AppColors.surfaceElevated,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -361,7 +483,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -369,15 +491,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: _confirmPasswordController,
                         obscureText: _obscureConfirmPassword,
                         textInputAction: TextInputAction.done,
+                        onChanged: (_) {
+                          if (_confirmPasswordError != null) {
+                            setState(() => _confirmPasswordError = null);
+                          }
+                        },
+                        style: TextStyle(color: AppColors.textPrimary),
                         decoration: InputDecoration(
+                          errorText: _confirmPasswordError,
                           hintText: "Confirm your password",
                           hintStyle: TextStyle(
-                            color: AppColors.subtitle.withValues(alpha: 0.7),
+                            color: AppColors.textMuted,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.lock_outline_rounded,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             size: compact ? 21 : 23,
                           ),
                           suffixIcon: IconButton(
@@ -390,12 +519,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _obscureConfirmPassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: AppColors.subtitle,
+                              color: AppColors.textSecondary,
                               size: compact ? 21 : 23,
                             ),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F8FA),
+                          fillColor: AppColors.surfaceElevated,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -427,7 +556,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: _isLoading ? null : _createAccount,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: palette.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.textOnPrimary,
                             disabledBackgroundColor:
                             palette.primary.withValues(alpha: 0.6),
                             elevation: 0,
@@ -441,7 +570,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.white,
+                              color: AppColors.textOnPrimary,
                             ),
                           )
                               : Text(
@@ -460,7 +589,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         children: [
                           const Expanded(
                             child: Divider(
-                              color: Color(0xFFE5E7EB),
+                              color: AppColors.border,
                               thickness: 1,
                             ),
                           ),
@@ -469,7 +598,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text(
                               "OR",
                               style: TextStyle(
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                                 fontSize: compact ? 11 : 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -477,7 +606,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           const Expanded(
                             child: Divider(
-                              color: Color(0xFFE5E7EB),
+                              color: AppColors.border,
                               thickness: 1,
                             ),
                           ),
@@ -490,10 +619,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: double.infinity,
                         height: compact ? 52 : 56,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => _signInWithGoogle(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
-                              color: Color(0xFFE5E7EB),
+                              color: AppColors.border,
                               width: 1.2,
                             ),
                             shape: RoundedRectangleBorder(
@@ -512,7 +641,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               Text(
                                 "Continue with Google",
                                 style: TextStyle(
-                                  color: AppColors.text,
+                                  color: AppColors.textPrimary,
                                   fontSize: compact ? 14 : 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -530,7 +659,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Text(
                             "Already have an account?",
                             style: TextStyle(
-                              color: AppColors.subtitle,
+                              color: AppColors.textSecondary,
                               fontSize: compact ? 12 : 14,
                             ),
                           ),
@@ -561,6 +690,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           },
         ),
       ),
+        ),
     );
   }
 }

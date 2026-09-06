@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/user_preferences_service.dart';
 import '_sheet_chrome.dart';
@@ -47,7 +47,7 @@ Future<String?> showThemePickerSheet(BuildContext context) {
                               )
                             : const Icon(
                                 Icons.radio_button_unchecked_rounded,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                                 size: 22,
                               ),
                       ),
@@ -61,7 +61,7 @@ Future<String?> showThemePickerSheet(BuildContext context) {
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.text,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -69,7 +69,7 @@ Future<String?> showThemePickerSheet(BuildContext context) {
                               subtitle,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],

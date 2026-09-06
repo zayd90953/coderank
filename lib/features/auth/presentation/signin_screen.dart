@@ -1,11 +1,103 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/auth_service.dart';
+import '../../../shared/widgets/exit_confirmation_scope.dart';
 import 'signup_screen.dart';
 import 'forgot_password.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../navigation/main_nav_screen.dart';
+
+/// P1-2: real Google Sign-In from the sign-in screen. On success,
+/// routes to [MainNavScreen]. On picker cancel, silent no-op. On any
+/// other error, an error dialog.
+Future<void> _signInWithGoogle(BuildContext context) async {
+  try {
+    await AuthService.instance.signInWithGoogle();
+    if (!context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MainNavScreen()),
+      (route) => false,
+    );
+  } on GoogleSignInCancelled {
+    // User dismissed the picker — silent no-op.
+  } on FirebaseAuthException catch (e) {
+    if (!context.mounted) return;
+    await _showGoogleErrorDialog(context, _googleErrorMessage(e));
+  } catch (e) {
+    if (!context.mounted) return;
+    await _showGoogleErrorDialog(
+      context,
+      "Google sign-in failed. Please try again.",
+    );
+  }
+}
+
+String _googleErrorMessage(FirebaseAuthException e) {
+  switch (e.code) {
+    case 'account-exists-with-different-credential':
+      return "An account already exists with this email using a different sign-in method. Please use email and password instead.";
+    case 'invalid-credential':
+    case 'invalid-verification-code':
+    case 'invalid-verification-id':
+      return "Google sign-in failed because the credential is invalid. Please try again.";
+    case 'network-request-failed':
+      return "Network error. Please check your connection and try again.";
+    case 'operation-not-allowed':
+      return "Google sign-in is not enabled for this project. Please contact support.";
+    default:
+      return "Google sign-in failed. Please try again.";
+  }
+}
+
+Future<void> _showGoogleErrorDialog(
+    BuildContext context, String message) async {
+  final palette = ColorPaletteController.instance.current;
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      title: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: AppColors.error, size: 24),
+          const SizedBox(width: 10),
+          const Text(
+            "Sign-In Failed",
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        message,
+        style: const TextStyle(
+            fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: palette.primary,
+            foregroundColor: AppColors.textOnPrimary,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            "OK",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -21,6 +113,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String? _emailError;
+  String? _passwordError;
 
   @override
   void dispose() {
@@ -45,6 +139,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
     setState(() {
       _isLoading = true;
+      _emailError = null;
+      _passwordError = null;
     });
 
     try {
@@ -56,37 +152,48 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (!mounted) return;
 
-      // Return to AuthGate
+      // P4-REGRESSION #1: route to the shell so the bottom nav and other
+      // tabs are present after sign-in.
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const MainNavScreen(),
         ),
             (route) => false,
       );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
-      String message = "Something went wrong.";
+      String fieldMessage = "Something went wrong.";
 
       if (e.code == 'invalid-credential' ||
           e.code == 'wrong-password' ||
           e.code == 'user-not-found') {
-        message = "Incorrect email or password.";
+        fieldMessage = "Incorrect email or password.";
       } else if (e.code == 'invalid-email') {
-        message = "Please enter a valid email address.";
+        fieldMessage = "Please enter a valid email address.";
       } else if (e.code == 'user-disabled') {
-        message = "This account has been disabled.";
+        fieldMessage = "This account has been disabled.";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+      // Surface the error inline on the relevant field with a red border +
+      // error text, instead of a grey SnackBar.
+      setState(() {
+        if (e.code == 'invalid-email') {
+          _emailError = fieldMessage;
+          _passwordError = null;
+        } else {
+          // For credential errors, mark both fields red so the user can
+          // correct either; but most commonly the password is wrong, so
+          // we surface the message under the password field.
+          _emailError = null;
+          _passwordError = fieldMessage;
+        }
+      });
     } catch (e) {
       if (!mounted) return;
 
+      // Unknown error — fall back to a SnackBar so it isn't silently lost.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Unable to sign in. Please try again."),
@@ -108,9 +215,10 @@ class _SignInScreenState extends State<SignInScreen> {
     final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
+        child: ExitConfirmationScope(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: ConstrainedBox(
@@ -132,7 +240,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         constraints: const BoxConstraints(),
                         icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                           size: compact ? 20 : 22,
                         ),
                       ),
@@ -143,7 +251,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: Column(
                           children: [
                             Image.asset(
-                              "assets/branding/logo_purple.png",
+                              "assets/branding/logo_green.png",
                               width: compact ? 90 : 110,
                             ),
                             const SizedBox(height: 6),
@@ -169,7 +277,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           style: TextStyle(
                             fontSize: compact ? 27 : 30,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.text,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ),
@@ -180,7 +288,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: compact ? 14 : 16,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             height: 1.35,
                           ),
                         ),
@@ -193,7 +301,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -201,25 +309,29 @@ class _SignInScreenState extends State<SignInScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
+                        onChanged: (_) {
+                          if (_emailError != null) {
+                            setState(() => _emailError = null);
+                          }
+                        },
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: AppColors.textPrimary,
                           fontSize: compact ? 14 : 15,
                         ),
                         decoration: InputDecoration(
+                          errorText: _emailError,
                           hintText: "Enter your email",
                           hintStyle: TextStyle(
-                            color: AppColors.subtitle.withValues(alpha: 0.7),
+                            color: AppColors.textMuted,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: Theme.of(context).brightness == Brightness.dark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFF8F8FA),
+                          fillColor: AppColors.surfaceElevated,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 14 : 17,
@@ -249,7 +361,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.text,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -257,19 +369,25 @@ class _SignInScreenState extends State<SignInScreen> {
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         textInputAction: TextInputAction.done,
+                        onChanged: (_) {
+                          if (_passwordError != null) {
+                            setState(() => _passwordError = null);
+                          }
+                        },
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: AppColors.textPrimary,
                           fontSize: compact ? 14 : 15,
                         ),
                         decoration: InputDecoration(
+                          errorText: _passwordError,
                           hintText: "Enter your password",
                           hintStyle: TextStyle(
-                            color: AppColors.subtitle.withValues(alpha: 0.7),
+                            color: AppColors.textMuted,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.lock_outline_rounded,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                             size: compact ? 21 : 23,
                           ),
                           suffixIcon: IconButton(
@@ -282,14 +400,12 @@ class _SignInScreenState extends State<SignInScreen> {
                               _obscurePassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: AppColors.subtitle,
+                              color: AppColors.textSecondary,
                               size: compact ? 21 : 23,
                             ),
                           ),
                           filled: true,
-                          fillColor: Theme.of(context).brightness == Brightness.dark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFF8F8FA),
+                          fillColor: AppColors.surfaceElevated,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 14 : 17,
@@ -354,7 +470,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           onPressed: _isLoading ? null : _signIn,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: palette.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.textOnPrimary,
                             disabledBackgroundColor:
                             palette.primary.withValues(alpha: 0.6),
                             elevation: 0,
@@ -368,7 +484,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.white,
+                              color: AppColors.textOnPrimary,
                             ),
                           )
                               : Text(
@@ -387,7 +503,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         children: [
                           const Expanded(
                             child: Divider(
-                              color: Color(0xFFE5E7EB),
+                              color: AppColors.border,
                               thickness: 1,
                             ),
                           ),
@@ -396,7 +512,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               "OR",
                               style: TextStyle(
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                                 fontSize: compact ? 11 : 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -404,7 +520,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           const Expanded(
                             child: Divider(
-                              color: Color(0xFFE5E7EB),
+                              color: AppColors.border,
                               thickness: 1,
                             ),
                           ),
@@ -417,10 +533,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         height: compact ? 52 : 56,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () => _signInWithGoogle(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
-                              color: Color(0xFFE5E7EB),
+                              color: AppColors.border,
                               width: 1.2,
                             ),
                             shape: RoundedRectangleBorder(
@@ -439,7 +555,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               Text(
                                 "Continue with Google",
                                 style: TextStyle(
-                                  color: AppColors.text,
+                                  color: AppColors.textPrimary,
                                   fontSize: compact ? 14 : 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -457,7 +573,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           Text(
                             "Don't have an account?",
                             style: TextStyle(
-                              color: AppColors.subtitle,
+                              color: AppColors.textSecondary,
                               fontSize: compact ? 12 : 14,
                             ),
                           ),
@@ -497,6 +613,7 @@ class _SignInScreenState extends State<SignInScreen> {
           },
         ),
       ),
+        ),
     );
   }
 }

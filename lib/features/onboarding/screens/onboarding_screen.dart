@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../data/onboarding_data.dart';
 import '../../welcome/presentation/welcome_screen.dart';
@@ -48,6 +49,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -71,11 +73,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       mainAxisAlignment:
                       MainAxisAlignment.center,
                       children: [
+                        // Soft radial glow behind the image so the flat
+                        // asset blends with the dark canvas instead of
+                        // looking pasted on. Brand-neutral — uses the
+                        // dark surface token, not palette.primary, so
+                        // every color-theme variant looks the same.
                         Expanded(
                           flex: 5,
-                          child: Image.asset(
-                            item.image,
-                            fit: BoxFit.contain,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  AppColors.surface.withValues(alpha: 0.55),
+                                  AppColors.background.withValues(alpha: 0.0),
+                                ],
+                                stops: const [0.0, 1.0],
+                                radius: 0.85,
+                              ),
+                            ),
+                            child: Center(
+                              child: Image.asset(
+                                item.image,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           ),
                         ),
 
@@ -87,6 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: const TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
 
@@ -95,9 +118,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           item.description,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 17,
-                            color: Colors.grey.shade600,
+                            color: AppColors.textSecondary,
                             height: 1.5,
                           ),
                         ),
@@ -146,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: currentPage == index
                               ? palette.primary
-                              : Colors.grey.shade300,
+                              : AppColors.surfaceElevated,
                           borderRadius:
                           BorderRadius.circular(20),
                         ),

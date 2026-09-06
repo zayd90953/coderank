@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
-import '../../practice/presentation/question/question_screen.dart';
+import '../../../shared/widgets/back_button_to_home.dart';
+import '../../practice/data/question_repository.dart';
+import '../../practice/models/question_model.dart';
+import 'daily_challenge_question_screen.dart';
 
 
-/// Real implementation of Daily NEET Challenge flow.
+/// A-3: launcher for the Daily NEET Challenge.
 ///
-/// Features:
-/// - Daily streak tracking integration.
-/// - Selected high-yield NEET PYQs (10 questions daily challenge).
-/// - XP multipliers for maintaining study streak.
+/// Shows the existing banner + details layout. The bottom button
+/// behaviour depends on whether the user has already completed today's
+/// daily:
+///   * Completed today  → disabled, labelled "✅ Completed — come back tomorrow"
+///   * Otherwise       → fetches 10 questions via
+///     [QuestionRepository.getDailyChallengeQuestions] and pushes
+///     [DailyChallengeQuestionScreen].
+///
+/// When the user returns from the question screen, [UserProgressService]
+/// may have stamped the "completed today" flag, so this screen
+/// automatically reflects the new state via the
+/// [ValueListenableBuilder] on `progressNotifier`.
 class DailyChallengeScreen extends StatefulWidget {
   const DailyChallengeScreen({super.key});
 
@@ -24,34 +35,66 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   String? _error;
 
   Future<void> _startDailyChallenge() async {
+    if (_isLoading) return;
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
     try {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      final questions =
+          await QuestionRepository().getDailyChallengeQuestions();
 
-      Navigator.pushReplacement(
+      if (!mounted) return;
+
+      if (questions.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _error =
+              "No daily challenge questions available right now. Please try again later.";
+        });
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // P4-REGRESSION #3: use push (not pushReplacement) so the device
+      // back gesture pops to the launcher instead of exiting the app.
+      await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => const QuestionScreen(
-            subject: "Daily Challenge",
-            questionCount: 10,
-            difficulty: "Mixed",
-            timeLimit: 45, // 45 seconds per high-yield question
-          ),
+          builder: (_) =>
+              DailyChallengeQuestionScreen(questions: questions),
         ),
       );
+      // When we return, the question screen may have stamped
+      // `lastDailyChallengeDate`. The `ValueListenableBuilder` on
+      // `progressNotifier` will rebuild this screen, so the button
+      // automatically flips to its "Completed" state.
     } catch (e) {
-
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = "Failed to load Daily Challenge questions. Please try again.";
+        _error =
+            "Failed to load Daily Challenge questions. Please try again.";
       });
     }
+  }
+
+  String _formatLastDate(String yyyymmdd) {
+    // Best-effort formatting for "Last completed: 5 Sep 2026".
+    if (yyyymmdd.isEmpty) return '';
+    final parts = yyyymmdd.split('-');
+    if (parts.length != 3) return yyyymmdd;
+    final monthNum = int.tryParse(parts[1]) ?? 0;
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    if (monthNum < 1 || monthNum > 12) return yyyymmdd;
+    return '${parts[2]} ${months[monthNum - 1]} ${parts[0]}';
   }
 
   @override
@@ -60,20 +103,18 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     return ValueListenableBuilder<UserProgressData>(
       valueListenable: UserProgressService.instance.progressNotifier,
       builder: (context, data, _) {
+        final completedToday = UserProgressService
+            .instance.dailyChallengeCompletedToday();
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F7FD),
+          backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new_rounded),
-              color: AppColors.text,
-            ),
+            leading: const BackButtonToHome(),
             title: const Text(
               "Daily NEET Challenge",
               style: TextStyle(
-                color: AppColors.text,
+                color: AppColors.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -110,7 +151,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                         ),
                         child: const Icon(
                           Icons.local_fire_department_rounded,
-                          color: Colors.white,
+                          color: AppColors.surface,
                           size: 42,
                         ),
                       ),
@@ -120,16 +161,16 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: AppColors.surface,
                         ),
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        "Complete today's 10 high-yield NTA NEET questions to keep your streak alive & earn 2x XP!",
+                        "Complete today's 10 high-yield NTA NEET questions to keep your streak alive & earn XP!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white,
+                          color: AppColors.surface,
                           height: 1.4,
                         ),
                       ),
@@ -145,7 +186,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.subtitle,
+                    color: AppColors.textSecondary,
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -155,12 +196,13 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                   icon: Icons.quiz_rounded,
                   color: palette.primary,
                   title: "10 High-Yield Questions",
-                  subtitle: "Handpicked NTA PYQs across Physics, Chem & Bio",
+                  subtitle:
+                      "4 Biology + 3 Physics + 3 Chemistry — same set for every user today",
                 ),
                 const SizedBox(height: 12),
                 _DetailRow(
                   icon: Icons.timer_rounded,
-                  color: const Color(0xFFD97706),
+                  color: AppColors.warning,
                   title: "45s Speed Timer",
                   subtitle: "Test speed & rapid recall under pressure",
                 ),
@@ -168,8 +210,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                 _DetailRow(
                   icon: Icons.bolt_rounded,
                   color: AppColors.success,
-                  title: "Double XP Bonus",
-                  subtitle: "Earn +30 bonus XP on top of regular session rewards",
+                  title: "Daily Completion Bonus",
+                  subtitle:
+                      "Earn +50 XP on top of regular session rewards when you finish all 10",
                 ),
 
                 const SizedBox(height: 36),
@@ -179,34 +222,83 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Text(
                       _error!,
-                      style: const TextStyle(color: AppColors.error, fontSize: 13),
+                      style:
+                          const TextStyle(color: AppColors.error, fontSize: 13),
                     ),
                   ),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _startDailyChallenge,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: palette.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                if (completedToday) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            palette.primary.withValues(alpha: 0.4),
+                        disabledBackgroundColor:
+                            palette.primary.withValues(alpha: 0.4),
+                        foregroundColor: AppColors.textOnPrimary,
+                        disabledForegroundColor: AppColors.textOnPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "✅ Completed — come back tomorrow",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            "🔥 Start Today's Challenge",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                   ),
-                ),
+                  if (data.lastDailyChallengeDate.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Text(
+                        "Last completed: ${_formatLastDate(data.lastDailyChallengeDate)}",
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ] else
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _startDailyChallenge,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: palette.primary,
+                        foregroundColor: AppColors.textOnPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: AppColors.textOnPrimary,
+                              ),
+                            )
+                          : const Text(
+                              "🔥 Start Today's Challenge",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -234,9 +326,9 @@ class _DetailRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -258,7 +350,7 @@ class _DetailRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.text,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -266,7 +358,7 @@ class _DetailRow extends StatelessWidget {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: AppColors.subtitle,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -277,3 +369,8 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
+
+// Suppress unused-import warning for the type annotation on
+// [QuestionModel] — kept for future signature use and clarity.
+// ignore: unused_element
+typedef _UnusedQuestionModelRef = QuestionModel;

@@ -42,9 +42,6 @@ class UserPreferences {
   /// Default seconds-per-question when the user starts a practice session.
   final int practiceSecondsPerQuestion;
 
-  /// Active color theme preset id. One of `'purple'` / `'ocean'` / `'forest'`.
-  /// Defaults to `'purple'` (the original CodeRank brand color).
-  final String colorThemeId;
 
   const UserPreferences({
     this.displayName,
@@ -56,7 +53,6 @@ class UserPreferences {
     this.dailyReminderEnabled = true,
     this.practiceQuestionCount = 10,
     this.practiceSecondsPerQuestion = 60,
-    this.colorThemeId = 'purple',
   });
 
   UserPreferences copyWith({
@@ -69,12 +65,8 @@ class UserPreferences {
     bool? dailyReminderEnabled,
     int? practiceQuestionCount,
     int? practiceSecondsPerQuestion,
-    String? colorThemeId,
   }) =>
       UserPreferences(
-        // Use a sentinel pattern via Object? only if we ever need to null-out
-        // optional fields through copyWith. For now, simple `?? this` works
-        // because every field we copyWith from the service-side is provided.
         displayName: displayName ?? this.displayName,
         avatarAssetKey: avatarAssetKey ?? this.avatarAssetKey,
         targetYear: targetYear ?? this.targetYear,
@@ -85,7 +77,6 @@ class UserPreferences {
         practiceQuestionCount: practiceQuestionCount ?? this.practiceQuestionCount,
         practiceSecondsPerQuestion:
             practiceSecondsPerQuestion ?? this.practiceSecondsPerQuestion,
-        colorThemeId: colorThemeId ?? this.colorThemeId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -98,7 +89,6 @@ class UserPreferences {
         'dailyReminderEnabled': dailyReminderEnabled,
         'practiceQuestionCount': practiceQuestionCount,
         'practiceSecondsPerQuestion': practiceSecondsPerQuestion,
-        'colorThemeId': colorThemeId,
       };
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) => UserPreferences(
@@ -112,7 +102,6 @@ class UserPreferences {
         practiceQuestionCount: json['practiceQuestionCount'] as int? ?? 10,
         practiceSecondsPerQuestion:
             json['practiceSecondsPerQuestion'] as int? ?? 60,
-        colorThemeId: json['colorThemeId'] as String? ?? 'purple',
       );
 }
 
@@ -214,20 +203,9 @@ class UserPreferencesService {
     await _persist(next);
   }
 
-  /// Persist a new color theme preset id. Unknown ids are normalized to
-  /// `'purple'` (the default) so a corrupted value can't break the app.
-  Future<void> setColorThemeId(String id) async {
-    const valid = {'purple', 'ocean', 'forest'};
-    final normalized = valid.contains(id) ? id : 'purple';
-    final next = current.copyWith(colorThemeId: normalized);
-    prefsNotifier.value = next;
-    await _persist(next);
-  }
-
   /// Resets study progress AND target fields, but PRESERVES the user's
   /// app-level preferences (theme / reminder / practice defaults / name /
-  /// avatar / color theme). Delegates the actual stats reset to
-  /// [UserProgressService].
+  /// avatar). Delegates the actual stats reset to [UserProgressService].
   Future<void> resetProgress() async {
     await UserProgressService.instance.resetProgress();
     final next = UserPreferences(
@@ -238,7 +216,6 @@ class UserPreferencesService {
       dailyReminderEnabled: current.dailyReminderEnabled,
       practiceQuestionCount: current.practiceQuestionCount,
       practiceSecondsPerQuestion: current.practiceSecondsPerQuestion,
-      colorThemeId: current.colorThemeId,
       // Reset target fields to factory defaults.
       targetYear: 2026,
       targetState: null,

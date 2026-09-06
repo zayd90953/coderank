@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/firebase_user_util.dart';
 import '../../../../shared/services/user_progress_service.dart';
@@ -78,7 +78,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             .rank;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F7FD),
+          backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -88,7 +88,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             title: const Text(
               "NEET Leaderboard",
               style: TextStyle(
-                color: AppColors.text,
+                color: AppColors.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -103,9 +103,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFEDE8F5)),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     children: [
@@ -147,7 +147,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           bottomSheet: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
@@ -171,7 +171,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     child: Text(
                       "#$currentUserRank",
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.surface,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
@@ -200,7 +200,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.text,
+                            color: AppColors.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -209,7 +209,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                           "$userAcc% accuracy • ${data.tier} Tier",
                           style: const TextStyle(
                             fontSize: 11,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -231,7 +231,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -272,7 +272,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.subtitle,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
             ),
@@ -290,9 +290,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -366,7 +366,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 child: Text(
                   entry.avatarText,
                   style: TextStyle(
-                    color: AppColors.text,
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: isFirst ? 18 : 14,
                   ),
@@ -384,7 +384,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 child: Text(
                   badgeLabel,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),
@@ -452,7 +452,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         border: Border.all(
           color: entry.isCurrentUser
               ? palette.primary.withValues(alpha: 0.3)
-              : const Color(0xFFEDE8F5),
+              : AppColors.border,
           width: entry.isCurrentUser ? 1.5 : 1,
         ),
       ),
@@ -467,7 +467,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 fontWeight: FontWeight.bold,
                 color: entry.isCurrentUser
                     ? palette.primary
-                    : AppColors.subtitle,
+                    : AppColors.textSecondary,
               ),
             ),
           ),
@@ -475,7 +475,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             radius: 18,
             backgroundColor: entry.isCurrentUser
                 ? palette.primary
-                : const Color(0xFFF1EFF6),
+                : AppColors.surfaceElevated,
             child: Text(
               entry.avatarText,
               style: TextStyle(
@@ -506,7 +506,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   "${entry.college} • ${entry.accuracy}% acc",
                   style: const TextStyle(
                     fontSize: 11,
-                    color: AppColors.subtitle,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -520,7 +520,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.text,
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(

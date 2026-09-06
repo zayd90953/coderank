@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../app/auth_gate.dart';
-import '../../core/constants/app_text_styles.dart';
+import '../../core/design/app_colors.dart';
+import '../../core/design/app_typography.dart';
 import '../../core/theme/color_palette.dart';
 import '../onboarding/screens/onboarding_screen.dart';
 
@@ -103,14 +104,14 @@ class _SplashScreenState extends State<SplashScreen>
 
                 Text(
                   "CodeRank",
-                  style: AppTextStyles.title,
+                  style: AppTypography.headline(color: AppColors.textOnPrimary),
                 ),
 
                 const SizedBox(height: 6),
 
                 Text(
                   "Practice. Improve. Rank Higher.",
-                  style: AppTextStyles.subtitle,
+                  style: AppTypography.body(color: AppColors.textOnPrimary),
                   textAlign: TextAlign.center,
                 ),
               ],

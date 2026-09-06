@@ -13,21 +13,22 @@ import 'package:coderank/features/profile/presentation/widgets/color_swatch.dart
 
 void main() {
   group('ColorPalette — preset lookup', () {
-    test('byId returns the matching preset for known ids', () {
-      expect(ColorPalette.byId('purple'), ColorPalette.brandPurple);
-      expect(ColorPalette.byId('ocean'), ColorPalette.oceanBlue);
-      expect(ColorPalette.byId('forest'), ColorPalette.forestGreen);
+    test('byId returns brandGreen for any known id', () {
+      // Only brandGreen remains — all ids fall back to it.
+      expect(ColorPalette.byId('green'), ColorPalette.brandGreen);
+      expect(ColorPalette.byId('purple'), ColorPalette.brandGreen);
+      expect(ColorPalette.byId('ocean'), ColorPalette.brandGreen);
+      expect(ColorPalette.byId('forest'), ColorPalette.brandGreen);
     });
 
-    test('byId falls back to brand purple for unknown ids', () {
-      expect(ColorPalette.byId('neon-pink'), ColorPalette.brandPurple);
-      expect(ColorPalette.byId(''), ColorPalette.brandPurple);
+    test('byId falls back to brandGreen for unknown ids', () {
+      expect(ColorPalette.byId('neon-pink'), ColorPalette.brandGreen);
+      expect(ColorPalette.byId(''), ColorPalette.brandGreen);
     });
 
-    test('all three presets have distinct primary colors', () {
-      final primaries = ColorPalette.all.map((p) => p.primary).toSet();
-      expect(primaries.length, ColorPalette.all.length,
-          reason: 'Every preset should expose a unique brand color.');
+    test('only one preset exists', () {
+      expect(ColorPalette.all.length, 1);
+      expect(ColorPalette.all.first, ColorPalette.brandGreen);
     });
   });
 

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   /// App-wide singleton. Tests can swap the underlying [FirebaseAuth]
@@ -33,6 +34,16 @@ class AuthService {
 
   static FirebaseAuth _defaultFactory() => FirebaseAuth.instance;
 
+  // ── Google Sign-In instance (P1-2) ───────────────────────────────────
+  //
+  // `google_sign_in` 6.x picks up the Android OAuth client from
+  // `google-services.json` automatically — no serverClientId is required
+  // on Android. If the project's `google-services.json` is missing the
+  // OAuth client (an empty `oauth_client: []`), sign-in will throw
+  // `PlatformException(sign_in_failed, ...)`. See GOOGLE_SIGNIN_SETUP.md.
+  GoogleSignIn? _googleSignInCached;
+  GoogleSignIn get _googleSignIn => _googleSignInCached ??= GoogleSignIn();
+
   // Create account
   Future<UserCredential> signUp({
     required String email,
@@ -55,16 +66,136 @@ class AuthService {
     );
   }
 
+  // ── Google Sign-In (P1-2) ───────────────────────────────────────────
+  //
+  // Flow:
+  //   1. `disconnect()` first — clears any cached account on this
+  //      device so the Google account picker is shown every time.
+  //      (signOut() only clears the auth session; the picker would
+  //      silently reuse the last account otherwise.)
+  //   2. `signIn()` — opens the picker, returns a `GoogleSignInAccount`.
+  //   3. Build a Firebase `GoogleAuthProvider.credential` from the
+  //      account's `idToken` and `accessToken`.
+  //   4. Hand it to Firebase via `signInWithCredential`.
+  //
+  // If the user already has a Firebase session and the chosen Google
+  // account maps to the same email as an existing email/password
+  // account, Firebase will REJECT the sign-in with
+  // `account-exists-with-different-credential`. That is the known gap
+  // (see OPTIMIZATION.md / GOOGLE_SIGNIN_SETUP.md): the two providers
+  // create separate accounts and the user must sign in with whichever
+  // provider they originally used, or implement account linking.
+  Future<UserCredential> signInWithGoogle() async {
+    // 1) Force the picker.
+    try {
+      await _googleSignIn.disconnect();
+    } catch (_) {
+      // disconnect() throws if no user was previously signed in —
+      // safe to ignore.
+    }
+
+    // 2) Trigger the picker.
+    final GoogleSignInAccount? account = await _googleSignIn.signIn();
+    if (account == null) {
+      // User cancelled the picker.
+      throw const GoogleSignInCancelled();
+    }
+
+    // 3) Build the Firebase credential.
+    final GoogleSignInAuthentication auth = await account.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: auth.accessToken,
+      idToken: auth.idToken,
+    );
+
+    // 4) Hand off to Firebase.
+    return await _auth.signInWithCredential(credential);
+  }
+
+  // Sign out — covers both email/password and Google accounts.
+  // For Google, also `signOut()` from the `google_sign_in` plugin so the
+  // picker shows every other account on next sign-in. We deliberately do
+  // NOT call `disconnect()` here because that would force re-consent
+  // and clear the user's saved choice unnecessarily.
+  Future<void> signOut() async {
+    final current = _auth.currentUser;
+    final isGoogleUser = current?.providerData
+            .any((p) => p.providerId == 'google.com') ??
+        false;
+    if (isGoogleUser) {
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {
+        // signOut() can throw if no Google account is linked; ignore.
+      }
+    }
+    await _auth.signOut();
+  }
+
   // Send password reset email
   Future<void> resetPassword(String email) async {
     await _auth.sendPasswordResetEmail(email: email.trim());
   }
 
-  // Sign out
-  Future<void> signOut() async {
-    await _auth.signOut();
+  // ── Sensitive updates (P1-2 / P4-6) ─────────────────────────────────
+  // Firebase requires a recent sign-in for `updateEmail` / `updatePassword`.
+  // If the last sign-in is older than ~5 minutes, the call throws
+  // `requires-recent-login`. The UI must collect the user's current
+  // password and call [reauthenticateWithPassword] first.
+
+  /// Re-authenticates the current email/password user with their current
+  /// password. Throws if the user is not signed in or signed in via a
+  /// provider that doesn't have a password (e.g. Google).
+  Future<void> reauthenticateWithPassword(String password) async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) {
+      throw FirebaseAuthException(
+        code: 'no-current-user',
+        message: 'No user is currently signed in.',
+      );
+    }
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: password,
+    );
+    await user.reauthenticateWithCredential(credential);
+  }
+
+  /// Updates the current user's email. Caller is responsible for having
+  /// re-authenticated recently.
+  Future<void> updateEmail(String newEmail) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw FirebaseAuthException(
+        code: 'no-current-user',
+        message: 'No user is currently signed in.',
+      );
+    }
+    await user.verifyBeforeUpdateEmail(newEmail.trim());
+  }
+
+  /// Updates the current user's password. Caller is responsible for
+  /// having re-authenticated recently.
+  Future<void> updatePassword(String newPassword) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw FirebaseAuthException(
+        code: 'no-current-user',
+        message: 'No user is currently signed in.',
+      );
+    }
+    await user.updatePassword(newPassword);
   }
 
   // Current user
   User? get currentUser => _auth.currentUser;
+}
+
+/// Sentinel exception thrown when the user dismisses the Google account
+/// picker without choosing an account. Callers should treat this as a
+/// no-op (don't show an error toast).
+class GoogleSignInCancelled implements Exception {
+  const GoogleSignInCancelled();
+  @override
+  String toString() => 'GoogleSignInCancelled';
 }

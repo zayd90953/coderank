@@ -2,6 +2,11 @@ class PracticeSession {
   final String subject;
   final int totalQuestions;
 
+  /// A-3: marks this session as a Daily NEET Challenge attempt. Used by
+  /// the daily flow to award the +50 XP completion bonus and stamp the
+  /// per-day lock. Defaults to false; existing call sites are unaffected.
+  final bool isDailyChallenge;
+
   int correctAnswers;
   int incorrectAnswers;
   int unansweredQuestions;
@@ -18,6 +23,7 @@ class PracticeSession {
     this.correctAnswers = 0,
     this.incorrectAnswers = 0,
     this.unansweredQuestions = 0,
+    this.isDailyChallenge = false,
   })  : selectedAnswers = {},
         completedQuestions = {};
 

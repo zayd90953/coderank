@@ -1,14 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart' hide ColorSwatch;
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/auth_service.dart';
 import '../../../shared/services/firebase_user_util.dart';
 import '../../../shared/services/user_preferences_service.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
+import '../../navigation/main_nav_screen.dart';
 import '../../welcome/presentation/welcome_screen.dart';
 import 'sheets/avatar_picker_sheet.dart';
-import 'sheets/color_picker_sheet.dart';
 import 'sheets/edit_name_sheet.dart';
 import 'sheets/target_picker_sheet.dart';
 import 'sheets/theme_picker_sheet.dart';
@@ -26,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: const Row(
           children: [
@@ -36,12 +37,12 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.text)),
+                    color: AppColors.textPrimary)),
           ],
         ),
         content: const Text(
           "Are you sure you want to sign out of CodeRank? Your study progress is safely saved.",
-          style: TextStyle(fontSize: 14, color: AppColors.subtitle, height: 1.4),
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
         ),
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
@@ -49,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(ctx),
             child: const Text("Cancel",
                 style: TextStyle(
-                    color: AppColors.subtitle, fontWeight: FontWeight.w600)),
+                    color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -78,26 +79,563 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // P1-2: Switch Account flow for Google users. Signs them out of both
+  // Google and Firebase, then immediately re-triggers the Google
+  // sign-in flow which forces the account picker (see
+  // [AuthService.signInWithGoogle]).
+  void _switchGoogleAccount(BuildContext context) async {
+    await AuthService.instance.signOut();
+    if (!context.mounted) return;
+    try {
+      await AuthService.instance.signInWithGoogle();
+      if (!context.mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavScreen()),
+        (route) => false,
+      );
+    } on GoogleSignInCancelled {
+      // User dismissed the picker after the sign-out. Send them to
+      // the welcome screen so they're not stuck on a Profile with no
+      // user behind it.
+      if (!context.mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.code == 'account-exists-with-different-credential'
+                ? "An account with this email already exists. Please use email and password instead."
+                : "Could not switch account. Please try again.",
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Could not switch account. Please try again."),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  // ── Change Email / Change Password (email/password users only) ──────
+  //
+  // Both flows follow the same shape:
+  //   1. Re-auth dialog: ask the user for their current password and
+  //      call [AuthService.reauthenticateWithPassword]. The dialog uses
+  //      `StatefulBuilder` so error messages can re-render inline with
+  //      the red-border `errorText` pattern.
+  //   2. Update dialog: collect the new value (email or new password) and
+  //      call the relevant `AuthService.updateEmail` / `updatePassword`.
+  //   3. Success snackbar (or, for email, an extra "check your inbox"
+  //      hint because we use verifyBeforeUpdateEmail).
+  //
+  // Google users skip this entirely: they have no password and email
+  // changes for Google accounts are managed at accounts.google.com.
+
+  /// Shows the re-auth dialog. Returns `true` on success, `false` if the
+  /// user cancelled or auth failed.
+  Future<bool> _showReauthDialog(BuildContext context) async {
+    final palette = ColorPaletteController.instance.current;
+    final passwordController = TextEditingController();
+    String? passwordError;
+    bool isAuthenticating = false;
+    bool? result;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setLocalState) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22)),
+            title: const Text("Confirm It's You",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Enter your current password to continue.",
+                  style: TextStyle(
+                      fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  autofocus: true,
+                  textInputAction: TextInputAction.done,
+                  onChanged: (_) {
+                    if (passwordError != null) {
+                      setLocalState(() => passwordError = null);
+                    }
+                  },
+                  onSubmitted: (_) => _attemptReauth(
+                    context,
+                    ctx,
+                    passwordController,
+                    (err) => setLocalState(() => passwordError = err),
+                    () => setLocalState(() => isAuthenticating = true),
+                    () => setLocalState(() => isAuthenticating = false),
+                    (ok) {
+                      setLocalState(() {
+                        isAuthenticating = false;
+                        result = ok;
+                      });
+                      if (ok) Navigator.of(ctx).pop();
+                    },
+                  ),
+                  decoration: InputDecoration(
+                    errorText: passwordError,
+                    labelText: 'Current password',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isAuthenticating
+                    ? null
+                    : () {
+                        result = false;
+                        Navigator.of(ctx).pop();
+                      },
+                child: const Text("Cancel",
+                    style: TextStyle(color: AppColors.textSecondary)),
+              ),
+              ElevatedButton(
+                onPressed: isAuthenticating
+                    ? null
+                    : () => _attemptReauth(
+                          context,
+                          ctx,
+                          passwordController,
+                          (err) => setLocalState(() => passwordError = err),
+                          () => setLocalState(() => isAuthenticating = true),
+                          () => setLocalState(() => isAuthenticating = false),
+                          (ok) {
+                            setLocalState(() {
+                              isAuthenticating = false;
+                              result = ok;
+                            });
+                            if (ok) Navigator.of(ctx).pop();
+                          },
+                        ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: palette.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: isAuthenticating
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColors.surface,
+                        ),
+                      )
+                    : const Text("Continue"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
+  /// Runs the reauth, calling the supplied callbacks to drive the
+  /// dialog's local state.
+  void _attemptReauth(
+    BuildContext context,
+    BuildContext dialogContext,
+    TextEditingController passwordController,
+    void Function(String?) setError,
+    VoidCallback onStart,
+    VoidCallback onEnd,
+    void Function(bool) finish,
+  ) async {
+    final password = passwordController.text;
+    if (password.isEmpty) {
+      setError('Please enter your current password.');
+      return;
+    }
+    onStart();
+    try {
+      await AuthService.instance.reauthenticateWithPassword(password);
+      finish(true);
+    } on FirebaseAuthException catch (e) {
+      onEnd();
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        setError('Incorrect password.');
+      } else if (e.code == 'too-many-requests') {
+        setError('Too many attempts. Try again later.');
+      } else {
+        setError('Could not verify your password. Try again.');
+      }
+    } catch (_) {
+      onEnd();
+      setError('Could not verify your password. Try again.');
+    }
+  }
+
+  Future<void> _changeEmail(BuildContext context) async {
+    final reauthed = await _showReauthDialog(context);
+    if (!reauthed || !context.mounted) return;
+
+    final palette = ColorPaletteController.instance.current;
+    final newEmailController = TextEditingController();
+    String? emailError;
+    bool isSaving = false;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setLocalState) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22)),
+            title: const Text("Change Email",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "We'll send a verification link to the new address. Your email won't change until you tap the link.",
+                  style: TextStyle(
+                      fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: newEmailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.done,
+                  autofocus: true,
+                  onChanged: (_) {
+                    if (emailError != null) {
+                      setLocalState(() => emailError = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    errorText: emailError,
+                    labelText: 'New email address',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.email_outlined),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed:
+                    isSaving ? null : () => Navigator.of(ctx).pop(),
+                child: const Text("Cancel",
+                    style: TextStyle(color: AppColors.textSecondary)),
+              ),
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final newEmail = newEmailController.text.trim();
+                        if (newEmail.isEmpty || !newEmail.contains('@')) {
+                          setLocalState(() =>
+                              emailError = 'Please enter a valid email.');
+                          return;
+                        }
+                        setLocalState(() => isSaving = true);
+                        try {
+                          await AuthService.instance.updateEmail(newEmail);
+                          if (!context.mounted) return;
+                          Navigator.of(ctx).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Verification link sent to $newEmail.",
+                              ),
+                              backgroundColor: palette.primary,
+                            ),
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          setLocalState(() => isSaving = false);
+                          if (e.code == 'email-already-in-use') {
+                            setLocalState(() =>
+                                emailError = 'That email is already in use.');
+                          } else if (e.code == 'invalid-email') {
+                            setLocalState(() =>
+                                emailError = 'Please enter a valid email.');
+                          } else if (e.code == 'requires-recent-login') {
+                            setLocalState(() => isSaving = false);
+                            Navigator.of(ctx).pop();
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Please try again and enter your password promptly.",
+                                ),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          } else {
+                            setLocalState(() =>
+                                emailError = 'Could not update email.');
+                          }
+                        } catch (_) {
+                          setLocalState(() => isSaving = false);
+                          setLocalState(
+                              () => emailError = 'Could not update email.');
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: palette.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColors.surface,
+                        ),
+                      )
+                    : const Text("Send Link"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _changePassword(BuildContext context) async {
+    final reauthed = await _showReauthDialog(context);
+    if (!reauthed || !context.mounted) return;
+
+    final palette = ColorPaletteController.instance.current;
+    final currentPwd = TextEditingController();
+    final newPwd = TextEditingController();
+    final confirmPwd = TextEditingController();
+    String? newPwdError;
+    String? confirmPwdError;
+    bool isSaving = false;
+    bool obscureNew = true;
+    bool obscureConfirm = true;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setLocalState) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22)),
+            title: const Text("Change Password",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Pick a new password. It must be at least 6 characters.",
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        height: 1.4),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: newPwd,
+                    obscureText: obscureNew,
+                    textInputAction: TextInputAction.next,
+                    onChanged: (_) {
+                      if (newPwdError != null) {
+                        setLocalState(() => newPwdError = null);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      errorText: newPwdError,
+                      labelText: 'New password',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.lock_outline_rounded),
+                      suffixIcon: IconButton(
+                        icon: Icon(obscureNew
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined),
+                        onPressed: () => setLocalState(
+                            () => obscureNew = !obscureNew),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: confirmPwd,
+                    obscureText: obscureConfirm,
+                    textInputAction: TextInputAction.done,
+                    onChanged: (_) {
+                      if (confirmPwdError != null) {
+                        setLocalState(() => confirmPwdError = null);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      errorText: confirmPwdError,
+                      labelText: 'Confirm new password',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.lock_outline_rounded),
+                      suffixIcon: IconButton(
+                        icon: Icon(obscureConfirm
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined),
+                        onPressed: () => setLocalState(
+                            () => obscureConfirm = !obscureConfirm),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed:
+                    isSaving ? null : () => Navigator.of(ctx).pop(),
+                child: const Text("Cancel",
+                    style: TextStyle(color: AppColors.textSecondary)),
+              ),
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final np = newPwd.text;
+                        final cp = confirmPwd.text;
+                        if (np.length < 6) {
+                          setLocalState(() => newPwdError =
+                              'Password must be at least 6 characters.');
+                          return;
+                        }
+                        if (np != cp) {
+                          setLocalState(() =>
+                              confirmPwdError = 'Passwords do not match.');
+                          return;
+                        }
+                        setLocalState(() => isSaving = true);
+                        try {
+                          await AuthService.instance.updatePassword(np);
+                          if (!context.mounted) return;
+                          Navigator.of(ctx).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                  "Your password has been updated."),
+                              backgroundColor: palette.primary,
+                            ),
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          setLocalState(() => isSaving = false);
+                          if (e.code == 'weak-password') {
+                            setLocalState(() =>
+                                newPwdError = 'Please choose a stronger password.');
+                          } else if (e.code == 'requires-recent-login') {
+                            setLocalState(() => isSaving = false);
+                            Navigator.of(ctx).pop();
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Please try again and enter your password promptly.",
+                                ),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          } else {
+                            setLocalState(() =>
+                                newPwdError = 'Could not update password.');
+                          }
+                        } catch (_) {
+                          setLocalState(() => isSaving = false);
+                          setLocalState(() =>
+                              newPwdError = 'Could not update password.');
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: palette.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColors.surface,
+                        ),
+                      )
+                    : const Text("Update"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    // `currentPwd` is unused (the reauth dialog captured the password
+    // earlier); suppress the unused-local warning.
+    currentPwd.dispose();
+  }
+
   void _confirmReset(BuildContext context, ColorPalette palette) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: const Text("Reset Progress?",
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text)),
+                color: AppColors.textPrimary)),
         content: const Text(
           "This will reset all your solved questions, XP, and subject accuracies back to zero. This cannot be undone.",
-          style: TextStyle(fontSize: 13, color: AppColors.subtitle, height: 1.4),
+          style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text("Cancel",
-                style: TextStyle(color: AppColors.subtitle)),
+                style: TextStyle(color: AppColors.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -165,14 +703,14 @@ class ProfileScreen extends StatelessWidget {
               valueListenable: ColorPaletteController.instance.paletteNotifier,
               builder: (context, palette, _) {
                 return Scaffold(
-                  backgroundColor: const Color(0xFFF8F7FD),
+                  backgroundColor: AppColors.background,
                   appBar: AppBar(
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     leading: const BackButtonToHome(),
                     title: const Text("Student Profile",
                         style: TextStyle(
-                            color: AppColors.text,
+                            color: AppColors.textPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.bold)),
                     centerTitle: true,
@@ -246,11 +784,61 @@ class ProfileScreen extends StatelessWidget {
                               trailing: const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                               onTap: () => showEditNameSheet(context,
                                   initial: id.name),
                             ),
+                            // Change Email / Change Password only show
+                            // for email/password users. Google users have
+                            // no password and manage their email at
+                            // accounts.google.com.
+                            if (!id.isGoogleUser) ...[
+                              SettingsTile(
+                                icon: Icons.alternate_email_rounded,
+                                title: "Change Email",
+                                subtitle: "Update the email on your account",
+                                palette: palette,
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 14,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onTap: () => _changeEmail(context),
+                              ),
+                              SettingsTile(
+                                icon: Icons.password_rounded,
+                                title: "Change Password",
+                                subtitle: "Choose a new password",
+                                palette: palette,
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 14,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onTap: () => _changePassword(context),
+                              ),
+                            ],
+                            // Switch Account only shows for Google users.
+                            // Signing out + immediately re-triggering the
+                            // Google sign-in flow forces the account picker
+                            // (AuthService.signInWithGoogle also calls
+                            // GoogleSignIn.disconnect() defensively).
+                            if (id.isGoogleUser) ...[
+                              SettingsTile(
+                                icon: Icons.switch_account_rounded,
+                                title: "Switch Account",
+                                subtitle:
+                                    "Sign out and pick a different Google account",
+                                palette: palette,
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 14,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onTap: () => _switchGoogleAccount(context),
+                              ),
+                            ],
                             SettingsTile(
                               icon: Icons.logout_rounded,
                               title: "Sign Out",
@@ -261,10 +849,34 @@ class ProfileScreen extends StatelessWidget {
                               trailing: const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                               onTap: () => _confirmSignOut(context),
                             ),
+                            // P1-2: explicit note about the known account
+                            // separation gap. This isn't a bug — it's a
+                            // limitation we surface to the user until
+                            // account linking is implemented.
+                            if (!id.isGoogleUser) ...[
+                              const SizedBox(height: 6),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    16, 10, 16, 4),
+                                child: Text(
+                                  "This account uses email and password. "
+                                  "Email/password and Google sign-in currently "
+                                  "create separate accounts, so your progress "
+                                  "won't carry over if you switch to Google "
+                                  "sign-in later.",
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    height: 1.4,
+                                    color: AppColors.textSecondary
+                                        .withValues(alpha: 0.95),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
 
@@ -282,21 +894,9 @@ class ProfileScreen extends StatelessWidget {
                               trailing: const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                               onTap: () => showThemePickerSheet(context),
-                            ),
-                            SettingsTile(
-                              icon: Icons.color_lens_rounded,
-                              title: "Color Theme",
-                              subtitle: _colorLabel(prefs.colorThemeId),
-                              palette: palette,
-                              trailing: ColorSwatch(
-                                color: palette.primary,
-                                selected: true,
-                                size: 22,
-                              ),
-                              onTap: () => showColorPickerSheet(context),
                             ),
                             SwitchSettingsTile(
                               icon: Icons.notifications_active_rounded,
@@ -316,7 +916,7 @@ class ProfileScreen extends StatelessWidget {
                               trailing: const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                               onTap: () =>
                                   _showPracticeDefaultsDialog(context, prefs),
@@ -332,7 +932,7 @@ class ProfileScreen extends StatelessWidget {
                               trailing: const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                               onTap: () => _confirmReset(context, palette),
                             ),
@@ -355,7 +955,7 @@ class ProfileScreen extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.subtitle,
+                                  color: AppColors.textSecondary,
                                 ),
                               ),
                             ),
@@ -367,7 +967,7 @@ class ProfileScreen extends StatelessWidget {
                               trailing: const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.subtitle,
+                                color: AppColors.textSecondary,
                               ),
                               onTap: () => _showAboutDialog(context),
                             ),
@@ -377,7 +977,7 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 20),
                         const Text(
                           "CodeRank v1.0.0 • Made for Ambitious NEET Aspirants",
-                          style: TextStyle(fontSize: 11, color: AppColors.subtitle),
+                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -402,8 +1002,6 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
-  String _colorLabel(String id) => ColorPalette.byId(id).label;
-
   void _showPracticeDefaultsDialog(
       BuildContext context, UserPreferences prefs) {
     final countController =
@@ -411,78 +1009,101 @@ class ProfileScreen extends StatelessWidget {
     final secondsController =
         TextEditingController(text: '${prefs.practiceSecondsPerQuestion}');
     final palette = ColorPaletteController.instance.current;
+
+    // Use a ValueNotifier so the dialog body (which is built once inside
+    // showDialog's builder) can still re-render with the latest errors.
+    String? countError;
+    String? secondsError;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        title: const Text("Practice Defaults",
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.text)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: countController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Questions per session',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: secondsController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Seconds per question',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel",
-                style: TextStyle(color: AppColors.subtitle)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final count = int.tryParse(countController.text.trim());
-              final seconds = int.tryParse(secondsController.text.trim());
-              if (count == null ||
-                  seconds == null ||
-                  count <= 0 ||
-                  seconds <= 0) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Please enter positive numbers."),
-                    backgroundColor: AppColors.error,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setLocalState) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22)),
+            title: const Text("Practice Defaults",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: countController,
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) {
+                    if (countError != null) {
+                      setLocalState(() => countError = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    errorText: countError,
+                    labelText: 'Questions per session',
+                    border: const OutlineInputBorder(),
                   ),
-                );
-                return;
-              }
-              await UserPreferencesService.instance.setPracticeDefaults(
-                count: count,
-                seconds: seconds,
-              );
-              if (context.mounted) Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: palette.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: secondsController,
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) {
+                    if (secondsError != null) {
+                      setLocalState(() => secondsError = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    errorText: secondsError,
+                    labelText: 'Seconds per question',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
             ),
-            child: const Text("Save"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text("Cancel",
+                    style: TextStyle(color: AppColors.textSecondary)),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final count = int.tryParse(countController.text.trim());
+                  final seconds =
+                      int.tryParse(secondsController.text.trim());
+
+                  setLocalState(() {
+                    countError = (count == null || count <= 0)
+                        ? "Enter a positive number."
+                        : null;
+                    secondsError = (seconds == null || seconds <= 0)
+                        ? "Enter a positive number."
+                        : null;
+                  });
+
+                  if (countError != null || secondsError != null) return;
+
+                  await UserPreferencesService.instance.setPracticeDefaults(
+                    count: count!,
+                    seconds: seconds!,
+                  );
+                  if (context.mounted) Navigator.pop(ctx);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: palette.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text("Save"),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -490,25 +1111,25 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: const Text("About CodeRank",
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text)),
+                color: AppColors.textPrimary)),
         content: const Text(
           "CodeRank is a smart NEET prep companion built for ambitious students. "
           "Practice topic-wise, take mock tests, and climb the daily leaderboard "
           "as you build the consistency that cracks NEET.",
-          style: TextStyle(fontSize: 13, color: AppColors.subtitle, height: 1.4),
+          style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text("Close",
-                style: TextStyle(color: AppColors.subtitle)),
+                style: TextStyle(color: AppColors.textSecondary)),
           ),
         ],
       ),
@@ -564,9 +1185,9 @@ class _HeaderCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -580,14 +1201,20 @@ class _HeaderCard extends StatelessWidget {
           Stack(
             alignment: Alignment.bottomRight,
             children: [
-              GestureDetector(
-                onTap: onAvatarTap,
-                child: ProfileAvatar(
-                  displayName: name,
-                  googlePhotoUrl: photoUrl,
-                  assetKey: assetKey,
-                  palette: palette,
-                  radius: 40,
+              Material(
+                color: Colors.transparent,
+                shape: const CircleBorder(),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: onAvatarTap,
+                  customBorder: const CircleBorder(),
+                  child: ProfileAvatar(
+                    displayName: name,
+                    googlePhotoUrl: photoUrl,
+                    assetKey: assetKey,
+                    palette: palette,
+                    radius: 40,
+                  ),
                 ),
               ),
               Container(
@@ -613,11 +1240,11 @@ class _HeaderCard extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text)),
+                  color: AppColors.textPrimary)),
           const SizedBox(height: 3),
           Text(email,
               style:
-                  const TextStyle(fontSize: 13, color: AppColors.subtitle)),
+                  const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
           const SizedBox(height: 16),
           InkWell(
             onTap: () => showTargetPickerSheet(context),
@@ -642,7 +1269,7 @@ class _HeaderCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: hasFullTarget
                           ? palette.primary
-                          : AppColors.subtitle,
+                          : AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -703,11 +1330,11 @@ class _IdentityRow extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.text)),
+                        color: AppColors.textPrimary)),
                 const SizedBox(height: 2),
                 Text(email,
                     style: const TextStyle(
-                        fontSize: 12, color: AppColors.subtitle)),
+                        fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -767,12 +1394,12 @@ class SwitchSettingsTile extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.text)),
+                        color: AppColors.textPrimary)),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(subtitle!,
                       style: const TextStyle(
-                          fontSize: 12, color: AppColors.subtitle)),
+                          fontSize: 12, color: AppColors.textSecondary)),
                 ],
               ],
             ),
@@ -810,9 +1437,9 @@ class _ProfileStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
@@ -822,12 +1449,12 @@ class _ProfileStatCard extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text)),
+                  color: AppColors.textPrimary)),
           const SizedBox(height: 2),
           Text(label,
               style: const TextStyle(
                   fontSize: 11,
-                  color: AppColors.subtitle,
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500)),
         ],
       ),

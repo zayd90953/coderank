@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../practice/presentation/setup/practice_setup_screen.dart';
+import '../data/analytics_aggregations.dart';
+import 'widgets/focus_callout.dart';
+import 'widgets/weekly_trend_card.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -23,7 +26,7 @@ class AnalyticsScreen extends StatelessWidget {
         final predictedAir = data.predictedAir;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F7FD),
+          backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -33,7 +36,7 @@ class AnalyticsScreen extends StatelessWidget {
             title: const Text(
               "Performance Analytics",
               style: TextStyle(
-                color: AppColors.text,
+                color: AppColors.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -82,7 +85,7 @@ class AnalyticsScreen extends StatelessWidget {
                               Text(
                                 predictedAir,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.surface,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w900,
                                 ),
@@ -112,7 +115,7 @@ class AnalyticsScreen extends StatelessWidget {
                                 Text(
                                   percentile,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.surface,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -187,13 +190,21 @@ class AnalyticsScreen extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
+                // A-5: weekly trend (accuracy bar chart + streak dots).
+                WeeklyTrendCard(history: data.history),
+                const SizedBox(height: 16),
+
+                // A-5: focus this week weak-area callout.
+                FocusCallout(subjectStats: data.subjectStats),
+                const SizedBox(height: 30),
+
                 // Subject Mastery Breakdown
                 const Text(
                   "Subject Mastery",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.text,
+                    color: AppColors.textPrimary,
                     letterSpacing: -0.3,
                   ),
                 ),
@@ -202,7 +213,7 @@ class AnalyticsScreen extends StatelessWidget {
                   "Track your accuracy and solved questions across NEET subjects.",
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.subtitle,
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -213,6 +224,9 @@ class AnalyticsScreen extends StatelessWidget {
                   gradient: AppColors.physicsGradient,
                   stat: data.subjectStats['Physics'] ??
                       const SubjectStat(subject: 'Physics'),
+                  direction: AnalyticsAggregations.trendWindowForSubject(
+                          data.history, 'Physics')
+                      .direction(),
                   onPracticeTap: () {
                     Navigator.push(
                       context,
@@ -231,6 +245,9 @@ class AnalyticsScreen extends StatelessWidget {
                   gradient: AppColors.chemistryGradient,
                   stat: data.subjectStats['Chemistry'] ??
                       const SubjectStat(subject: 'Chemistry'),
+                  direction: AnalyticsAggregations.trendWindowForSubject(
+                          data.history, 'Chemistry')
+                      .direction(),
                   onPracticeTap: () {
                     Navigator.push(
                       context,
@@ -249,6 +266,9 @@ class AnalyticsScreen extends StatelessWidget {
                   gradient: AppColors.biologyGradient,
                   stat: data.subjectStats['Biology'] ??
                       const SubjectStat(subject: 'Biology'),
+                  direction: AnalyticsAggregations.trendWindowForSubject(
+                          data.history, 'Biology')
+                      .direction(),
                   onPracticeTap: () {
                     Navigator.push(
                       context,
@@ -267,9 +287,9 @@ class AnalyticsScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: const Color(0xFFEDE8F5)),
+                    border: Border.all(color: AppColors.border),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -301,7 +321,7 @@ class AnalyticsScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.text,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -341,7 +361,7 @@ class AnalyticsScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.text,
+                        color: AppColors.textPrimary,
                         letterSpacing: -0.3,
                       ),
                     ),
@@ -350,7 +370,7 @@ class AnalyticsScreen extends StatelessWidget {
                         "${data.history.length} Sessions",
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppColors.subtitle,
+                          color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -366,16 +386,16 @@ class AnalyticsScreen extends StatelessWidget {
                       horizontal: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFEDE8F5)),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Column(
                       children: [
                         Icon(
                           Icons.history_rounded,
                           size: 48,
-                          color: AppColors.subtitle.withValues(alpha: 0.4),
+                          color: AppColors.textSecondary.withValues(alpha: 0.4),
                         ),
                         const SizedBox(height: 12),
                         const Text(
@@ -383,7 +403,7 @@ class AnalyticsScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.text,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -392,7 +412,7 @@ class AnalyticsScreen extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.subtitle,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -405,9 +425,9 @@ class AnalyticsScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surface,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: const Color(0xFFEDE8F5)),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: Row(
                         children: [
@@ -435,7 +455,7 @@ class AnalyticsScreen extends StatelessWidget {
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.text,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 3),
@@ -443,7 +463,7 @@ class AnalyticsScreen extends StatelessWidget {
                                   "${record.correct} of ${record.total} correct • +${record.xpGained} XP",
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: AppColors.subtitle,
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -456,16 +476,16 @@ class AnalyticsScreen extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: acc >= 75
-                                  ? const Color(0xFFECFDF5)
-                                  : const Color(0xFFFFFBEB),
+                                  ? AppColors.success.withValues(alpha: 0.12)
+                                  : AppColors.warning.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               "$acc%",
                               style: TextStyle(
                                 color: acc >= 75
-                                    ? const Color(0xFF059669)
-                                    : const Color(0xFFD97706),
+                                    ? AppColors.success
+                                    : AppColors.warning,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -516,7 +536,7 @@ class _HeroStatItem extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.surface,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -540,6 +560,10 @@ class _SubjectMasteryCard extends StatelessWidget {
   final IconData icon;
   final LinearGradient gradient;
   final SubjectStat stat;
+
+  /// A-5: optional trend indicator (up/down/steady) for this subject.
+  final TrendDirection? direction;
+
   final VoidCallback onPracticeTap;
 
   const _SubjectMasteryCard({
@@ -548,6 +572,7 @@ class _SubjectMasteryCard extends StatelessWidget {
     required this.gradient,
     required this.stat,
     required this.onPracticeTap,
+    this.direction,
   });
 
   @override
@@ -559,9 +584,9 @@ class _SubjectMasteryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -582,7 +607,7 @@ class _SubjectMasteryCard extends StatelessWidget {
                   gradient: gradient,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: Colors.white, size: 24),
+                child: Icon(icon, color: AppColors.surface, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -594,7 +619,7 @@ class _SubjectMasteryCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.text,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -602,7 +627,7 @@ class _SubjectMasteryCard extends StatelessWidget {
                       "${stat.totalQuestions} questions solved • ${stat.sessionsCount} sessions",
                       style: const TextStyle(
                         fontSize: 12,
-                        color: AppColors.subtitle,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -632,19 +657,27 @@ class _SubjectMasteryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Accuracy: $acc%",
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.text,
-                ),
+              Row(
+                children: [
+                  Text(
+                    "Accuracy: $acc%",
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  if (direction != null) ...[
+                    const SizedBox(width: 8),
+                    _TrendPill(direction: direction!),
+                  ],
+                ],
               ),
               Text(
                 stat.totalQuestions == 0 ? "Not started" : "${stat.correctAnswers}/${stat.totalQuestions} correct",
                 style: const TextStyle(
                   fontSize: 11,
-                  color: AppColors.subtitle,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -655,10 +688,65 @@ class _SubjectMasteryCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress == 0 && stat.totalQuestions > 0 ? 0.05 : progress,
               minHeight: 8,
-              backgroundColor: const Color(0xFFF0ECF8),
+              backgroundColor: AppColors.border,
               valueColor: AlwaysStoppedAnimation<Color>(
                 gradient.colors.first,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrendPill extends StatelessWidget {
+  final TrendDirection direction;
+  const _TrendPill({required this.direction});
+
+  @override
+  Widget build(BuildContext context) {
+    IconData icon;
+    String label;
+    Color bg;
+    Color fg;
+    switch (direction) {
+      case TrendDirection.up:
+        icon = Icons.trending_up_rounded;
+        label = 'trending';
+        bg = AppColors.success.withValues(alpha: 0.12);
+        fg = AppColors.success;
+        break;
+      case TrendDirection.down:
+        icon = Icons.trending_down_rounded;
+        label = 'dropping';
+        bg = AppColors.error.withValues(alpha: 0.12);
+        fg = AppColors.error;
+        break;
+      case TrendDirection.steady:
+        icon = Icons.trending_flat_rounded;
+        label = 'steady';
+        bg = AppColors.surfaceElevated;
+        fg = AppColors.textSecondary;
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: fg, size: 11),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              color: fg,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -696,7 +784,7 @@ class _InsightRow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -704,7 +792,7 @@ class _InsightRow extends StatelessWidget {
                 description,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: AppColors.subtitle,
+                  color: AppColors.textSecondary,
                   height: 1.35,
                 ),
               ),

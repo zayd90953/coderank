@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 
 /// Shared bottom-sheet chrome. Two helpers: [showAppSheet] for short
@@ -7,7 +7,7 @@ import '../../../../core/theme/color_palette.dart';
 /// resizable surface. Both match the styling used by the mock-test
 /// review sheet (`lib/features/mock_test/presentation/mock_test_question_screen.dart`).
 const double kSheetTopRadius = 28;
-const Color kSheetDragHandleColor = Color(0xFFD1C9E8);
+const Color kSheetDragHandleColor = AppColors.border;
 
 /// The standard sheet frame used by all four profile sheets.
 Widget _sheetFrame({required Widget child, bool tall = false}) {
@@ -16,7 +16,7 @@ Widget _sheetFrame({required Widget child, bool tall = false}) {
     child: Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(kSheetTopRadius)),
       ),
       child: Column(
@@ -48,7 +48,7 @@ Widget sheetTitle(String text) => Padding(
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: AppColors.text,
+            color: AppColors.textPrimary,
           ),
         ),
       ),
@@ -90,7 +90,7 @@ Widget sheetSecondaryButton({
     height: 48,
     child: TextButton(
       onPressed: onPressed,
-      style: TextButton.styleFrom(foregroundColor: AppColors.subtitle),
+      style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
       child: Text(label,
           style:
               const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -103,7 +103,7 @@ Future<T?> showAppSheet<T>(BuildContext context, Widget child) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(kSheetTopRadius)),
     ),
@@ -121,7 +121,7 @@ Future<T?> showTallAppSheet<T>(BuildContext context, Widget child) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(kSheetTopRadius)),
     ),

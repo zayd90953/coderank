@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/design/app_colors.dart';
 import '../../features/navigation/main_nav_screen.dart';
 
 /// A back button that pops the current route if possible, otherwise switches

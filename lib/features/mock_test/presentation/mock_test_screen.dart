@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/color_palette.dart';
+import '../../../core/design/app_colors.dart';
 import '../../../features/practice/data/question_repository.dart';
 import '../../../features/practice/models/question_model.dart';
+import '../../../shared/widgets/back_button_to_home.dart';
+import 'mock_test_format_widgets.dart';
 import 'mock_test_question_screen.dart';
 
 /// Landing / setup screen for the Full-Length NEET Mock Test.
@@ -60,19 +61,15 @@ class _MockTestScreenState extends State<MockTestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FD),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: AppColors.text,
-        ),
+        leading: const BackButtonToHome(),
         title: const Text(
           'Full-Length Mock Test',
           style: TextStyle(
-            color: AppColors.text,
+            color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -124,7 +121,7 @@ class _MockTestScreenState extends State<MockTestScreen> {
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: AppColors.surface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -142,10 +139,10 @@ class _MockTestScreenState extends State<MockTestScreen> {
             const SizedBox(height: 28),
 
             // ── Format breakdown ──
-            const _SectionLabel(label: 'Paper Format'),
+            const SectionLabel(label: 'Paper Format'),
             const SizedBox(height: 10),
 
-            _FormatCard(
+            const FormatCard(
               color: AppColors.physics,
               subject: 'Physics',
               questions: 45,
@@ -153,7 +150,7 @@ class _MockTestScreenState extends State<MockTestScreen> {
               icon: Icons.bolt_rounded,
             ),
             const SizedBox(height: 10),
-            _FormatCard(
+            const FormatCard(
               color: AppColors.chemistry,
               subject: 'Chemistry',
               questions: 45,
@@ -161,7 +158,7 @@ class _MockTestScreenState extends State<MockTestScreen> {
               icon: Icons.science_rounded,
             ),
             const SizedBox(height: 10),
-            _FormatCard(
+            const FormatCard(
               color: AppColors.biology,
               subject: 'Biology',
               questions: 90,
@@ -172,34 +169,34 @@ class _MockTestScreenState extends State<MockTestScreen> {
             const SizedBox(height: 28),
 
             // ── Marking scheme ──
-            const _SectionLabel(label: 'Marking Scheme'),
+            const SectionLabel(label: 'Marking Scheme'),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFEDE8F5)),
+                border: Border.all(color: AppColors.border),
               ),
               child: Column(
-                children: [
-                  _MarkRow(
+                children: const [
+                  MarkRow(
                     icon: Icons.check_circle_rounded,
                     color: AppColors.success,
                     label: 'Correct answer',
                     mark: '+4',
                   ),
-                  const Divider(color: Color(0xFFF0ECF8), height: 20),
-                  _MarkRow(
+                  Divider(color: AppColors.border, height: 20),
+                  MarkRow(
                     icon: Icons.cancel_rounded,
                     color: AppColors.error,
                     label: 'Wrong answer',
                     mark: '−1',
                   ),
-                  const Divider(color: Color(0xFFF0ECF8), height: 20),
-                  _MarkRow(
+                  Divider(color: AppColors.border, height: 20),
+                  MarkRow(
                     icon: Icons.remove_circle_outline_rounded,
-                    color: AppColors.subtitle,
+                    color: AppColors.textSecondary,
                     label: 'Unattempted',
                     mark: '0',
                   ),
@@ -210,10 +207,10 @@ class _MockTestScreenState extends State<MockTestScreen> {
             const SizedBox(height: 28),
 
             // ── Rules ──
-            const _SectionLabel(label: 'Exam Rules'),
+            const SectionLabel(label: 'Exam Rules'),
             const SizedBox(height: 10),
-            _RuleCard(
-              rules: const [
+            const RuleCard(
+              rules: [
                 'Once started, the timer cannot be paused.',
                 'You can move between questions and change answers freely.',
                 'Mark questions for review using the flag button.',
@@ -246,7 +243,10 @@ class _MockTestScreenState extends State<MockTestScreen> {
                 onPressed: _isLoading ? null : _startExam,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFB800),
-                  foregroundColor: Colors.black87,
+                  foregroundColor: AppColors.textOnPrimary,
+                  disabledBackgroundColor:
+                      const Color(0xFFFFB800).withValues(alpha: 0.5),
+                  disabledForegroundColor: AppColors.textOnPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)),
@@ -256,7 +256,7 @@ class _MockTestScreenState extends State<MockTestScreen> {
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
-                          color: Colors.black54,
+                          color: AppColors.textOnPrimary,
                           strokeWidth: 2.5,
                         ),
                       )
@@ -276,162 +276,5 @@ class _MockTestScreenState extends State<MockTestScreen> {
   }
 }
 
-// ── Private helpers ───────────────────────────────────────────────────────────
-
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        color: AppColors.subtitle,
-        letterSpacing: 1.0,
-      ),
-    );
-  }
-}
-
-class _FormatCard extends StatelessWidget {
-  final Color color;
-  final String subject;
-  final int questions;
-  final int marks;
-  final IconData icon;
-
-  const _FormatCard({
-    required this.color,
-    required this.subject,
-    required this.questions,
-    required this.marks,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(subject,
-                    style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text)),
-                const SizedBox(height: 2),
-                Text('$questions Questions',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.subtitle)),
-              ],
-            ),
-          ),
-          Text(
-            '$marks Marks',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MarkRow extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String mark;
-
-  const _MarkRow({
-    required this.icon,
-    required this.color,
-    required this.label,
-    required this.mark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(width: 12),
-        Expanded(
-            child: Text(label,
-                style: const TextStyle(
-                    fontSize: 14, color: AppColors.text))),
-        Text(
-          mark,
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.bold, color: color),
-        ),
-      ],
-    );
-  }
-}
-
-class _RuleCard extends StatelessWidget {
-  final List<String> rules;
-  const _RuleCard({required this.rules});
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = ColorPaletteController.instance.current;
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: rules
-            .map((r) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('•  ',
-                          style: TextStyle(
-                              color: palette.primary,
-                              fontWeight: FontWeight.bold)),
-                      Expanded(
-                          child: Text(r,
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.subtitle,
-                                  height: 1.4))),
-                    ],
-                  ),
-                ))
-            .toList(),
-      ),
-    );
-  }
-}
+// Private helpers live in `mock_test_format_widgets.dart` so the
+// Quick Mock Test landing screen can share them.

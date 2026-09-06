@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../core/design/app_theme.dart';
 import '../core/theme/color_palette.dart';
 import '../features/splash/splash_screen.dart';
 import '../shared/services/user_preferences_service.dart';
-import 'theme.dart';
 
 class CodeRankApp extends StatelessWidget {
   const CodeRankApp({super.key});
@@ -43,7 +43,10 @@ class CodeRankApp extends StatelessWidget {
       case 'dark':
         return ThemeMode.dark;
       default:
-        return ThemeMode.system;
+        // A-1 contract: dark-first. Default the system mode to dark so
+        // first-time users on a fresh install see the intended primary
+        // visual mode. They can still switch to Light from Profile.
+        return ThemeMode.dark;
     }
   }
 }
