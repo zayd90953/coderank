@@ -45,11 +45,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       // Success — show a confirmation dialog and pop back to sign-in.
       final palette = ColorPaletteController.instance.current;
+      final onSurface = Theme.of(context).colorScheme.onSurface;
+      final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+      final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          backgroundColor: AppColors.surface,
+          backgroundColor: surfaceContainer,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
           ),
@@ -61,21 +64,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 size: 24,
               ),
               const SizedBox(width: 10),
-              const Text(
+              Text(
                 "Check Your Inbox",
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: onSurface,
                 ),
               ),
             ],
           ),
           content: Text(
             "We sent a password reset link to $email. Follow the link in the email to choose a new password.",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: onSurfaceVariant,
               height: 1.4,
             ),
           ),
@@ -128,9 +131,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+    final surfaceContainerHighest =
+        Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: ExitConfirmationScope(
           child: LayoutBuilder(
@@ -155,7 +161,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         constraints: const BoxConstraints(),
                         icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                           size: compact ? 20 : 22,
                         ),
                       ),
@@ -192,7 +198,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           style: TextStyle(
                             fontSize: compact ? 27 : 30,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: onSurface,
                           ),
                         ),
                       ),
@@ -203,7 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: compact ? 14 : 16,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             height: 1.4,
                           ),
                         ),
@@ -216,7 +222,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -229,21 +235,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             setState(() => _emailError = null);
                           }
                         },
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
                           errorText: _emailError,
                           hintText: "Enter your email",
                           hintStyle: TextStyle(
-                            color: AppColors.textMuted,
+                            color: onSurfaceVariant,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: AppColors.surfaceElevated,
+                          fillColor: surfaceContainerHighest,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 14 : 17,

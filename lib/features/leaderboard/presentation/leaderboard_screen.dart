@@ -78,17 +78,16 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             .rank;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             // Always show a back button — pops if pushed, switches to Home
             // when this screen is the active tab.
             leading: const BackButtonToHome(),
-            title: const Text(
+            title: Text(
               "NEET Leaderboard",
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -103,9 +102,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -147,7 +146,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           bottomSheet: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
@@ -170,8 +169,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     ),
                     child: Text(
                       "#$currentUserRank",
-                      style: const TextStyle(
-                        color: AppColors.surface,
+                      style: TextStyle(
+                        color: AppColors.textOnPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
@@ -197,19 +196,19 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       children: [
                         Text(
                           "$currentUserName (You)",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           "$userAcc% accuracy • ${data.tier} Tier",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -228,10 +227,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                           ),
                           Text(
                             "$userXp XP",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -272,7 +271,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
             ),
@@ -290,9 +289,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -366,7 +365,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 child: Text(
                   entry.avatarText,
                   style: TextStyle(
-                    color: AppColors.textPrimary,
+                    // Dark initial on the white medal circle — white text
+                    // would be invisible here in dark mode too.
+                    color: AppColors.textOnPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: isFirst ? 18 : 14,
                   ),
@@ -383,8 +384,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 ),
                 child: Text(
                   badgeLabel,
-                  style: const TextStyle(
-                    color: AppColors.surface,
+                  style: TextStyle(
+                    color: AppColors.textOnPrimary,
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),
@@ -402,7 +403,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: entry.isCurrentUser ? palette.primary : AppColors.text,
+              color: entry.isCurrentUser
+                  ? palette.primary
+                  : Theme.of(context).colorScheme.onSurface,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -447,12 +450,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       decoration: BoxDecoration(
         color: entry.isCurrentUser
             ? palette.primarySubtle
-            : Colors.white,
+            : Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: entry.isCurrentUser
               ? palette.primary.withValues(alpha: 0.3)
-              : AppColors.border,
+              : Theme.of(context).colorScheme.outline,
           width: entry.isCurrentUser ? 1.5 : 1,
         ),
       ),
@@ -467,7 +470,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 fontWeight: FontWeight.bold,
                 color: entry.isCurrentUser
                     ? palette.primary
-                    : AppColors.textSecondary,
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -475,11 +478,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             radius: 18,
             backgroundColor: entry.isCurrentUser
                 ? palette.primary
-                : AppColors.surfaceElevated,
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Text(
               entry.avatarText,
               style: TextStyle(
-                color: entry.isCurrentUser ? Colors.white : AppColors.text,
+                color: entry.isCurrentUser
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
@@ -497,16 +502,16 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     fontWeight: FontWeight.bold,
                     color: entry.isCurrentUser
                         ? palette.primary
-                        : AppColors.text,
+                        : Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   "${entry.college} • ${entry.accuracy}% acc",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -517,10 +522,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             children: [
               Text(
                 "${entry.xp} XP",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(

@@ -25,7 +25,7 @@ Future<String?> showAvatarPickerSheet(BuildContext context) {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            sheetTitle('Choose Avatar'),
+            sheetTitle('Choose Avatar', context: ctx),
             const SizedBox(height: 4),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
@@ -54,6 +54,7 @@ Future<String?> showAvatarPickerSheet(BuildContext context) {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: sheetSecondaryButton(
+                  context: ctx,
                   label: 'Reset to Google photo',
                   onPressed: () async {
                     await UserPreferencesService.instance
@@ -65,6 +66,7 @@ Future<String?> showAvatarPickerSheet(BuildContext context) {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               child: sheetSecondaryButton(
+                context: ctx,
                 label: 'Cancel',
                 onPressed: () => Navigator.of(ctx).pop(),
               ),

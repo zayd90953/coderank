@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
-import '../../../../shared/services/user_progress_service.dart' show SubjectStat;
+import '../../../../shared/services/user_progress_service.dart'
+    show SessionRecord, SubjectStat;
 import '../../../../features/practice/presentation/setup/practice_setup_screen.dart';
 import '../../data/analytics_aggregations.dart';
 
@@ -10,40 +11,107 @@ import '../../data/analytics_aggregations.dart';
 /// subject with the lowest accuracy (subject-level only — per-chapter
 /// is R-3 scope).
 ///
-/// Hidden entirely if no subject has at least [minQuestions] questions
-/// solved — we don't want to call "Chemistry is your weakest!" on the
-/// basis of 3 questions.
+/// The accuracy shown is computed **over the last 7 days** from session
+/// history, so the number matches the "this week" label. Subjects with
+/// too few questions in the window (below [minQuestions]) are excluded —
+/// no "Chemistry is your weakest!" verdict on the basis of 2 questions.
+///
+/// Hidden entirely when no subject has enough weekly data. In that case
+/// we fall back to the **all-time** weakest subject when it has enough
+/// overall volume ([minAllTimeQuestions]) — so new-ish users still see a
+/// useful pointer instead of a blank spot — otherwise the callout is
+/// simply not shown.
 class FocusCallout extends StatelessWidget {
   final Map<String, SubjectStat> subjectStats;
 
-  /// Matches [AnalyticsAggregations.weakestSubject] default.
+  /// Session history used to compute genuine weekly accuracy per subject.
+  final List<SessionRecord> history;
+
+  /// Minimum questions a subject needs **this week** before its weekly
+  /// accuracy is trusted.
   final int minQuestions;
+
+  /// Minimum all-time questions before the all-time fallback kicks in
+  /// (when no subject has weekly data).
+  final int minAllTimeQuestions;
 
   const FocusCallout({
     super.key,
     required this.subjectStats,
-    this.minQuestions = 20,
+    required this.history,
+    this.minQuestions = 5,
+    this.minAllTimeQuestions = 20,
   });
+
+  /// Resolves the subject to show, or `null` to hide the callout.
+  ///
+  /// 1. Prefer the subject with the lowest **weekly** accuracy among
+  ///    subjects with ≥ [minQuestions] questions in the last 7 days.
+  /// 2. If no subject has weekly data, fall back to the all-time
+  ///    weakest subject (≥ [minAllTimeQuestions] questions) so the
+  ///    card still helps users who don't practice three subjects a week.
+  ({String subject, double accuracy, int questions, bool isWeekly})?
+      _resolveFocus() {
+    // 1) Weekly scan.
+    String? weeklyWeakest;
+    var weeklyAcc = 101.0;
+    var weeklyQs = 0;
+    for (final subject in subjectStats.keys) {
+      final w = AnalyticsAggregations.weeklyAccuracyForSubject(
+        history,
+        subject,
+        minQuestions: minQuestions,
+      );
+      if (w == null) continue;
+      if (w.accuracy < weeklyAcc ||
+          (w.accuracy == weeklyAcc && w.questions > weeklyQs)) {
+        weeklyAcc = w.accuracy;
+        weeklyQs = w.questions;
+        weeklyWeakest = subject;
+      }
+    }
+    if (weeklyWeakest != null) {
+      return (
+        subject: weeklyWeakest,
+        accuracy: weeklyAcc,
+        questions: weeklyQs,
+        isWeekly: true,
+      );
+    }
+
+    // 2) All-time fallback.
+    final allTime = AnalyticsAggregations.weakestSubject(
+      subjectStats,
+      minQuestions: minAllTimeQuestions,
+    );
+    if (allTime != null) {
+      final stat = subjectStats[allTime]!;
+      return (
+        subject: allTime,
+        accuracy: stat.accuracy,
+        questions: stat.totalQuestions,
+        isWeekly: false,
+      );
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final weakest = AnalyticsAggregations.weakestSubject(
-      subjectStats,
-      minQuestions: minQuestions,
-    );
-    if (weakest == null) return const SizedBox.shrink();
+    final focus = _resolveFocus();
+    if (focus == null) return const SizedBox.shrink();
 
-    final stat = subjectStats[weakest]!;
-    final acc = stat.accuracy.round();
+    final weakest = focus.subject;
+    final acc = focus.accuracy.round();
     final tint = _tintFor(weakest);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         boxShadow: [
           BoxShadow(
             color: tint.withValues(alpha: 0.18),
@@ -69,7 +137,7 @@ class FocusCallout extends StatelessWidget {
             ),
             child: Icon(
               Icons.priority_high_rounded,
-              color: AppColors.surface,
+              color: AppColors.textOnPrimary,
               size: 26,
             ),
           ),
@@ -80,12 +148,12 @@ class FocusCallout extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'Focus this week',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         letterSpacing: 1.0,
                       ),
                     ),
@@ -111,19 +179,23 @@ class FocusCallout extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$acc% accuracy across ${stat.totalQuestions} questions',
-                  style: const TextStyle(
+                  focus.isWeekly
+                      ? '$acc% accuracy across ${focus.questions} questions this week'
+                      : '$acc% accuracy across ${focus.questions} questions (all time)',
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Your lowest-scoring subject — one focused practice will move the needle.',
-                  style: const TextStyle(
+                  focus.isWeekly
+                      ? 'Your lowest-scoring subject this week — one focused practice will move the needle.'
+                      : 'Not enough practice this week for a weekly score — here\'s your all-time weakest subject.',
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.35,
                   ),
                 ),
@@ -142,16 +214,16 @@ class FocusCallout extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.bolt_rounded,
-                              color: AppColors.surface,
+                              color: AppColors.textOnPrimary,
                               size: 14,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Practice $weakest',
                               style: TextStyle(
-                                color: _contrastOn(tint),
+                                color: AppColors.textOnPrimary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -187,14 +259,6 @@ class FocusCallout extends StatelessWidget {
     return ColorPaletteController.instance.current.primary;
   }
 
-  // Subject tints (Physics/Chemistry/Biology) are bright on a dark
-  // surface, so white text reads well on the "Practice X" button.
-  // The brand primary, however, can vary by palette (forest green,
-  // ocean blue, electric green, purple) — for those we still want
-  // AppColors.surface (#0D0D0D) for AA contrast.
-  Color _contrastOn(Color background) {
-    // Quick luminance check.
-    final luminance = background.computeLuminance();
-    return luminance > 0.55 ? AppColors.textOnPrimary : AppColors.surface;
-  }
+  // The "Practice X" button always sits on a colored tint, so the label
+  // uses the dark-on-brand color regardless of the app theme.
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/user_preferences_service.dart';
 import '_sheet_chrome.dart';
@@ -45,7 +44,7 @@ Future<bool?> showTargetPickerSheet(BuildContext context) {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            sheetTitle('Your Target'),
+            sheetTitle('Your Target', context: ctx),
             const SizedBox(height: 4),
             _DropdownRow(
               label: 'Target Year',
@@ -89,6 +88,7 @@ Future<bool?> showTargetPickerSheet(BuildContext context) {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               child: sheetSecondaryButton(
+                context: ctx,
                 label: 'Cancel',
                 onPressed: () => Navigator.of(ctx).pop(false),
               ),
@@ -126,17 +126,17 @@ class _DropdownRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.subtitle,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               letterSpacing: 0.4,
             ),
           ),
           const SizedBox(height: 6),
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xFFD6D0E4)),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -144,14 +144,16 @@ class _DropdownRow extends StatelessWidget {
               child: DropdownButton<String>(
                 value: value?.toString(),
                 hint: Text(allowClear ? 'Not set' : 'Select…',
-                    style: const TextStyle(color: AppColors.subtitle)),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 isExpanded: true,
                 items: [
                   if (allowClear)
-                    const DropdownMenuItem<String>(
+                    DropdownMenuItem<String>(
                       value: '',
                       child: Text('— Not set —',
-                          style: TextStyle(color: AppColors.subtitle)),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ),
                   for (final v in values)
                     DropdownMenuItem<String>(

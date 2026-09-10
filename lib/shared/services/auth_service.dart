@@ -40,7 +40,7 @@ class AuthService {
   // `google-services.json` automatically — no serverClientId is required
   // on Android. If the project's `google-services.json` is missing the
   // OAuth client (an empty `oauth_client: []`), sign-in will throw
-  // `PlatformException(sign_in_failed, ...)`. See GOOGLE_SIGNIN_SETUP.md.
+  // `PlatformException(sign_in_failed, ...)`.
   GoogleSignIn? _googleSignInCached;
   GoogleSignIn get _googleSignIn => _googleSignInCached ??= GoogleSignIn();
 
@@ -81,8 +81,8 @@ class AuthService {
   // If the user already has a Firebase session and the chosen Google
   // account maps to the same email as an existing email/password
   // account, Firebase will REJECT the sign-in with
-  // `account-exists-with-different-credential`. That is the known gap
-  // (see OPTIMIZATION.md / GOOGLE_SIGNIN_SETUP.md): the two providers
+  // `account-exists-with-different-credential`. That is the known gap:
+  // the two providers
   // create separate accounts and the user must sign in with whichever
   // provider they originally used, or implement account linking.
   Future<UserCredential> signInWithGoogle() async {

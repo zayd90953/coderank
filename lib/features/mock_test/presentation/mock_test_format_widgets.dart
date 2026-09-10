@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 
 /// Shared UI bits used by both the Full-Length and the Quick mock test
@@ -16,12 +15,13 @@ class SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Text(
       label.toUpperCase(),
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
-        color: AppColors.textSecondary,
+        color: onSurfaceVariant,
         letterSpacing: 1.0,
       ),
     );
@@ -46,12 +46,16 @@ class FormatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+    final outline = Theme.of(context).colorScheme.outline;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: surfaceContainer,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: outline),
       ),
       child: Row(
         children: [
@@ -71,18 +75,18 @@ class FormatCard extends StatelessWidget {
               children: [
                 Text(
                   subject,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '$questions Questions',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: onSurfaceVariant,
                   ),
                 ),
               ],
@@ -118,6 +122,7 @@ class MarkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Row(
       children: [
         Icon(icon, color: color, size: 20),
@@ -125,9 +130,9 @@ class MarkRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.textPrimary,
+              color: onSurface,
             ),
           ),
         ),
@@ -151,12 +156,15 @@ class RuleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
+    final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+    final outline = Theme.of(context).colorScheme.outline;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: surfaceContainer,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,9 +185,9 @@ class RuleCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         r,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: onSurfaceVariant,
                           height: 1.4,
                         ),
                       ),

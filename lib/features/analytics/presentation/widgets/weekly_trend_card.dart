@@ -37,9 +37,9 @@ class WeeklyTrendCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -55,30 +55,35 @@ class WeeklyTrendCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: palette.primarySubtle,
-                      borderRadius: BorderRadius.circular(12),
+              Flexible(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: palette.primarySubtle,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.show_chart_rounded,
+                        color: palette.primary,
+                        size: 20,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.show_chart_rounded,
-                      color: palette.primary,
-                      size: 20,
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        'This Week',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'This Week',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -130,8 +135,8 @@ class WeeklyTrendCard extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: _isToday(d.day)
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -139,7 +144,7 @@ class WeeklyTrendCard extends StatelessWidget {
           ),
 
           const SizedBox(height: 14),
-          const Divider(color: AppColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           const SizedBox(height: 14),
 
           // Streak dots row + summary.
@@ -160,9 +165,9 @@ class WeeklyTrendCard extends StatelessWidget {
             activeDays == 0
                 ? 'No practice yet this week — solve a question to start your streak.'
                 : 'Week average: ${weekAvg.round()}% accuracy • $totalQs question${totalQs == 1 ? '' : 's'} solved',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -201,7 +206,7 @@ class _DayBar extends StatelessWidget {
         : 0.04;
     final color = hasData
         ? primary
-        : AppColors.surfaceElevated;
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -213,10 +218,10 @@ class _DayBar extends StatelessWidget {
             if (hasData)
               Text(
                 '${value.round()}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             const SizedBox(height: 3),
@@ -261,13 +266,13 @@ class _StreakDot extends StatelessWidget {
     final filled = day.hasActivity;
     final Color color;
     final border = Border.all(
-      color: isToday ? primary : AppColors.border,
+      color: isToday ? primary : Theme.of(context).colorScheme.outline,
       width: isToday ? 2 : 1,
     );
     if (filled) {
       color = primary;
     } else {
-      color = AppColors.surfaceElevated;
+      color = Theme.of(context).colorScheme.surfaceContainerHighest;
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),

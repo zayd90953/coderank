@@ -47,7 +47,6 @@ class HomeScreen extends StatelessWidget {
         : "Student";
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: ValueListenableBuilder<UserProgressData>(
           valueListenable: UserProgressService.instance.progressNotifier,
@@ -81,10 +80,10 @@ class HomeScreen extends StatelessWidget {
                           palette: palette,
                           icon: Icons.menu_book_rounded,
                           iconColor: AppColors.physics,
-                          iconBg: AppColors.surfaceElevated,
+                          iconBg: Theme.of(context).colorScheme.surfaceContainerHighest,
                           title: "Practice",
                           subtitle: "Subject MCQs",
-                          badge: "5,000+ Qs",
+                          badge: "2,500+ Qs",
                           onTap: () => _openPractice(context),
                         ),
                       ),
@@ -94,7 +93,7 @@ class HomeScreen extends StatelessWidget {
                           palette: palette,
                           icon: Icons.timer_rounded,
                           iconColor: AppColors.warning,
-                          iconBg: AppColors.surfaceElevated,
+                          iconBg: Theme.of(context).colorScheme.surfaceContainerHighest,
                           title: "Mock Test",
                           subtitle: "Timed Exam",
                           badge: "Exam Mode",
@@ -248,6 +247,8 @@ class _GreetingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = _initialsFor(name);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,19 +259,19 @@ class _GreetingHeader extends StatelessWidget {
             children: [
               Text(
                 "$greeting 🔥, $name",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: onSurface,
                   letterSpacing: -0.4,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 _subtitleFor(data),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                   height: 1.4,
                 ),
@@ -321,8 +322,8 @@ class _GreetingHeader extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 initials,
-                style: const TextStyle(
-                  color: AppColors.surface,
+                style: TextStyle(
+                  color: AppColors.textOnPrimary,
                   fontWeight: FontWeight.w800,
                   fontSize: 14,
                 ),
@@ -391,11 +392,11 @@ class _ProgressCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   "Your Progress",
                   style: TextStyle(
-                    color: AppColors.surface,
+                    color: AppColors.textOnPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
@@ -423,8 +424,8 @@ class _ProgressCard extends StatelessWidget {
                     const SizedBox(width: 3),
                     Text(
                       "${data.xpPoints} XP · ${data.tier}",
-                      style: const TextStyle(
-                        color: AppColors.surface,
+                      style: TextStyle(
+                        color: AppColors.textOnPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -497,11 +498,11 @@ class _ProgressCard extends StatelessWidget {
                 onTap: () => MainNavScreen.switchTab(context, 3),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Text(
                       "Deep Analytics",
                       style: TextStyle(
-                        color: AppColors.surface,
+                        color: AppColors.textOnPrimary,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -509,7 +510,7 @@ class _ProgressCard extends StatelessWidget {
                     SizedBox(width: 4),
                     Icon(
                       Icons.arrow_forward_rounded,
-                      color: AppColors.surface,
+                      color: AppColors.textOnPrimary,
                       size: 14,
                     ),
                   ],
@@ -535,8 +536,8 @@ class _ProgressStat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.surface,
+          style: TextStyle(
+            color: AppColors.textOnPrimary,
             fontSize: 21,
             fontWeight: FontWeight.w800,
           ),
@@ -568,10 +569,10 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w800,
-        color: AppColors.textPrimary,
+        color: Theme.of(context).colorScheme.onSurface,
         letterSpacing: -0.2,
       ),
     );
@@ -601,8 +602,10 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Material(
-      color: AppColors.surface,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -611,7 +614,7 @@ class _ActionCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -651,18 +654,18 @@ class _ActionCard extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: onSurface,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -693,8 +696,10 @@ class _DailyChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Material(
-      color: AppColors.surface,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
@@ -703,7 +708,7 @@ class _DailyChallengeCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -712,7 +717,7 @@ class _DailyChallengeCard extends StatelessWidget {
                 height: 50,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Text("🔥", style: TextStyle(fontSize: 24)),
@@ -722,12 +727,12 @@ class _DailyChallengeCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "Daily NEET Challenge",
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -737,7 +742,7 @@ class _DailyChallengeCard extends StatelessWidget {
                           : "Solve today's high-yield set & earn +50 XP",
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary.withValues(alpha: 0.95),
+                        color: onSurfaceVariant.withValues(alpha: 0.95),
                       ),
                     ),
                   ],
@@ -779,10 +784,10 @@ class _DailyChallengeCard extends StatelessWidget {
                     color: palette.primary,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Solve",
                     style: TextStyle(
-                      color: AppColors.surface,
+                      color: AppColors.textOnPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -820,7 +825,7 @@ class _SubjectTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surface,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -829,7 +834,7 @@ class _SubjectTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
             children: [
@@ -846,10 +851,10 @@ class _SubjectTile extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 2),
@@ -881,8 +886,10 @@ class _RankCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Material(
-      color: AppColors.surface,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
@@ -891,7 +898,7 @@ class _RankCard extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -910,7 +917,7 @@ class _RankCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -919,15 +926,15 @@ class _RankCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: onSurface,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       "See where you stand on the leaderboard",
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -936,7 +943,7 @@ class _RankCard extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 14,
-                color: AppColors.textSecondary,
+                color: onSurfaceVariant,
               ),
             ],
           ),

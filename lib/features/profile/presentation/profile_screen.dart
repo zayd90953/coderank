@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart' hide ColorSwatch;
+import 'package:flutter/material.dart';
 import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/auth_service.dart';
@@ -13,7 +13,6 @@ import 'sheets/avatar_picker_sheet.dart';
 import 'sheets/edit_name_sheet.dart';
 import 'sheets/target_picker_sheet.dart';
 import 'sheets/theme_picker_sheet.dart';
-import 'widgets/color_swatch.dart';
 import 'widgets/profile_avatar.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/settings_tile.dart';
@@ -27,9 +26,9 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.logout_rounded, color: AppColors.error, size: 24),
             SizedBox(width: 10),
@@ -37,20 +36,20 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary)),
+                    color: Theme.of(context).colorScheme.onSurface)),
           ],
         ),
-        content: const Text(
+        content: Text(
           "Are you sure you want to sign out of CodeRank? Your study progress is safely saved.",
-          style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
         ),
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel",
+            child: Text("Cancel",
                 style: TextStyle(
-                    color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -157,22 +156,22 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setLocalState) => AlertDialog(
-            backgroundColor: AppColors.surface,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(22)),
-            title: const Text("Confirm It's You",
+            title: Text("Confirm It's You",
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary)),
+                    color: Theme.of(context).colorScheme.onSurface)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Enter your current password to continue.",
                   style: TextStyle(
-                      fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                      fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
                 ),
                 const SizedBox(height: 14),
                 TextField(
@@ -217,8 +216,8 @@ class ProfileScreen extends StatelessWidget {
                         result = false;
                         Navigator.of(ctx).pop();
                       },
-                child: const Text("Cancel",
-                    style: TextStyle(color: AppColors.textSecondary)),
+                child: Text("Cancel",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               ElevatedButton(
                 onPressed: isAuthenticating
@@ -246,12 +245,12 @@ class ProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 child: isAuthenticating
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
-                          color: AppColors.surface,
+                          color: AppColors.textOnPrimary,
                         ),
                       )
                     : const Text("Continue"),
@@ -314,22 +313,22 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setLocalState) => AlertDialog(
-            backgroundColor: AppColors.surface,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(22)),
-            title: const Text("Change Email",
+            title: Text("Change Email",
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary)),
+                    color: Theme.of(context).colorScheme.onSurface)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "We'll send a verification link to the new address. Your email won't change until you tap the link.",
                   style: TextStyle(
-                      fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                      fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
                 ),
                 const SizedBox(height: 14),
                 TextField(
@@ -355,8 +354,8 @@ class ProfileScreen extends StatelessWidget {
               TextButton(
                 onPressed:
                     isSaving ? null : () => Navigator.of(ctx).pop(),
-                child: const Text("Cancel",
-                    style: TextStyle(color: AppColors.textSecondary)),
+                child: Text("Cancel",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               ElevatedButton(
                 onPressed: isSaving
@@ -419,12 +418,12 @@ class ProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 child: isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
-                          color: AppColors.surface,
+                          color: AppColors.textOnPrimary,
                         ),
                       )
                     : const Text("Send Link"),
@@ -455,24 +454,24 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setLocalState) => AlertDialog(
-            backgroundColor: AppColors.surface,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(22)),
-            title: const Text("Change Password",
+            title: Text("Change Password",
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary)),
+                    color: Theme.of(context).colorScheme.onSurface)),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "Pick a new password. It must be at least 6 characters.",
                     style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         height: 1.4),
                   ),
                   const SizedBox(height: 14),
@@ -530,8 +529,8 @@ class ProfileScreen extends StatelessWidget {
               TextButton(
                 onPressed:
                     isSaving ? null : () => Navigator.of(ctx).pop(),
-                child: const Text("Cancel",
-                    style: TextStyle(color: AppColors.textSecondary)),
+                child: Text("Cancel",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               ElevatedButton(
                 onPressed: isSaving
@@ -596,12 +595,12 @@ class ProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 child: isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
-                          color: AppColors.surface,
+                          color: AppColors.textOnPrimary,
                         ),
                       )
                     : const Text("Update"),
@@ -620,22 +619,22 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        title: const Text("Reset Progress?",
+        title: Text("Reset Progress?",
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary)),
-        content: const Text(
+                color: Theme.of(context).colorScheme.onSurface)),
+        content: Text(
           "This will reset all your solved questions, XP, and subject accuracies back to zero. This cannot be undone.",
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+          style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel",
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: Text("Cancel",
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -703,14 +702,13 @@ class ProfileScreen extends StatelessWidget {
               valueListenable: ColorPaletteController.instance.paletteNotifier,
               builder: (context, palette, _) {
                 return Scaffold(
-                  backgroundColor: AppColors.background,
                   appBar: AppBar(
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     leading: const BackButtonToHome(),
-                    title: const Text("Student Profile",
+                    title: Text("Student Profile",
                         style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 20,
                             fontWeight: FontWeight.bold)),
                     centerTitle: true,
@@ -781,10 +779,10 @@ class ProfileScreen extends StatelessWidget {
                               title: "Edit Name",
                               subtitle: "How others see you in the app",
                               palette: palette,
-                              trailing: const Icon(
+                              trailing: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () => showEditNameSheet(context,
                                   initial: id.name),
@@ -799,10 +797,10 @@ class ProfileScreen extends StatelessWidget {
                                 title: "Change Email",
                                 subtitle: "Update the email on your account",
                                 palette: palette,
-                                trailing: const Icon(
+                                trailing: Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   size: 14,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 onTap: () => _changeEmail(context),
                               ),
@@ -811,10 +809,10 @@ class ProfileScreen extends StatelessWidget {
                                 title: "Change Password",
                                 subtitle: "Choose a new password",
                                 palette: palette,
-                                trailing: const Icon(
+                                trailing: Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   size: 14,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 onTap: () => _changePassword(context),
                               ),
@@ -831,10 +829,10 @@ class ProfileScreen extends StatelessWidget {
                                 subtitle:
                                     "Sign out and pick a different Google account",
                                 palette: palette,
-                                trailing: const Icon(
+                                trailing: Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   size: 14,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 onTap: () => _switchGoogleAccount(context),
                               ),
@@ -846,10 +844,10 @@ class ProfileScreen extends StatelessWidget {
                               textColor: AppColors.error,
                               iconColor: AppColors.error,
                               palette: palette,
-                              trailing: const Icon(
+                              trailing: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () => _confirmSignOut(context),
                             ),
@@ -871,7 +869,7 @@ class ProfileScreen extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11.5,
                                     height: 1.4,
-                                    color: AppColors.textSecondary
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant
                                         .withValues(alpha: 0.95),
                                   ),
                                 ),
@@ -891,10 +889,10 @@ class ProfileScreen extends StatelessWidget {
                               title: "Theme",
                               subtitle: _themeLabel(prefs.themeMode),
                               palette: palette,
-                              trailing: const Icon(
+                              trailing: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () => showThemePickerSheet(context),
                             ),
@@ -913,10 +911,10 @@ class ProfileScreen extends StatelessWidget {
                               subtitle:
                                   "${prefs.practiceQuestionCount} questions • ${prefs.practiceSecondsPerQuestion}s per question",
                               palette: palette,
-                              trailing: const Icon(
+                              trailing: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () =>
                                   _showPracticeDefaultsDialog(context, prefs),
@@ -929,10 +927,10 @@ class ProfileScreen extends StatelessWidget {
                               textColor: AppColors.error,
                               iconColor: AppColors.error,
                               palette: palette,
-                              trailing: const Icon(
+                              trailing: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () => _confirmReset(context, palette),
                             ),
@@ -950,12 +948,12 @@ class ProfileScreen extends StatelessWidget {
                               title: "Version",
                               subtitle: "CodeRank release info",
                               palette: palette,
-                              trailing: const Text(
+                              trailing: Text(
                                 "v1.0.0",
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -964,10 +962,10 @@ class ProfileScreen extends StatelessWidget {
                               title: "About CodeRank",
                               subtitle: "A smart learning platform for NEET aspirants",
                               palette: palette,
-                              trailing: const Icon(
+                              trailing: Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 size: 14,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () => _showAboutDialog(context),
                             ),
@@ -975,9 +973,9 @@ class ProfileScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 20),
-                        const Text(
+                        Text(
                           "CodeRank v1.0.0 • Made for Ambitious NEET Aspirants",
-                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -1020,14 +1018,14 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setLocalState) => AlertDialog(
-            backgroundColor: AppColors.surface,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(22)),
-            title: const Text("Practice Defaults",
+            title: Text("Practice Defaults",
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary)),
+                    color: Theme.of(context).colorScheme.onSurface)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1065,8 +1063,8 @@ class ProfileScreen extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text("Cancel",
-                    style: TextStyle(color: AppColors.textSecondary)),
+                child: Text("Cancel",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -1111,25 +1109,25 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        title: const Text("About CodeRank",
+        title: Text("About CodeRank",
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary)),
-        content: const Text(
+                color: Theme.of(context).colorScheme.onSurface)),
+        content: Text(
           "CodeRank is a smart NEET prep companion built for ambitious students. "
           "Practice topic-wise, take mock tests, and climb the daily leaderboard "
           "as you build the consistency that cracks NEET.",
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+          style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Close",
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: Text("Close",
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
         ],
       ),
@@ -1185,9 +1183,9 @@ class _HeaderCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -1237,14 +1235,14 @@ class _HeaderCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(name,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary)),
+                  color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 3),
           Text(email,
               style:
-                  const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                  TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: 16),
           InkWell(
             onTap: () => showTargetPickerSheet(context),
@@ -1262,14 +1260,17 @@ class _HeaderCard extends StatelessWidget {
                   Icon(Icons.school_rounded,
                       size: 16, color: palette.primary),
                   const SizedBox(width: 8),
-                  Text(
-                    "Target: ${_formatTarget()}",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: hasFullTarget
-                          ? palette.primary
-                          : AppColors.textSecondary,
+                  Flexible(
+                    child: Text(
+                      "Target: ${_formatTarget()}",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: hasFullTarget
+                            ? palette.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -1327,14 +1328,14 @@ class _IdentityRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary)),
+                        color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 2),
                 Text(email,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary)),
+                    style: TextStyle(
+                        fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -1391,15 +1392,15 @@ class SwitchSettingsTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary)),
+                        color: Theme.of(context).colorScheme.onSurface)),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(subtitle!,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary)),
+                      style: TextStyle(
+                          fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ],
               ],
             ),
@@ -1437,24 +1438,24 @@ class _ProfileStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
           Icon(icon, color: color, size: 22),
           const SizedBox(height: 6),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary)),
+                  color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500)),
         ],
       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/user_preferences_service.dart';
 import '_sheet_chrome.dart';
@@ -24,7 +23,7 @@ Future<String?> showThemePickerSheet(BuildContext context) {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            sheetTitle('App Theme'),
+            sheetTitle('App Theme', context: ctx),
             const SizedBox(height: 4),
             for (final (value, title, subtitle) in _options)
               InkWell(
@@ -45,9 +44,9 @@ Future<String?> showThemePickerSheet(BuildContext context) {
                                 color: palette.primary,
                                 size: 22,
                               )
-                            : const Icon(
+                            : Icon(
                                 Icons.radio_button_unchecked_rounded,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 size: 22,
                               ),
                       ),
@@ -58,18 +57,18 @@ Future<String?> showThemePickerSheet(BuildContext context) {
                           children: [
                             Text(
                               title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               subtitle,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -83,6 +82,7 @@ Future<String?> showThemePickerSheet(BuildContext context) {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               child: sheetSecondaryButton(
+                context: ctx,
                 label: 'Close',
                 onPressed: () => Navigator.of(ctx).pop(),
               ),

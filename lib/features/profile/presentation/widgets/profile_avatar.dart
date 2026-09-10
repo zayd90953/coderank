@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 
 /// Renders the user's profile avatar with a brand-color gradient ring
@@ -10,7 +9,7 @@ import '../../../../core/theme/color_palette.dart';
 ///      [assetKey] is null — user has not picked a preset).
 ///   2. Preset asset image at `assets/avatars/avatar_<key>.png`. Falls back
 ///      to initials via [errorBuilder] if the asset is missing/corrupt.
-///   3. Initials on a white circle.
+///   3. Initials on a themed circle.
 class ProfileAvatar extends StatelessWidget {
   final String displayName;
   final String? googlePhotoUrl;
@@ -33,8 +32,8 @@ class ProfileAvatar extends StatelessWidget {
     return trimmed.substring(0, 1).toUpperCase();
   }
 
-  Widget _initialsFallback() {
-    final surface = AppColors.surface;
+  Widget _initialsFallback(BuildContext context) {
+    final surface = Theme.of(context).colorScheme.surfaceContainer;
     return CircleAvatar(
       radius: radius,
       backgroundColor: surface,
@@ -49,19 +48,19 @@ class ProfileAvatar extends StatelessWidget {
     );
   }
 
-  Widget _buildInner() {
+  Widget _buildInner(BuildContext context) {
     // 1) Preset avatar wins if the user explicitly picked one.
     if (assetKey != null) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         child: ClipOval(
           child: Image.asset(
             'assets/avatars/avatar_$assetKey.png',
             width: radius * 2,
             height: radius * 2,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => _initialsFallback(),
+            errorBuilder: (_, _, _) => _initialsFallback(context),
           ),
         ),
       );
@@ -71,23 +70,23 @@ class ProfileAvatar extends StatelessWidget {
     if (googlePhotoUrl != null && googlePhotoUrl!.isNotEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         child: ClipOval(
           child: Image.network(
             googlePhotoUrl!,
             width: radius * 2,
             height: radius * 2,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => _initialsFallback(),
+            errorBuilder: (_, _, _) => _initialsFallback(context),
             loadingBuilder: (ctx, child, progress) =>
-                progress == null ? child : _initialsFallback(),
+                progress == null ? child : _initialsFallback(ctx),
           ),
         ),
       );
     }
 
     // 3) Initials.
-    return _initialsFallback();
+    return _initialsFallback(context);
   }
 
   @override
@@ -98,7 +97,7 @@ class ProfileAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: palette.heroCardGradient,
       ),
-      child: _buildInner(),
+      child: _buildInner(context),
     );
   }
-}
+}

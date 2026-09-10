@@ -76,19 +76,20 @@ class MockTestResultsScreen extends StatelessWidget {
     final score = _neetScore;
     final pct = _accuracy;
     final isGood = pct >= 60;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final error = Theme.of(context).colorScheme.error;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FD),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButtonToHome(),
-        title: const Text(
+        title: Text(
           'Mock Test Results',
           style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppColors.text),
+              color: onSurface),
         ),
         centerTitle: true,
       ),
@@ -103,21 +104,21 @@ class MockTestResultsScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.08),
+                  color: error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.3)),
+                      color: error.withValues(alpha: 0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.timer_off_rounded,
-                        color: AppColors.error, size: 18),
-                    SizedBox(width: 10),
+                        color: error, size: 18),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Time expired — unanswered questions were marked as skipped.',
                         style:
-                            TextStyle(fontSize: 13, color: AppColors.error),
+                            TextStyle(fontSize: 13, color: error),
                       ),
                     ),
                   ],
@@ -220,7 +221,7 @@ class MockTestResultsScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7ED),
+                  color: const Color(0xFFD97706).withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFD97706).withValues(alpha: 0.3)),
                 ),
@@ -252,7 +253,7 @@ class MockTestResultsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.subtitle,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -291,7 +292,7 @@ class MockTestResultsScreen extends StatelessWidget {
                 Expanded(
                   child: _StatBox(
                     icon: Icons.remove_circle_rounded,
-                    color: AppColors.subtitle,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     value: '$_skipped',
                     label: 'Skipped',
                   ),
@@ -424,9 +425,9 @@ class _SectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,10 +453,10 @@ class _SectionCard extends StatelessWidget {
               const Spacer(),
               Text(
                 '${stats.neetScore} / ${stats.maxScore}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -466,7 +467,7 @@ class _SectionCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: stats.accuracy / 100,
               minHeight: 6,
-              backgroundColor: const Color(0xFFF0ECF8),
+              backgroundColor: Theme.of(context).colorScheme.outline,
               valueColor: AlwaysStoppedAnimation<Color>(_subjectColor),
             ),
           ),
@@ -483,14 +484,14 @@ class _SectionCard extends StatelessWidget {
               const SizedBox(width: 12),
               _MiniStat(
                   label: '— ${stats.skipped}',
-                  color: AppColors.subtitle),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               const Spacer(),
               Text(
                 '${stats.accuracy.round()}%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.subtitle,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -534,23 +535,23 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEDE8F5)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 6),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text)),
+                  color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.subtitle)),
+              style: TextStyle(
+                  fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       ),
     );

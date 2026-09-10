@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 
 /// A labeled group of [SettingsTile]s. Composes a small uppercase header
 /// above a rounded card containing the children separated by a thin
-/// divider. Reads surface/border colors from the current theme so it
-/// works correctly in both light and dark modes.
+/// divider.
+///
+/// Colors are read from the active theme so the cards and labels adapt
+/// to light/dark mode (the profile screen's background follows the theme
+/// too).
 class SettingsSection extends StatelessWidget {
   final String label;
   final List<Widget> children;

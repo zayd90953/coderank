@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/design/app_colors.dart';
-import '../../core/design/app_theme.dart';
 import '../../core/theme/color_palette.dart';
 import '../home/presentation/home_screen.dart';
 import '../practice/presentation/practice_screen.dart';
@@ -51,30 +50,30 @@ class _MainNavScreenState extends State<MainNavScreen> {
       context: context,
       barrierDismissible: true,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Row(
           children: [
             Icon(Icons.exit_to_app_rounded, color: palette.primary, size: 24),
             const SizedBox(width: 10),
-            const Text(
+            Text(
               "Exit CodeRank?",
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           "Are you sure you want to close the app?",
-          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant),
             child: const Text(
               "Cancel",
               style: TextStyle(fontWeight: FontWeight.w600),
@@ -129,21 +128,26 @@ class _MainNavScreenState extends State<MainNavScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         body: IndexedStack(
           index: _currentIndex,
           children: screens,
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-            border: const Border(
-              top: BorderSide(color: AppColors.border, width: 0.5),
+            border: Border(
+              top: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 0.5,
+              ),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.20),
+                color: Theme.of(context)
+                    .colorScheme
+                    .shadow
+                    .withValues(alpha: 0.20),
                 blurRadius: 16,
                 offset: const Offset(0, -4),
               ),
@@ -231,7 +235,9 @@ class _NavItem extends StatelessWidget {
             Icon(
               icon,
               size: 22,
-              color: isSelected ? palette.primary : AppColors.textSecondary,
+              color: isSelected
+                  ? palette.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),

@@ -52,29 +52,33 @@ String _googleErrorMessage(FirebaseAuthException e) {
 Future<void> _showGoogleErrorDialog(
     BuildContext context, String message) async {
   final palette = ColorPaletteController.instance.current;
+  final onSurface = Theme.of(context).colorScheme.onSurface;
+  final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+  final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+  final schemeError = Theme.of(context).colorScheme.error;
   await showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: surfaceContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       title: Row(
         children: [
-          Icon(Icons.error_outline_rounded, color: AppColors.error, size: 24),
+          Icon(Icons.error_outline_rounded, color: schemeError, size: 24),
           const SizedBox(width: 10),
-          const Text(
+          Text(
             "Sign-In Failed",
             style: TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: onSurface,
             ),
           ),
         ],
       ),
       content: Text(
         message,
-        style: const TextStyle(
-            fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+        style: TextStyle(
+            fontSize: 14, color: onSurfaceVariant, height: 1.4),
       ),
       actions: [
         ElevatedButton(
@@ -214,9 +218,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+    final surfaceContainerHighest =
+        Theme.of(context).colorScheme.surfaceContainerHighest;
+    final outline = Theme.of(context).colorScheme.outline;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: ExitConfirmationScope(
           child: LayoutBuilder(
@@ -237,7 +245,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         constraints: const BoxConstraints(),
                         icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                           size: compact ? 20 : 22,
                         ),
                       ),
@@ -274,7 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(
                             fontSize: compact ? 26 : 30,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: onSurface,
                           ),
                         ),
                       ),
@@ -285,7 +293,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: compact ? 14 : 16,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             height: 1.35,
                           ),
                         ),
@@ -298,7 +306,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -311,21 +319,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             setState(() => _nameError = null);
                           }
                         },
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
                           errorText: _nameError,
                           hintText: "Enter your full name",
                           hintStyle: TextStyle(
-                            color: AppColors.textMuted,
+                            color: onSurfaceVariant,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.person_outline_rounded,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: AppColors.surfaceElevated,
+                          fillColor: surfaceContainerHighest,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -355,7 +363,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -368,21 +376,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             setState(() => _emailError = null);
                           }
                         },
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
                           errorText: _emailError,
                           hintText: "Enter your email",
                           hintStyle: TextStyle(
-                            color: AppColors.textMuted,
+                            color: onSurfaceVariant,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.email_outlined,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             size: compact ? 21 : 23,
                           ),
                           filled: true,
-                          fillColor: AppColors.surfaceElevated,
+                          fillColor: surfaceContainerHighest,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -412,7 +420,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -425,17 +433,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             setState(() => _passwordError = null);
                           }
                         },
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
                           errorText: _passwordError,
                           hintText: "Create a password",
                           hintStyle: TextStyle(
-                            color: AppColors.textMuted,
+                            color: onSurfaceVariant,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.lock_outline_rounded,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             size: compact ? 21 : 23,
                           ),
                           suffixIcon: IconButton(
@@ -448,12 +456,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _obscurePassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: AppColors.textSecondary,
+                              color: onSurfaceVariant,
                               size: compact ? 21 : 23,
                             ),
                           ),
                           filled: true,
-                          fillColor: AppColors.surfaceElevated,
+                          fillColor: surfaceContainerHighest,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -483,7 +491,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: compact ? 14 : 15,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -496,17 +504,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             setState(() => _confirmPasswordError = null);
                           }
                         },
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: onSurface),
                         decoration: InputDecoration(
                           errorText: _confirmPasswordError,
                           hintText: "Confirm your password",
                           hintStyle: TextStyle(
-                            color: AppColors.textMuted,
+                            color: onSurfaceVariant,
                             fontSize: compact ? 14 : 15,
                           ),
                           prefixIcon: Icon(
                             Icons.lock_outline_rounded,
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             size: compact ? 21 : 23,
                           ),
                           suffixIcon: IconButton(
@@ -519,12 +527,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _obscureConfirmPassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: AppColors.textSecondary,
+                              color: onSurfaceVariant,
                               size: compact ? 21 : 23,
                             ),
                           ),
                           filled: true,
-                          fillColor: AppColors.surfaceElevated,
+                          fillColor: surfaceContainerHighest,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: compact ? 13 : 16,
@@ -587,9 +595,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       // OR divider
                       Row(
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Divider(
-                              color: AppColors.border,
+                              color: outline,
                               thickness: 1,
                             ),
                           ),
@@ -598,15 +606,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text(
                               "OR",
                               style: TextStyle(
-                                color: AppColors.textSecondary,
+                                color: onSurfaceVariant,
                                 fontSize: compact ? 11 : 12,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          const Expanded(
+                          Expanded(
                             child: Divider(
-                              color: AppColors.border,
+                              color: outline,
                               thickness: 1,
                             ),
                           ),
@@ -621,8 +629,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: OutlinedButton(
                           onPressed: () => _signInWithGoogle(context),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: AppColors.border,
+                            side: BorderSide(
+                              color: outline,
                               width: 1.2,
                             ),
                             shape: RoundedRectangleBorder(
@@ -641,7 +649,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               Text(
                                 "Continue with Google",
                                 style: TextStyle(
-                                  color: AppColors.textPrimary,
+                                  color: onSurface,
                                   fontSize: compact ? 14 : 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -659,7 +667,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Text(
                             "Already have an account?",
                             style: TextStyle(
-                              color: AppColors.textSecondary,
+                              color: onSurfaceVariant,
                               fontSize: compact ? 12 : 14,
                             ),
                           ),

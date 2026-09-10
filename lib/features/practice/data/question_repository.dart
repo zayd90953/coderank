@@ -8,18 +8,29 @@ class QuestionRepository {
   static const String _questionsPath =
       'lib/features/practice/data/questions.json';
 
+  /// Lazily-parsed copy of the 2,500-question bank, shared across every
+  /// [QuestionRepository] instance. Without this, each practice / mock /
+  /// daily-challenge launch re-reads and re-parses the whole JSON file.
+  /// Callers must treat the returned lists as read-only (none mutate them).
+  static List<QuestionModel>? _cachedQuestions;
+
   Future<List<QuestionModel>> _loadQuestions() async {
+    final cached = _cachedQuestions;
+    if (cached != null) return cached;
+
     final jsonString = await rootBundle.loadString(_questionsPath);
 
     final List<dynamic> jsonData = jsonDecode(jsonString);
 
-    return jsonData
+    final questions = jsonData
         .map(
           (json) => QuestionModel.fromJson(
         json as Map<String, dynamic>,
       ),
     )
         .toList();
+    _cachedQuestions = questions;
+    return questions;
   }
 
   Future<List<QuestionModel>> getQuestionsBySubject(
@@ -40,29 +51,34 @@ class QuestionRepository {
   /// Compose a NEET-style mock test paper: `[Physics] [Chemistry] [Biology]`,
   /// in that order, with each section capped at the requested count.
   ///
-  /// If a subject's pool has fewer questions than [physicsCount] / [chemCount]
-  /// / [bioCount], the available questions are returned and the section is
-  /// simply shorter. The total length is therefore bounded by the size of the
-  /// underlying pool, never inflated with duplicates.
+  /// Each subject's pool is **shuffled before capping**, so every call
+  /// returns a different spread of questions — retaking a mock test no
+  /// longer serves the identical paper. If a subject's pool has fewer
+  /// questions than [physicsCount] / [chemCount] / [bioCount], the
+  /// available questions are returned and the section is simply shorter.
+  /// The total length is therefore bounded by the size of the underlying
+  /// pool, never inflated with duplicates.
+  ///
+  /// (Optional [seed] makes the selection deterministic — used by tests
+  /// to pin an otherwise random shuffle.)
   Future<List<QuestionModel>> getMockTestQuestions({
     required int physicsCount,
     required int chemCount,
     required int bioCount,
+    int? seed,
   }) async {
     final all = await _loadQuestions();
+    final rng = seed == null ? Random() : Random(seed);
 
-    final physics = all
-        .where((q) => q.subject == 'Physics')
-        .take(physicsCount)
-        .toList();
-    final chemistry = all
-        .where((q) => q.subject == 'Chemistry')
-        .take(chemCount)
-        .toList();
-    final biology = all
-        .where((q) => q.subject == 'Biology')
-        .take(bioCount)
-        .toList();
+    List<QuestionModel> draw(String subject, int count) {
+      final pool = all.where((q) => q.subject == subject).toList()
+        ..shuffle(rng);
+      return pool.take(count).toList();
+    }
+
+    final physics = draw('Physics', physicsCount);
+    final chemistry = draw('Chemistry', chemCount);
+    final biology = draw('Biology', bioCount);
 
     return [...physics, ...chemistry, ...biology];
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/design/app_colors.dart';
 import '../../features/navigation/main_nav_screen.dart';
 
 /// A back button that pops the current route if possible, otherwise switches
@@ -24,7 +23,7 @@ class BackButtonToHome extends StatelessWidget {
         }
       },
       icon: const Icon(Icons.arrow_back_ios_new_rounded),
-      color: color ?? AppColors.text,
+      color: color ?? Theme.of(context).colorScheme.onSurface,
     );
   }
 }

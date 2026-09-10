@@ -61,29 +61,33 @@ String _googleErrorMessage(FirebaseAuthException e) {
 Future<void> _showGoogleErrorDialog(
     BuildContext context, String message) async {
   final palette = ColorPaletteController.instance.current;
+  final onSurface = Theme.of(context).colorScheme.onSurface;
+  final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+  final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+  final schemeError = Theme.of(context).colorScheme.error;
   await showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: surfaceContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       title: Row(
         children: [
-          Icon(Icons.error_outline_rounded, color: AppColors.error, size: 24),
+          Icon(Icons.error_outline_rounded, color: schemeError, size: 24),
           const SizedBox(width: 10),
-          const Text(
+          Text(
             "Sign-In Failed",
             style: TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: onSurface,
             ),
           ),
         ],
       ),
       content: Text(
         message,
-        style: const TextStyle(
-            fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+        style: TextStyle(
+            fontSize: 14, color: onSurfaceVariant, height: 1.4),
       ),
       actions: [
         ElevatedButton(
@@ -114,9 +118,10 @@ class WelcomeScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = screenHeight < 900;
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: ExitConfirmationScope(
           child: LayoutBuilder(
@@ -158,13 +163,13 @@ class WelcomeScreen extends StatelessWidget {
                       // HEADING
                       // ─────────────────────────────
 
-                      const Text(
+                      Text(
                         "Your Journey to\nNEET Success Starts Here",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 27,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: onSurface,
                           height: 1.2,
                         ),
                       ),
@@ -175,12 +180,12 @@ class WelcomeScreen extends StatelessWidget {
                       // SUBTITLE
                       // ─────────────────────────────
 
-                      const Text(
+                      Text(
                         "Your AI-powered companion for NEET preparation.\nPractice smarter, analyze your performance,\nand rank higher.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textSecondary,
+                          color: onSurfaceVariant,
                           height: 1.45,
                         ),
                       ),
@@ -212,7 +217,7 @@ class WelcomeScreen extends StatelessWidget {
                                 width: compact ? 36 : 39,
                                 height: compact ? 36 : 39,
                                 decoration: BoxDecoration(
-                                  color: AppColors.background,
+                                  color: Theme.of(context).colorScheme.surface,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -224,11 +229,14 @@ class WelcomeScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                "Continue with Google",
-                                style: TextStyle(
-                                  fontSize: compact ? 16 : 18,
-                                  fontWeight: FontWeight.w600,
+                              Flexible(
+                                child: Text(
+                                  "Continue with Google",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: compact ? 16 : 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ],
@@ -272,12 +280,15 @@ class WelcomeScreen extends StatelessWidget {
                                 color: palette.primary,
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                "Continue with Email",
-                                style: TextStyle(
-                                  color: palette.primary,
-                                  fontSize: compact ? 16 : 18,
-                                  fontWeight: FontWeight.w600,
+                              Flexible(
+                                child: Text(
+                                  "Continue with Email",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: palette.primary,
+                                    fontSize: compact ? 16 : 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ],
@@ -294,11 +305,14 @@ class WelcomeScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            "Already have an account?",
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: compact ? 12 : 14,
+                          Flexible(
+                            child: Text(
+                              "Already have an account?",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: onSurfaceVariant,
+                                fontSize: compact ? 12 : 14,
+                              ),
                             ),
                           ),
                           TextButton(

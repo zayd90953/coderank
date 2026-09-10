@@ -26,30 +26,16 @@
 
 Claude Code must read and follow this before touching any screen. This is the visual identity of CodeRank — nothing should be built that contradicts it.
 
-**Philosophy:** Dark-first, bold, game-like. This app competes for attention with social media and games — it needs to feel like it belongs there, not like a textbook.
+**Philosophy:** Light-first, dark-ready, bold, and game-like. The app competes for attention with social media and games — it needs to feel like it belongs there, not like a textbook. The default experience is light mode, while dark mode is a fully supported, adaptive alternative.
 
 **Color system:**
-- Background: near-black (`#0D0D0D`) as default — dark mode is the primary mode, not an afterthought
-- Surface cards: dark grey (`#1A1A1A`), not white — cards sit on the dark background, not float above white
-- Text: high-contrast white (`#FFFFFF`) for primary, mid-grey (`#9E9E9E`) for secondary
-- Error/destructive: `#FF4D4D`
+- Background: use the active theme’s surface token; light mode is the default and dark mode uses the near-black canvas.
+- Surface cards: use the active theme’s surface/container token; cards must adapt cleanly instead of using fixed light or dark colors.
+- Text: use the active theme’s `onSurface` for primary text and `onSurfaceVariant` for secondary text.
+- Error/destructive: use the active theme’s `error` token.
+- Brand accent: Electric Green `#39D353` is the only primary brand color. Gold, orange, and red may appear only as tiny domain or achievement accents.
 
-**Primary accent — choose ONE of the following (user to confirm before A-1):**
-
-| Option | Name | Hex | Character | Best paired secondary |
-|---|---|---|---|---|
-| 🟣 A | Deep Purple (current brand) | `#6200FF` | Premium, focused — familiar but safe for the category | Electric Lime `#C6FF00` |
-| 🟠 B | Coral Orange | `#FF6B35` | High-energy, warm, stands out from ed-tech defaults | Deep Purple `#6200FF` |
-| 🔴 C | Coral Red | `#FF3B30` | Bold, urgent, aggressive — strongest "game" signal | Electric Lime `#C6FF00` |
-| 🟢 D | Electric Green | `#39D353` | Alive, growth-coded, Duolingo energy — most addictive feel | Deep Purple `#6200FF` |
-
-**Honest ranking for CodeRank's stated goals (Gen-Z, game-like, stands out):**
-1. **Electric Green `#39D353`** — strongest pull, growth/progress connotations map perfectly to exam prep, rare in Indian ed-tech
-2. **Coral Orange `#FF6B35`** — high energy without clashing with a purple logo, very distinctive in the category
-3. **Deep Purple `#6200FF`** — viable and brand-consistent, but the most common choice in this space — needs the boldest execution to stand out
-4. **Coral Red `#FF3B30`** — most aggressive, hardest to use on large surfaces without feeling stressful — better as an accent than a primary
-
-**Until confirmed, Claude Code should use Deep Purple `#6200FF` as the placeholder primary** — it matches the existing brand and can be swapped to any of the above by changing a single token in `app_colors.dart` once the user decides.
+**Typography:**
 
 **Typography:**
 - Display/headlines/scores: a rounded, personality-forward font (e.g. Nunito or Space Grotesk) — never the Flutter default
@@ -87,12 +73,18 @@ Claude Code must read and follow this before touching any screen. This is the vi
 - [x] A-3: Daily NEET Challenge — real flow (date-seeded 10Q selector, 45s/question timer, +50 XP completion bonus, per-day lock, results screen, home "Done today" pill) — DONE
 - [x] A-4: Mock Test mode — keep both Full-Length (180Q/3hr) and Quick (45Q/2hr) as distinct entry points; differentiated landing screens (indigo vs orange hero), shared format widgets, Home routes through a chooser — DONE
 - [x] A-5: Performance Analytics — kept the existing hero/subject-mastery/insights/history layout and added three new sections: 7-day accuracy trend strip with streak dots, "Focus this week" weak-area callout (subject-level), and trending pills on each subject mastery card — DONE
+- [x] M-1: Maintenance & audit fixes — profile-sheet compile errors fixed, onboarding assets migrated to .jpeg with all references verified, analyzer warnings cleared, sign-in dark background regression restored, daily-challenge finish path guarded, question bank parsed once per run (static cache), edit-name sheet keyboard/controller/example-hint fixes — DONE
+- [x] M-2: Launch experience — native purple boot splash removed and unified to brand green (Android/iOS/web), splash redesigned (animated bubbles + logo bounce), launcher icons regenerated from new app icon — DONE
+- [x] M-3: App-wide dynamic theming — light mode is the default with dark optional (System/Light/Dark picker); 40+ screens migrated off hardcoded dark tokens to theme-derived surfaces/text; contrast fixes for settings tiles and mock-test landing heroes — DONE
+- [x] M-4: Launch crash + overflow fixes — splash TickerProvider crash fixed (red screen on device), 10 RenderFlex overflow fixes across welcome/sign-in/analytics/profile, verified via phone-dimension smoke test across 12 screens — DONE
 
 ### Remaining — work through in this order
 - [ ] A-6: Practice Hub — Gen-Z redesign
 - [ ] A-7: Practice setup screens — redesign (not just restyle)
 - [ ] A-8: Real ranking system (computed from actual user data, not hardcoded)
 - [ ] A-9: App-wide production polish pass
+- [ ] AUD-1: Deduplicate the question bank (113 duplicate question texts) — needs a dedupe policy decision
+- [ ] AUD-2: Streak/XP bonus is granted on app open, not on practice — needs a definition of "streak"
 - [ ] R-1: Extend question data model to new schema (see QUESTION_SCHEMA.md)
 - [ ] R-2: Update question repository for chapter/topic/bloom-level queries
 - [ ] R-3: Weak-area tracking service

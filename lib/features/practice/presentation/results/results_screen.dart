@@ -9,9 +9,27 @@ import '../practice_screen.dart';
 class ResultsScreen extends StatelessWidget {
   final PracticeSession session;
 
+  /// XP earned from this session as reported by
+  /// [UserProgressService.recordSession]. Shown as a reward chip when
+  /// > 0 (regular practice previously showed nothing — progress was
+  /// never recorded for this flow).
+  final int xpEarned;
+
+  /// The setup the session was started with, echoed back into
+  /// "Practice Again" so the retry reruns the same configuration
+  /// (count / difficulty / time limit) instead of falling back to
+  /// the bare 10-question defaults.
+  final int questionCount;
+  final String difficulty;
+  final int? timeLimit;
+
   const ResultsScreen({
     super.key,
     required this.session,
+    this.xpEarned = 0,
+    this.questionCount = 10,
+    this.difficulty = 'Mixed',
+    this.timeLimit = 60,
   });
 
   @override
@@ -20,15 +38,14 @@ class ResultsScreen extends StatelessWidget {
     final palette = ColorPaletteController.instance.current;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButtonToHome(),
-        title: const Text(
+        title: Text(
           "Results",
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -58,13 +75,13 @@ class ResultsScreen extends StatelessWidget {
 
               const SizedBox(height: 22),
 
-              const Text(
+              Text(
                 "Practice Complete!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
 
@@ -75,11 +92,47 @@ class ResultsScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
 
               const SizedBox(height: 30),
+
+              if (xpEarned > 0) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: palette.primary.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: palette.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.bolt_rounded,
+                        color: palette.primary,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "+$xpEarned XP earned",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: palette.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
 
               Container(
                 width: double.infinity,
@@ -88,10 +141,10 @@ class ResultsScreen extends StatelessWidget {
                   horizontal: 20,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: AppColors.border,
+                    color: Theme.of(context).colorScheme.outline,
                   ),
                 ),
                 child: Column(
@@ -99,7 +152,7 @@ class ResultsScreen extends StatelessWidget {
                     Text(
                       session.subject,
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -118,10 +171,10 @@ class ResultsScreen extends StatelessWidget {
 
                     const SizedBox(height: 4),
 
-                    const Text(
+                    Text(
                       "Score",
                       style: TextStyle(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -185,6 +238,9 @@ class ResultsScreen extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (_) => QuestionScreen(
                           subject: session.subject,
+                          questionCount: questionCount,
+                          difficulty: difficulty,
+                          timeLimit: timeLimit,
                         ),
                       ),
                     );
@@ -274,8 +330,8 @@ class _StatItem extends StatelessWidget {
         const SizedBox(height: 7),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -284,7 +340,7 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
           ),
         ),

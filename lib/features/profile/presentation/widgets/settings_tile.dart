@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 
 /// A single settings row used inside a [SettingsSection].
@@ -63,16 +62,16 @@ class SettingsTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: textColor ?? AppColors.textPrimary,
+                      color: textColor ?? Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
                     Text(
                       subtitle!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

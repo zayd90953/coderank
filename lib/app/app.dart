@@ -43,10 +43,10 @@ class CodeRankApp extends StatelessWidget {
       case 'dark':
         return ThemeMode.dark;
       default:
-        // A-1 contract: dark-first. Default the system mode to dark so
-        // first-time users on a fresh install see the intended primary
-        // visual mode. They can still switch to Light from Profile.
-        return ThemeMode.dark;
+        // Follow the device setting. Users with "system default" theme
+        // mode will see the app flip automatically when the device
+        // mode changes.
+        return ThemeMode.system;
     }
   }
 }

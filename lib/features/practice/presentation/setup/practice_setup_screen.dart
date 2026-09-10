@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
+import '../../../../shared/services/user_preferences_service.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
 import '../question/question_screen.dart';
 
@@ -31,18 +31,32 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
   final List<int?> timeOptions = [30, 60, 90, null];
 
   @override
+  void initState() {
+    super.initState();
+    // Hydrate the chips from the user's saved Practice Defaults
+    // (Profile → App → Practice Defaults). Those prefs were persisted
+    // but never read before — the screen always opened at 10 Q / 60s.
+    // If the saved count/seconds don't match a chip option, no chip is
+    // preselected — the summary card still shows the effective choice.
+    final defaults = UserPreferencesService.instance.current;
+    selectedQuestions = defaults.practiceQuestionCount;
+    selectedTime = defaults.practiceSecondsPerQuestion;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButtonToHome(),
         title: Text(
           '${widget.subject} Practice',
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -53,10 +67,10 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Set up your practice',
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: onSurface,
                 fontSize: 27,
                 fontWeight: FontWeight.bold,
               ),
@@ -67,7 +81,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
             Text(
               'Choose how you want to practice ${widget.subject}.',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -186,10 +200,10 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Your practice',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: onSurface,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
@@ -200,7 +214,7 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
                               '$selectedDifficulty • '
                               '${selectedTime == null ? 'No time limit' : '$selectedTime sec/question'}',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: onSurfaceVariant,
                             fontSize: 13,
                           ),
                         ),
@@ -269,6 +283,7 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Row(
       children: [
         Icon(
@@ -279,8 +294,8 @@ class _SectionTitle extends StatelessWidget {
         const SizedBox(width: 9),
         Text(
           title,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: onSurface,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -304,6 +319,9 @@ class _ChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final surfaceContainerHighest = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final outline = Theme.of(context).colorScheme.outline;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -315,12 +333,12 @@ class _ChoiceChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? palette.primary.withValues(alpha: 0.10)
-              : Colors.white,
+              : surfaceContainerHighest,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected
                 ? palette.primary
-                : AppColors.border,
+                : outline,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -329,7 +347,7 @@ class _ChoiceChip extends StatelessWidget {
           style: TextStyle(
             color: selected
                 ? palette.primary
-                : AppColors.textPrimary,
+                : onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),

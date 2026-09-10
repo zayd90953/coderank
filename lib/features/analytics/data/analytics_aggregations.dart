@@ -48,6 +48,44 @@ class AnalyticsAggregations {
     );
   }
 
+  /// Per-subject accuracy over just the last [days] days (default 7).
+  ///
+  /// Used by the "Focus this week" callout so the number it shows is
+  /// genuinely weekly, matching its label. Only subject-labeled sessions
+  /// count — mixed sessions ("Daily Challenge", "Mock Test") cannot be
+  /// attributed to a single subject at the session-record level.
+  ///
+  /// Returns `null` when the subject has fewer than [minQuestions]
+  /// questions in the window — not enough signal to call a weekly score.
+  static ({double accuracy, int questions, int correct})? weeklyAccuracyForSubject(
+    List<SessionRecord> history,
+    String subject, {
+    int days = 7,
+    int minQuestions = 5,
+  }) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start = today.subtract(Duration(days: days - 1));
+
+    var total = 0;
+    var correct = 0;
+    for (final r in history) {
+      if (!r.subject.toLowerCase().contains(subject.toLowerCase())) continue;
+      final ts = r.timestamp;
+      final day = DateTime(ts.year, ts.month, ts.day);
+      if (day.isBefore(start) || day.isAfter(today)) continue;
+      total += r.total;
+      correct += r.correct;
+    }
+
+    if (total < minQuestions) return null;
+    return (
+      accuracy: (correct / total) * 100,
+      questions: total,
+      correct: correct,
+    );
+  }
+
   static TrendWindow _trendWindowFiltered(
     List<SessionRecord> history, {
     required int recentDays,

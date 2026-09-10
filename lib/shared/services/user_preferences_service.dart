@@ -30,7 +30,9 @@ class UserPreferences {
   /// Target college (raw free-text for now; see [UserPreferencesService]).
   final String? targetCollege;
 
-  /// `"system"` / `"light"` / `"dark"`. Defaults to `"system"`.
+  /// `"system"` / `"light"` / `"dark"`. Defaults to `"light"` — the
+  /// app ships light-first; users who want the dark look opt in via the
+  /// theme picker (or by choosing "system" on a dark-mode device).
   final String themeMode;
 
   /// Whether the (UI-only) daily practice reminder tile is on.
@@ -49,7 +51,7 @@ class UserPreferences {
     this.targetYear = 2026,
     this.targetState,
     this.targetCollege,
-    this.themeMode = 'system',
+    this.themeMode = 'light',
     this.dailyReminderEnabled = true,
     this.practiceQuestionCount = 10,
     this.practiceSecondsPerQuestion = 60,

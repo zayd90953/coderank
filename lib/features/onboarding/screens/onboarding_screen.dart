@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../data/onboarding_data.dart';
 import '../../welcome/presentation/welcome_screen.dart';
@@ -49,7 +48,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -73,11 +71,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       mainAxisAlignment:
                       MainAxisAlignment.center,
                       children: [
-                        // Soft radial glow behind the image so the flat
+                        // Soft green radial glow behind the image so the flat
                         // asset blends with the dark canvas instead of
-                        // looking pasted on. Brand-neutral — uses the
-                        // dark surface token, not palette.primary, so
-                        // every color-theme variant looks the same.
+                        // looking pasted on. Uses palette.primary so the
+                        // onboarding reads as Electric Green from the
+                        // first launch.
                         Expanded(
                           flex: 5,
                           child: Container(
@@ -85,10 +83,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  AppColors.surface.withValues(alpha: 0.55),
-                                  AppColors.background.withValues(alpha: 0.0),
+                                  ColorPaletteController.instance.current.primary
+                                      .withValues(alpha: 0.22),
+                                  ColorPaletteController.instance.current.primary
+                                      .withValues(alpha: 0.0),
                                 ],
-                                stops: const [0.0, 1.0],
+                                stops: [0.0, 1.0],
                                 radius: 0.85,
                               ),
                             ),
@@ -106,10 +106,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           item.title,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
 
@@ -118,9 +118,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           item.description,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 17,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1.5,
                           ),
                         ),
@@ -169,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: currentPage == index
                               ? palette.primary
-                              : AppColors.surfaceElevated,
+                              : Theme.of(context).colorScheme.surfaceContainerHighest,
                           borderRadius:
                           BorderRadius.circular(20),
                         ),

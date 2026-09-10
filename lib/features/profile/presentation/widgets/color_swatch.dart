@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/design/app_colors.dart';
 
 /// A small circular swatch showing a brand color, with an optional
 /// selection ring. Used in the color picker and the Color Theme settings
@@ -29,7 +28,7 @@ class ColorSwatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final outer = ringColor ?? AppColors.border;
+    final outer = ringColor ?? Theme.of(context).colorScheme.outline;
     return Container(
       width: size + 8,
       height: size + 8,

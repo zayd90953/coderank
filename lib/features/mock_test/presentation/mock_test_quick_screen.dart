@@ -62,16 +62,20 @@ class _MockTestQuickScreenState extends State<MockTestQuickScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+    final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+    final outline = Theme.of(context).colorScheme.outline;
+    final error = Theme.of(context).colorScheme.error;
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButtonToHome(),
-        title: const Text(
+        title: Text(
           'Quick Mock Test',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -115,7 +119,7 @@ class _MockTestQuickScreenState extends State<MockTestQuickScreen> {
                     ),
                     child: const Icon(
                       Icons.bolt_rounded,
-                      color: AppColors.surface,
+                      color: Colors.white,
                       size: 38,
                     ),
                   ),
@@ -125,7 +129,9 @@ class _MockTestQuickScreenState extends State<MockTestQuickScreen> {
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.surface,
+                      // Hero sits on a fixed orange gradient — white text
+                      // is correct in both light and dark mode.
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -133,7 +139,7 @@ class _MockTestQuickScreenState extends State<MockTestQuickScreen> {
                     '$_quickQuestionCount Questions • 2 Hours',
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.surface.withValues(alpha: 0.85),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                 ],
@@ -178,29 +184,29 @@ class _MockTestQuickScreenState extends State<MockTestQuickScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: surfaceContainer,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: outline),
               ),
               child: Column(
-                children: const [
+                children: [
                   MarkRow(
                     icon: Icons.check_circle_rounded,
                     color: AppColors.success,
                     label: 'Correct answer',
                     mark: '+4',
                   ),
-                  Divider(color: AppColors.border, height: 20),
+                  Divider(color: outline, height: 20),
                   MarkRow(
                     icon: Icons.cancel_rounded,
-                    color: AppColors.error,
+                    color: error,
                     label: 'Wrong answer',
                     mark: '−1',
                   ),
-                  Divider(color: AppColors.border, height: 20),
+                  Divider(color: outline, height: 20),
                   MarkRow(
                     icon: Icons.remove_circle_outline_rounded,
-                    color: AppColors.textSecondary,
+                    color: onSurfaceVariant,
                     label: 'Unattempted',
                     mark: '0',
                   ),
@@ -250,12 +256,12 @@ class _MockTestQuickScreenState extends State<MockTestQuickScreen> {
                 padding: const EdgeInsets.all(14),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.08),
+                  color: error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
                   _error!,
-                  style: const TextStyle(color: AppColors.error, fontSize: 13),
+                  style: TextStyle(color: error, fontSize: 13),
                 ),
               ),
           ],

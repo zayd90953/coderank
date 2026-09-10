@@ -115,18 +115,18 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Row(
           children: [
             Icon(Icons.send_rounded, color: palette.primary),
             const SizedBox(width: 10),
-            const Text(
+            Text(
               'Submit Paper?',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -144,7 +144,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
             const SizedBox(height: 6),
             _SummaryRow(
               icon: Icons.help_outline_rounded,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               label: 'Unanswered',
               value: '$unanswered',
             ),
@@ -161,9 +161,9 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(
+            child: Text(
               'Back',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           ElevatedButton(
@@ -254,83 +254,105 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
     if (marked) return AppColors.warning; // amber
     if (sel != null) return AppColors.success; // answered
     if (i == _current) return palette.primary;
-    return AppColors.border; // not visited
+    return Theme.of(context).colorScheme.outline; // not visited
   }
 
   Color _paletteTextColor(int i) {
     final sel = _selectedAnswers[i];
     final marked = _markedForReview[i];
     if (marked || sel != null || i == _current) return Colors.white;
-    return AppColors.textPrimary;
+    return Theme.of(context).colorScheme.onSurface;
   }
 
   void _openPalette() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (_) => StatefulBuilder(
-        builder: (ctx, setModal) => DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          maxChildSize: 0.92,
-          minChildSize: 0.5,
-          expand: false,
-          builder: (_, controller) => Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(4),
-                ),
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        maxChildSize: 0.92,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (_, controller) => Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.outline,
+                borderRadius: BorderRadius.circular(4),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Question Palette',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Question Palette',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
-              const SizedBox(height: 12),
-              // Legend
-              Padding(
+            ),
+            const SizedBox(height: 12),
+            // Legend
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 6,
+                children: [
+                  _LegendItem(color: Theme.of(context).colorScheme.outline, label: 'Not visited', textColor: Theme.of(context).colorScheme.onSurface),
+                  _LegendItem(color: AppColors.success, label: 'Answered'),
+                  _LegendItem(color: AppColors.warning, label: 'Marked'),
+                  _LegendItem(
+                    color: ColorPaletteController.instance.current.primary,
+                    label: 'Answered + Marked',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView(
+                controller: controller,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 6,
-                  children: [
-                    _LegendItem(color: AppColors.border, label: 'Not visited', textColor: AppColors.textPrimary),
-                    _LegendItem(color: AppColors.success, label: 'Answered'),
-                    _LegendItem(color: AppColors.warning, label: 'Marked'),
-                    _LegendItem(color: palette.primary, label: 'Answered + Marked'),
-                  ],
-                ),
+                children: [
+                  for (final s in _paletteSections())
+                    _buildPaletteSection(s.label, s.start, s.end),
+                  const SizedBox(height: 40),
+                ],
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  controller: controller,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
-                    _buildPaletteSection('Physics', 0, 45),
-                    _buildPaletteSection('Chemistry', 45, 90),
-                    _buildPaletteSection('Biology', 90, widget.questions.length),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// Derive palette sections from the actual question list at runtime.
+  /// Each section covers a contiguous run of the same subject. The
+  /// repository guarantees physics → chemistry → biology ordering, but
+  /// this works for any subject string in case that changes. Previously
+  /// hardcoded (0,45,90,length) which crashed on Quick Mock's 45-question
+  /// list.
+  List<({String label, int start, int end})> _paletteSections() {
+    final sections = <({String label, int start, int end})>[];
+    if (widget.questions.isEmpty) return sections;
+    String current = widget.questions.first.subject;
+    int start = 0;
+    for (int i = 1; i < widget.questions.length; i++) {
+      if (widget.questions[i].subject != current) {
+        sections.add((label: current, start: start, end: i));
+        current = widget.questions[i].subject;
+        start = i;
+      }
+    }
+    sections.add((label: current, start: start, end: widget.questions.length));
+    return sections;
   }
 
   Widget _buildPaletteSection(String label, int start, int end) {
@@ -342,10 +364,10 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Text(
             label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               letterSpacing: 1.0,
             ),
           ),
@@ -407,21 +429,22 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
         final exit = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.surface,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-            title: const Text('Exit Exam?',
+            title: Text('Exit Exam?',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: AppColors.text)),
-            content: const Text(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface)),
+            content: Text(
               'Your progress will be lost. Are you sure you want to exit?',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Stay',
-                      style: TextStyle(color: AppColors.textSecondary))),
+                  child: Text('Stay',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
               ElevatedButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 style: ElevatedButton.styleFrom(
@@ -443,39 +466,51 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
 
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.surface,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
           elevation: 1,
           shadowColor: Colors.black.withValues(alpha: 0.06),
           leading: const BackButtonToHome(),
           titleSpacing: 16,
           title: Row(
             children: [
-              // Section chip
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _sectionColor(section).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  section,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: _sectionColor(section),
+              // Section chip — flexible so a long section name ellipsizes
+              // instead of overflowing the app bar on narrow screens.
+              Flexible(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _sectionColor(section).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    section,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _sectionColor(section),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
-                'Q ${_current + 1} / ${widget.questions.length}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+              // Q counter — also flexible so it never overflows next to the
+              // timer / palette / submit actions.
+              Flexible(
+                child: Text(
+                  'Q ${_current + 1} / ${widget.questions.length}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -525,7 +560,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
             IconButton(
               onPressed: _openPalette,
               icon: const Icon(Icons.grid_view_rounded),
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
               tooltip: 'Question Palette',
             ),
             // Submit
@@ -554,7 +589,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
             LinearProgressIndicator(
               value: (_current + 1) / widget.questions.length,
               minHeight: 3,
-              backgroundColor: AppColors.border,
+              backgroundColor: Theme.of(context).colorScheme.outline,
               valueColor:
                   AlwaysStoppedAnimation<Color>(_sectionColor(section)),
             ),
@@ -571,10 +606,10 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                         RegExp(r'^\[See diagram [^\]]+\]\s*'),
                         '',
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         height: 1.5,
                       ),
                     ),
@@ -595,12 +630,12 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? palette.primary.withValues(alpha: 0.08)
-                                  : Colors.white,
+                                  : Theme.of(context).colorScheme.surfaceContainer,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
                                     ? palette.primary
-                                    : AppColors.border,
+                                    : Theme.of(context).colorScheme.outline,
                                 width: isSelected ? 1.5 : 1,
                               ),
                             ),
@@ -613,7 +648,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? palette.primary
-                                        : AppColors.surfaceElevated,
+                                        : Theme.of(context).colorScheme.surfaceContainerHighest,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
@@ -621,7 +656,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                                     style: TextStyle(
                                       color: isSelected
                                           ? Colors.white
-                                          : AppColors.textPrimary,
+                                          : Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -630,10 +665,10 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                                 Expanded(
                                   child: Text(
                                     q.options[idx],
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -652,9 +687,9 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
         bottomNavigationBar: SafeArea(
           child: Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              border: Border(top: BorderSide(color: AppColors.border)),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outline)),
             ),
             child: Row(
               children: [
@@ -667,14 +702,14 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                       size: 18,
                       color: isMarked
                           ? AppColors.warning
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     label: Text(
                       isMarked ? 'Marked' : 'Mark',
                       style: TextStyle(
                         color: isMarked
                             ? AppColors.warning
-                            : AppColors.textSecondary,
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -682,7 +717,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                       side: BorderSide(
                         color: isMarked
                             ? AppColors.warning
-                            : AppColors.border,
+                            : Theme.of(context).colorScheme.outline,
                       ),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
@@ -696,7 +731,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                     onPressed: () =>
                         setState(() => _selectedAnswers[_current] = null),
                     icon: const Icon(Icons.clear_rounded),
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     tooltip: 'Clear selection',
                   ),
                 const SizedBox(width: 4),
@@ -704,7 +739,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                 IconButton(
                   onPressed: _current > 0 ? _prev : null,
                   icon: Icon(Icons.chevron_left_rounded),
-                  color: _current > 0 ? palette.primary : AppColors.textSecondary,
+                  color: _current > 0 ? palette.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                   iconSize: 32,
                 ),
                 // Next / Save & Next
@@ -772,13 +807,13 @@ class _SummaryRow extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
             child: Text(label,
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textSecondary))),
+                style: TextStyle(
+                    fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant))),
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text)),
+                color: Theme.of(context).colorScheme.onSurface)),
       ],
     );
   }
@@ -810,7 +845,7 @@ class _LegendItem extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Text(label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
     );
   }

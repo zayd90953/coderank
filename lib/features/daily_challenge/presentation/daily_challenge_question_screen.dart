@@ -132,12 +132,18 @@ class _DailyChallengeQuestionScreenState
       _isSubmitting = true;
     });
 
-    final sessionXp =
-        await UserProgressService.instance.recordSession(_session);
-    await UserProgressService.instance.addXp(_completionBonusXp);
-    await UserProgressService.instance.markDailyChallengeCompleted(
-      xpEarned: sessionXp + _completionBonusXp,
-    );
+    int sessionXp = 0;
+    try {
+      sessionXp =
+          await UserProgressService.instance.recordSession(_session);
+      await UserProgressService.instance.addXp(_completionBonusXp);
+      await UserProgressService.instance.markDailyChallengeCompleted(
+        xpEarned: sessionXp + _completionBonusXp,
+      );
+    } catch (_) {
+      // Persistence must never block the results screen — mirrors the
+      // mock-test and practice runners, which also swallow failures.
+    }
 
     if (!mounted) return;
 
@@ -170,15 +176,14 @@ class _DailyChallengeQuestionScreenState
     final isLast = _currentQuestion == widget.questions.length - 1;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButtonToHome(),
-        title: const Text(
+        title: Text(
           'Daily NEET Challenge',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -230,7 +235,7 @@ class _DailyChallengeQuestionScreenState
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
-                backgroundColor: AppColors.border,
+                backgroundColor: Theme.of(context).colorScheme.outline,
                 valueColor:
                     AlwaysStoppedAnimation<Color>(palette.primary),
               ),
@@ -253,7 +258,7 @@ class _DailyChallengeQuestionScreenState
                   style: TextStyle(
                     color: timerIsLow
                         ? AppColors.error
-                        : AppColors.textSecondary,
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -269,8 +274,8 @@ class _DailyChallengeQuestionScreenState
                 RegExp(r'^\[See diagram [^\]]+\]\s*'),
                 '',
               ),
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 21,
                 height: 1.4,
                 fontWeight: FontWeight.bold,
@@ -283,19 +288,19 @@ class _DailyChallengeQuestionScreenState
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
                   width: double.infinity,
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   padding: const EdgeInsets.all(12),
                   child: Image.asset(
                     'assets/practice/diagrams/${question.diagramId}.png',
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Padding(
+                      return Padding(
                         padding: EdgeInsets.all(20),
                         child: Text(
                           'Diagram unavailable',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       );
@@ -338,7 +343,7 @@ class _DailyChallengeQuestionScreenState
                                 : isSelected
                                     ? palette.primary
                                         .withValues(alpha: 0.08)
-                                    : AppColors.surface,
+                                    : Theme.of(context).colorScheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isCorrect
@@ -347,7 +352,7 @@ class _DailyChallengeQuestionScreenState
                                   ? AppColors.error
                                   : isSelected
                                       ? palette.primary
-                                      : AppColors.border,
+                                      : Theme.of(context).colorScheme.outline,
                           width: isSelected || isCorrect || isWrong
                               ? 1.5
                               : 1,
@@ -366,7 +371,7 @@ class _DailyChallengeQuestionScreenState
                                       ? AppColors.error
                                       : isSelected
                                           ? palette.primary
-                                          : AppColors.surfaceElevated,
+                                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                               shape: BoxShape.circle,
                             ),
                             child: Text(
@@ -374,7 +379,7 @@ class _DailyChallengeQuestionScreenState
                               style: TextStyle(
                                 color: isSelected || isCorrect || isWrong
                                     ? Colors.white
-                                    : AppColors.textPrimary,
+                                    : Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -383,8 +388,8 @@ class _DailyChallengeQuestionScreenState
                           Expanded(
                             child: Text(
                               options[index],
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

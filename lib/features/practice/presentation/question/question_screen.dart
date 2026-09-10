@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
+import '../../../../shared/services/user_progress_service.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
 import '../../data/question_repository.dart';
 import '../../models/question_model.dart';
@@ -37,6 +38,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
   List<QuestionModel> questions = [];
   bool isLoading = true;
   String? errorMessage;
+
+  /// Guards against double-recording: returning from the results screen
+  /// (device back) and tapping "Next Question" re-enters [_showResults],
+  /// and the session must only be persisted once.
+  bool _resultsRecorded = false;
 
   late PracticeSession session;
 
@@ -200,7 +206,25 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
-  void _showResults() {
+  Future<void> _showResults() async {
+    int xpEarned = 0;
+
+    // Record the finished session exactly once. Back-navigation from the
+    // results screen re-enters this method, so without the guard every
+    // revisit would re-count XP, subject stats and history.
+    if (!_resultsRecorded) {
+      _resultsRecorded = true;
+      try {
+        xpEarned = await UserProgressService.instance.recordSession(session);
+      } catch (_) {
+        // Persistence must never block the results screen — mirrors the
+        // mock-test runner, which also swallows recordSession failures.
+        xpEarned = 0;
+      }
+    }
+
+    if (!mounted) return;
+
     // P4-REGRESSION #3: use push so the device back from results pops to
     // the (just-completed) question screen, and the question screen's own
     // back returns to setup. pushReplacement would leave no route to pop.
@@ -209,6 +233,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
       MaterialPageRoute(
         builder: (_) => ResultsScreen(
           session: session,
+          xpEarned: xpEarned,
+          questionCount: widget.questionCount,
+          difficulty: widget.difficulty,
+          timeLimit: widget.timeLimit,
         ),
       ),
     );
@@ -225,15 +253,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
     final palette = ColorPaletteController.instance.current;
     if (isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: const BackButtonToHome(),
           title: Text(
             widget.subject,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -249,15 +276,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
     if (errorMessage != null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: const BackButtonToHome(),
           title: Text(
             widget.subject,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -272,8 +298,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 Text(
                   'Unable to load questions.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 15,
                   ),
                 ),
@@ -281,8 +307,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 Text(
                   errorMessage!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 13,
                   ),
                 ),
@@ -314,15 +340,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
     if (questions.isEmpty) {
       return Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: const BackButtonToHome(),
           title: Text(
             widget.subject,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -334,8 +359,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
             child: Text(
               'No ${widget.difficulty.toLowerCase()} questions are available for ${widget.subject}.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
               ),
             ),
@@ -355,7 +380,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
         widget.timeLimit != null && timeRemaining <= 10;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -365,8 +389,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
         title: Text(
           widget.subject,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -391,7 +415,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 Text(
                   "Question ${currentQuestion + 1} of ${questions.length}",
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -416,7 +440,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 value: progress,
                 minHeight: 6,
                 backgroundColor:
-                AppColors.border,
+                Theme.of(context).colorScheme.outline,
                 valueColor:
                 AlwaysStoppedAnimation<Color>(
                   palette.primary,
@@ -447,7 +471,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     style: TextStyle(
                       color: timerIsLow
                           ? AppColors.error
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -465,8 +489,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 ),
                 '',
               ),
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 21,
                 height: 1.4,
                 fontWeight: FontWeight.bold,
@@ -483,7 +507,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
                 child: Container(
                   width: double.infinity,
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   padding:
                   const EdgeInsets.all(12),
 
@@ -494,7 +518,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
                     errorBuilder:
                         (context, error, stackTrace) {
-                      return const Padding(
+                      return Padding(
                         padding:
                         EdgeInsets.all(20),
                         child: Text(
@@ -503,7 +527,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           TextAlign.center,
                           style: TextStyle(
                             color:
-                            AppColors.textSecondary,
+                            Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       );
@@ -573,7 +597,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                             .withValues(
                           alpha: 0.08,
                         )
-                            : AppColors.surface,
+                            : Theme.of(context).colorScheme.surfaceContainer,
 
                         borderRadius:
                         BorderRadius.circular(
@@ -588,7 +612,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                               : isSelected
                               ? palette
                               .primary
-                              : AppColors.border,
+                              : Theme.of(context).colorScheme.outline,
 
                           width: isSelected ||
                               isCorrect ||
@@ -616,7 +640,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                   : isSelected
                                   ? palette
                                   .primary
-                                  : AppColors.surfaceElevated,
+                                  : Theme.of(context).colorScheme.surfaceContainerHighest,
 
                               shape:
                               BoxShape.circle,
@@ -647,9 +671,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                             child: Text(
                               options[index],
                               style:
-                              const TextStyle(
+                              TextStyle(
                                 color:
-                                AppColors.textPrimary,
+                                Theme.of(context).colorScheme.onSurface,
                                 fontSize: 16,
                                 fontWeight:
                                 FontWeight.w600,

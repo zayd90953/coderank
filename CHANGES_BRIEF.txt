@@ -1,0 +1,143 @@
+================================================================================
+CODERANK PROJECT — CHANGE BRIEF
+================================================================================
+Purpose : Summary of everything that changed between the checklist snapshot
+          CODERANK_backup.md (baseline) and the current CODERANK.md.
+Scope   : Master-checkbook items only (CODERANK.md progress tracker).
+Baseline: CODERANK_backup.md — ends after the P-series (P1-1 .. P2-2, P4-1..6),
+          with A-1 .. A-9 and R-1 .. R-9 all still pending.
+Current : CODERANK.md — A-1 through A-5 complete, plus four maintenance items
+          (M-1 .. M-4), plus two new audit items (AUD-1, AUD-2) added.
+
+--------------------------------------------------------------------------------
+1. NEWLY COMPLETED ITEMS (in the order they appear in the tracker)
+--------------------------------------------------------------------------------
+
+A-1 — Design system implementation ................ DONE
+  - Created the lib/core/design/ system: app_colors.dart (color tokens),
+    app_typography.dart (two-font system), app_theme.dart (full ThemeData).
+  - Swept every screen and replaced hardcoded colours/fonts with the shared
+    tokens. Token-replacement only — no layout redesigns.
+  - Verified with flutter analyze + a clean build.
+
+A-2 — Dark mode onboarding image blending ......... DONE
+  - The leftover from P1-5 ("images look pasted on in dark mode") was fixed
+    with a soft radial glow treatment done in code (no new image variants).
+  - The onboarding flow itself was not redesigned.
+  - Tracker note cleaned up: P1-5 now reads plain "DONE" (the parenthetical
+    "onboarding image blending still pending" was removed).
+
+A-3 — Daily NEET Challenge (real flow) ............ DONE
+  - Replaced the "Coming soon" placeholder with a full dedicated flow:
+      * date-seeded selector picking 10 high-yield questions per day
+        (4 Biology / 3 Physics / 3 Chemistry, Easy filtered out — deterministic
+        per calendar date, same set for every user that day),
+      * 45-second per-question timer,
+      * +50 XP completion bonus,
+      * per-day lock (one attempt per date),
+      * a proper results screen,
+      * Home card shows a "Done today" pill once finished.
+
+A-4 — Mock Test vs Full NEET Paper (decision + build) ... DONE
+  - Decision: KEEP BOTH as distinct modes (did not collapse them):
+      * Full-Length NEET Paper — 180 Q / 3 hr, indigo hero (the "real deal")
+      * Quick Mock Test        — 45 Q / 2 hr, orange hero (the warm-up)
+  - Differentiated landing screens with shared format widgets; Home routes
+    through a chooser between the two.
+  - The old "confirm at A-4 time" note in the tracker was replaced with the
+    resolution ("Resolved — kept both...").
+
+A-5 — Performance Analytics upgrade ............... DONE
+  - Kept the existing hero / subject-mastery / insights / history layout and
+    ADDED three new sections:
+      * 7-day accuracy trend strip with streak dots,
+      * "Focus this week" weak-area callout (subject-level),
+      * trending pills on each subject mastery card.
+
+M-1 — Maintenance & audit fixes ................... DONE
+  - Profile-sheet compile errors fixed.
+  - Onboarding assets migrated to .jpeg with all references verified.
+  - Analyzer warnings cleared.
+  - Sign-in dark background regression restored.
+  - Daily-challenge finish path guarded.
+  - Question bank parsed once per run (static cache) — big perf win, the
+    2,500-question JSON is no longer re-read/re-parsed on every launch.
+  - Edit-name sheet fixes (keyboard, controller, example hint).
+
+M-2 — Launch experience ........................... DONE
+  - Removed the native purple boot splash; unified to brand green on
+    Android / iOS / web.
+  - Splash screen redesigned: animated bubbles + logo bounce.
+  - Launcher icons regenerated from the new app icon.
+
+M-3 — App-wide dynamic theming .................... DONE
+  - MAJOR DIRECTION CHANGE: light mode is now the DEFAULT, with dark mode
+    optional (System / Light / Dark picker).
+  - 40+ screens migrated off hardcoded dark tokens to theme-derived
+    surfaces/text.
+  - Contrast fixes for settings tiles and mock-test landing heroes.
+  - NOTE: the Design Contract section at the top of CODERANK.md still says
+    "dark-first ... dark mode is the primary mode" — the contract text was
+    NOT updated to match the M-3 flip. Minor documentation inconsistency.
+
+M-4 — Launch crash + overflow fixes ............... DONE
+  - Splash TickerProvider crash fixed (red screen on device).
+  - 10 RenderFlex overflow fixes across welcome / sign-in / analytics /
+    profile.
+  - Verified via a phone-dimension smoke test across 12 screens.
+
+--------------------------------------------------------------------------------
+2. NEW ITEMS ADDED TO THE BACKLOG (not in the baseline)
+--------------------------------------------------------------------------------
+
+AUD-1 — Deduplicate the question bank
+  - 113 duplicate question texts found in the 2,500-question bank.
+  - BLOCKED on a decision: a dedupe policy is needed before work starts.
+
+AUD-2 — Streak/XP bonus timing bug
+  - The streak/XP bonus is currently granted on APP OPEN, not on practice —
+    the incentive is wrong.
+  - BLOCKED on a decision: needs a definition of what "streak" means.
+
+--------------------------------------------------------------------------------
+3. REMAINING WORK (unchanged from baseline, still pending)
+--------------------------------------------------------------------------------
+  A-6  Practice Hub — Gen-Z redesign
+  A-7  Practice setup screens — redesign (not just restyle)
+  A-8  Real ranking system (computed from actual user data, not hardcoded)
+  A-9  App-wide production polish pass
+  AUD-1 / AUD-2  (new, see section 2)
+  R-1  Extend question data model to the new QUESTION_SCHEMA.md schema
+  R-2  Question repository: chapter/topic/bloom-level queries
+  R-3  Weak-area tracking service
+  R-4  Diagnostic test flow (new feature)
+  R-5  Recommendation engine (what to study next)
+  R-6  Home screen — recommendation-first rework
+  R-7  Explanation display upgrade (common wrong reasoning)
+  R-8  Time-pacing features in practice/mock sessions
+  R-9  Mock test scoring calibration (predicted score/percentile)
+
+--------------------------------------------------------------------------------
+4. STRUCTURAL / DOCUMENTATION CHANGES TO THE CHECKLIST ITSELF
+--------------------------------------------------------------------------------
+  - "Completed" section grew from 11 entries to 20 (A-1..A-5, M-1..M-4 added;
+    P1-5 note simplified).
+  - "Remaining" section shrank accordingly (A-1..A-5 removed) and gained
+    AUD-1/AUD-2 between A-9 and R-1.
+  - The A-4 footnote changed from an open question ("confirm at A-4 time...")
+    to a recorded resolution ("Resolved — kept both...").
+  - Item DESCRIPTIONS for A-1..A-9 and R-1..R-9 are unchanged; no description
+    sections were written for M-1..M-4 or AUD-1/AUD-2 (details live only in
+    the tracker lines).
+  - Hard rules, Design Contract and "How to run this file" sections are
+    unchanged (except the stale dark-first wording noted in M-3 above).
+
+--------------------------------------------------------------------------------
+5. ONE-LINE TIMELINE
+--------------------------------------------------------------------------------
+  backup  ->  P-series foundation done, nothing else
+  since   ->  Design system -> onboarding fix -> Daily Challenge -> mock-mode
+              decision -> analytics upgrade -> maintenance sweep -> launch
+              rebrand -> theming flip (light default) -> crash/overflow fixes
+              -> 2 new audit items flagged (AUD-1, AUD-2)
+================================================================================

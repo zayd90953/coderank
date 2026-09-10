@@ -1,0 +1,392 @@
+[
+  {
+    "id": "NEET-9001",
+    "subject": "Physics",
+    "chapter": "Electrostatic Potential and Capacitance",
+    "ncert_class": 12,
+    "topic": "Energy stored in a capacitor",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A 12 pF capacitor is connected to a 50 V battery. The electrostatic energy stored in the capacitor is:",
+    "options": [
+      "15 nJ",
+      "7.5 nJ",
+      "0.3 nJ",
+      "150 nJ"
+    ],
+    "correct_option": "A",
+    "explanation": "Energy stored in a capacitor is U = (1/2)CV². With C = 12 pF = 12 × 10⁻¹² F and V = 50 V: U = (1/2) × 12 × 10⁻¹² × (50)² = (1/2) × 12 × 10⁻¹² × 2500 = 1.5 × 10⁻⁸ J = 15 nJ. As a check, the charge drawn from the battery is q = CV = 600 pC, and U = (1/2)qV = (1/2)(600 × 10⁻¹²)(50) = 15 nJ.",
+    "common_wrong_reasoning": {
+      "B": "applies the factor (1/2) twice — effectively computing (1/4)CV², usually by mishandling the square of 50",
+      "C": "computes (1/2)CV instead of (1/2)CV² — forgets to square the voltage",
+      "D": "slips a power of ten while converting picofarads — effectively treats 12 pF as 120 pF"
+    },
+    "neet_pyq_year": [2024],
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9002",
+    "subject": "Physics",
+    "chapter": "Current Electricity",
+    "ncert_class": 12,
+    "topic": "Wheatstone bridge",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "In the usual Wheatstone bridge arrangement, the four arms have resistances P = 10 Ω, Q = 20 Ω, R = 30 Ω and S = 60 Ω (P and Q in one branch, R and S in the other), and the bridge is connected to an ideal battery. The current through the galvanometer connected across the bridge is:",
+    "options": [
+      "zero, irrespective of the EMF of the battery",
+      "non-zero and proportional to the EMF of the battery",
+      "non-zero but independent of the EMF of the battery",
+      "zero only if the galvanometer resistance is negligible"
+    ],
+    "correct_option": "A",
+    "explanation": "A Wheatstone bridge is balanced when P/Q = R/S. Here 10/20 = 30/60 = 0.5, so the two junctions joined by the galvanometer are at the same potential. With no potential difference across the galvanometer branch, no current flows through it — and this holds for any battery EMF and any galvanometer resistance, because the balance condition depends only on the four arm resistances.",
+    "common_wrong_reasoning": {
+      "B": "assumes the galvanometer sits across a fixed fraction of the EMF instead of checking the balance condition — at balance the two junctions are equipotential at every EMF",
+      "C": "self-contradictory — any real current through the galvanometer would need a potential difference across it, which only an unbalanced bridge provides",
+      "D": "treats the balanced bridge like a series circuit where the current depends on the path resistance — at balance there is no driving voltage across the branch at all"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9003",
+    "subject": "Physics",
+    "chapter": "Ray Optics and Optical Instruments",
+    "ncert_class": 12,
+    "topic": "Image formation by lenses",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "An object is placed 30 cm in front of a thin converging lens of focal length 20 cm. The position and nature of the image formed are:",
+    "options": [
+      "60 cm behind the lens — real, inverted and twice the size of the object",
+      "12 cm behind the lens — real, inverted and diminished (m = −0.4)",
+      "60 cm in front of the lens — virtual and erect",
+      "20 cm behind the lens (at the focus of the lens)"
+    ],
+    "correct_option": "A",
+    "explanation": "Using the lens equation 1/v − 1/u = 1/f with u = −30 cm and f = +20 cm: 1/v = 1/f + 1/u = 1/20 − 1/30 = 1/60, so v = +60 cm. The positive sign places the image 60 cm behind the lens, i.e. real. Magnification m = v/u = 60/(−30) = −2, so the image is inverted and twice the size. This is consistent with the object lying between f and 2f, which must produce a real, magnified image beyond 2f.",
+    "common_wrong_reasoning": {
+      "B": "adds 1/f + 1/u with u = +30 cm — drops the sign convention for a real object and lands on v = +12 cm",
+      "C": "gets the magnitude right but flips the sign of v — treating a converging lens like a diverging one or mixing up the mirror convention",
+      "D": "assumes the image always forms at the focal point — the image distance depends on the object distance, not on f alone"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9004",
+    "subject": "Physics",
+    "chapter": "Laws of Motion",
+    "ncert_class": 11,
+    "topic": "Friction",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A block of mass 5 kg rests on a rough horizontal surface (coefficient of static friction μs = 0.4, coefficient of kinetic friction μk = 0.3). A horizontal force of 15 N is applied to the block. Taking g = 10 m s⁻², the frictional force acting on the block is:",
+    "options": [
+      "15 N",
+      "20 N",
+      "12 N",
+      "zero"
+    ],
+    "correct_option": "A",
+    "explanation": "The maximum static friction available is f_s,max = μsN = 0.4 × (5 × 10) = 20 N. The applied force (15 N) is less than this limit, so the block does not move. Static friction is self-adjusting: it exactly balances the applied force, so the friction acting is 15 N and the net force on the block is zero. Kinetic friction (μkN = 12 N) would come into play only once the block starts sliding.",
+    "common_wrong_reasoning": {
+      "B": "reports the maximum possible static friction (μsN) instead of the actual self-adjusted value — the limit is reached only when the block is on the verge of sliding",
+      "C": "uses the kinetic coefficient although there is no relative sliding between the block and the surface",
+      "D": "thinks friction acts only when there is sliding, or compares the applied force with the weight instead of with μsN"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9005",
+    "subject": "Physics",
+    "chapter": "Dual Nature of Radiation and Matter",
+    "ncert_class": 12,
+    "topic": "Einstein's photoelectric equation",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "The threshold frequency of a metal is ν₀. Light of frequency 2ν₀ is made to fall on the metal surface. The stopping potential for the emitted photoelectrons is:",
+    "options": [
+      "hν₀/e",
+      "2hν₀/e",
+      "hν₀/2e",
+      "3hν₀/e"
+    ],
+    "correct_option": "A",
+    "explanation": "By Einstein's photoelectric equation, eV₀ = hν − φ, where φ is the work function and V₀ the stopping potential. Here φ = hν₀ and ν = 2ν₀, so eV₀ = 2hν₀ − hν₀ = hν₀, giving V₀ = hν₀/e. Doubling the frequency does not double the stopping potential, because the work function is subtracted from the photon energy, not scaled with it.",
+    "common_wrong_reasoning": {
+      "B": "equates the maximum photoelectron energy with the full photon energy, ignoring the work function that must be paid first",
+      "C": "halves the photon energy instead of subtracting the work function — misreads how φ enters the equation",
+      "D": "adds the work function to the photon energy instead of subtracting it (uses eV₀ = hν + φ)"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9006",
+    "subject": "Chemistry",
+    "chapter": "Hydrocarbons",
+    "ncert_class": 11,
+    "topic": "Peroxide effect (Kharasch effect)",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "Which of the following reagents converts propene mainly into 1-bromopropane?",
+    "options": [
+      "HBr in the presence of peroxide",
+      "HBr alone",
+      "HCl in the presence of peroxide",
+      "Br₂ in CCl₄"
+    ],
+    "correct_option": "A",
+    "explanation": "HBr adds to propene by Markovnikov's rule under normal conditions to give 2-bromopropane. In the presence of peroxides the addition proceeds by a free-radical mechanism (Kharasch peroxide effect), and bromine attaches to the less substituted carbon, giving 1-bromopropane — the anti-Markovnikov product. Only HBr shows the peroxide effect: with HCl the chain-propagating step is endothermic because the H–Cl bond is too strong, and with HI the iodine radical adds reversibly. Br₂ in CCl₄ gives electrophilic addition across the double bond to form 1,2-dibromopropane, not a monobromide.",
+    "common_wrong_reasoning": {
+      "B": "applies the normal Markovnikov addition and lands on 2-bromopropane — forgets the peroxide requirement for the radical pathway",
+      "C": "over-generalises the peroxide effect to all hydrogen halides — it fails for HCl because the H–Cl bond is too strong to sustain the radical chain",
+      "D": "confuses halogen addition across the double bond (vicinal dibromide formation) with hydrobromination"
+    },
+    "neet_pyq_year": [2019],
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9007",
+    "subject": "Chemistry",
+    "chapter": "Coordination Compounds",
+    "ncert_class": 12,
+    "topic": "Crystal Field Theory",
+    "difficulty": "Hard",
+    "bloom_level": "analysis",
+    "question_text": "Which of the following coordination entities contains the maximum number of unpaired electrons in its central metal ion?",
+    "options": [
+      "[FeF₆]³⁻",
+      "[Fe(CN)₆]³⁻",
+      "[Co(NH₃)₆]³⁺",
+      "[Zn(NH₃)₄]²⁺"
+    ],
+    "correct_option": "A",
+    "explanation": "Work out the oxidation state and d-electron count first. In [FeF₆]³⁻, Fe³⁺ is 3d⁵; F⁻ is a weak-field ligand, so the octahedral complex is high spin: t₂g³ e_g² — 5 unpaired electrons (magnetic moment ≈ 5.9 BM). [Fe(CN)₆]³⁻ is also Fe³⁺, 3d⁵, but CN⁻ is a strong-field ligand: low spin t₂g⁵ — 1 unpaired electron. In [Co(NH₃)₆]³⁺, Co³⁺ is 3d⁶ and NH₃ gives a low-spin complex: t₂g⁶ — 0 unpaired (diamagnetic). [Zn(NH₃)₄]²⁺ has Zn²⁺ = 3d¹⁰ — 0 unpaired. Hence [FeF₆]³⁻ has the maximum, 5 unpaired electrons.",
+    "common_wrong_reasoning": {
+      "B": "knows CN⁻ is a strong-field ligand but assumes strong field always means zero unpaired — a low-spin d⁵ configuration still leaves one unpaired electron in t₂g",
+      "C": "ignores the oxidation state of cobalt — Co³⁺ is d⁶ (not d⁷), and with NH₃ the electrons pair completely",
+      "D": "overlooks the fully filled 3d¹⁰ shell, which cannot contain any unpaired electrons"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 110,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9008",
+    "subject": "Chemistry",
+    "chapter": "Equilibrium",
+    "ncert_class": 11,
+    "topic": "Buffer solutions",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A buffer solution is prepared by mixing 0.1 M CH₃COOH with 0.1 M CH₃COONa. If pKa of CH₃COOH is 4.74, the pH of the buffer is approximately:",
+    "options": [
+      "4.74",
+      "9.26",
+      "7.00",
+      "2.37"
+    ],
+    "correct_option": "A",
+    "explanation": "For an acidic buffer, the Henderson–Hasselbalch equation gives pH = pKa + log([salt]/[acid]) = 4.74 + log(0.1/0.1) = 4.74 + log 1 = 4.74. When a weak acid and its conjugate base are present in equal concentrations, the buffer pH simply equals the pKa of the acid — this is also the composition of maximum buffer capacity.",
+    "common_wrong_reasoning": {
+      "B": "subtracts pKa from 14 — applies the pOH/pKw relationship where it does not belong",
+      "C": "assumes equal amounts of an acid and its salt make the solution neutral, forgetting that the weak-acid equilibrium fixes the pH at pKa",
+      "D": "halves the pKa — mishandles the logarithmic term instead of setting log([salt]/[acid]) to zero"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9009",
+    "subject": "Chemistry",
+    "chapter": "Electrochemistry",
+    "ncert_class": 12,
+    "topic": "Faraday's laws of electrolysis",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "Aluminium is deposited electrolytically from molten alumina at the cathode: Al³⁺ + 3e⁻ → Al. A current of 3 A is passed through the cell. The time required to deposit 9 g of aluminium is approximately (atomic mass of Al = 27 u, 1 F = 96500 C mol⁻¹):",
+    "options": [
+      "8.9 h",
+      "26.8 h",
+      "2.98 h",
+      "5.96 h"
+    ],
+    "correct_option": "A",
+    "explanation": "Moles of Al required = 9/27 = 1/3 mol. Each mole of Al needs 3 mol of electrons, so the charge is Q = (1/3) × 3 × 96500 = 96500 C. With I = 3 A, t = Q/I = 96500/3 ≈ 32167 s ≈ 8.9 h. Note that the n = 3 in Faraday's law comes from the electron stoichiometry of the cathode reaction (3 electrons per Al³⁺ ion), not from the Al₂O₃ formula.",
+    "common_wrong_reasoning": {
+      "B": "computes the charge for a full mole of aluminium (27 g) instead of the 9 g asked — forgets to scale with n(Al) = 1/3 mol",
+      "C": "uses 1 mol of electrons per mole of Al — ignores the 3 in Al³⁺ + 3e⁻ → Al",
+      "D": "borrows the '2' from the Al₂O₃ formula as the electron stoichiometry instead of the 3 electrons per Al³⁺ ion"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9010",
+    "subject": "Chemistry",
+    "chapter": "Biomolecules",
+    "ncert_class": 12,
+    "topic": "Reducing and non-reducing sugars",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "Which statement about glucose and sucrose is correct?",
+    "options": [
+      "Glucose gives a positive Tollens' test, while sucrose does not",
+      "Sucrose gives a brick-red precipitate with Fehling's solution, while glucose does not",
+      "Both give a positive Tollens' test because both contain a free aldehyde group",
+      "Neither gives a positive Tollens' test because both are monosaccharides"
+    ],
+    "correct_option": "A",
+    "explanation": "Glucose is a reducing sugar: in solution it exists in equilibrium with its open-chain aldehyde form, so it reduces Tollens' reagent (silver mirror) and Fehling's solution (brick-red Cu₂O precipitate). Sucrose is a non-reducing sugar — its glycosidic bond involves the anomeric carbons of both the glucose and fructose units, so neither ring can open to a free carbonyl form, and it gives negative Tollens' and Fehling's tests. Sucrose is also a disaccharide, not a monosaccharide.",
+    "common_wrong_reasoning": {
+      "B": "reverses the reducing behaviour of the two sugars",
+      "C": "forgets that in sucrose both anomeric carbons are locked in the glycosidic linkage, leaving no free aldehyde group",
+      "D": "confuses sugar classification (mono-/disaccharide) with reducing power — glucose reduces Tollens' reagent because it is a reducing sugar"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9011",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Hershey–Chase experiment",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "In the Hershey–Chase experiment, bacteriophages labelled with ³²P and with ³⁵S were allowed to infect E. coli cells. Which observation led to the conclusion that DNA, and not protein, is the genetic material of the phage?",
+    "options": [
+      "³²P was detected in the bacterial pellet after blending and centrifugation, while ³⁵S remained in the supernatant",
+      "³⁵S entered the bacterial cells and was passed on to the progeny phages",
+      "Both ³²P and ³⁵S entered the cells, showing that both molecules carry hereditary information",
+      "³²P remained in the supernatant because DNA is heavier than the protein coat"
+    ],
+    "correct_option": "A",
+    "explanation": "³²P labels DNA (phosphorus is absent from phage protein) and ³⁵S labels protein (sulphur is absent from DNA). Blending sheared the empty protein coats off the bacterial surface; on centrifugation the heavier infected bacteria formed the pellet while the coats stayed in the supernatant. Radioactivity from ³²P appeared in the pellet — DNA had entered the cells and was carried into progeny phages — while ³⁵S stayed in the supernatant, showing the protein coat never entered. Only the injected molecule, DNA, could be the genetic material.",
+    "common_wrong_reasoning": {
+      "B": "reverses which labelled molecule entered the cells — the sulphur-labelled protein coat was sheared off and remained outside",
+      "C": "misremembers the conclusion — the entire design exists to separate the two labels, and only one entered the cells",
+      "D": "attributes the pellet/supernatant separation to molecular weight rather than to which molecule was physically injected into the bacterium"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9012",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Genetic code and reading frame",
+    "difficulty": "Medium",
+    "bloom_level": "analysis",
+    "question_text": "An mRNA molecule consists of 999 bases and codes for a polypeptide of 333 amino acids. If the base at position 901 (from the 5' end) is deleted, how many codons will still be read correctly before the reading frame is disturbed?",
+    "options": [
+      "300",
+      "301",
+      "332",
+      "333"
+    ],
+    "correct_option": "A",
+    "explanation": "Every codon is three bases, so the 999 coding bases are read as codons 1 to 333. Bases 1 to 900 make up the first 300 codons, and none of them is touched by deleting base 901 — so 300 codons are read correctly. From base 901 onward, every codon is read one base out of frame, so codons 301 to 333 are all disturbed; a frameshift in fact changes every downstream amino acid and usually introduces a premature stop codon.",
+    "common_wrong_reasoning": {
+      "B": "counts the disrupted codon 301 as intact — its first base has been deleted, so it is already misread",
+      "C": "assumes a deletion changes only the codon it falls in — a frameshift disturbs every codon downstream, not just one",
+      "D": "assumes the reading frame is unaffected because the total length changes by only one base"
+    },
+    "neet_pyq_year": [2016],
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9013",
+    "subject": "Biology",
+    "chapter": "Neural Control and Coordination",
+    "ncert_class": 11,
+    "topic": "Generation and conduction of nerve impulse",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "During the conduction of a nerve impulse, the depolarisation phase of the action potential is directly caused by:",
+    "options": [
+      "influx of Na⁺ through voltage-gated sodium channels",
+      "efflux of K⁺ through voltage-gated potassium channels",
+      "influx of Cl⁻ into the axoplasm",
+      "active export of Na⁺ by the Na⁺–K⁺ pump"
+    ],
+    "correct_option": "A",
+    "explanation": "When the membrane is depolarised to threshold, voltage-gated Na⁺ channels open and Na⁺ rushes into the axoplasm down its electrochemical gradient, making the inside of the membrane positive — this is the depolarisation (rising) phase of the action potential. K⁺ efflux through voltage-gated K⁺ channels is what repolarises the membrane afterwards. The Na⁺–K⁺ pump (3 Na⁺ out : 2 K⁺ in, ATP-driven) only restores and maintains the resting ionic gradients; it is far too slow to generate the impulse itself.",
+    "common_wrong_reasoning": {
+      "B": "confuses depolarisation with repolarisation — K⁺ efflux is what brings the membrane potential back down",
+      "C": "picks an anion influx, which would make the inside more negative (hyperpolarisation) — the opposite of depolarisation",
+      "D": "attributes the action potential to the Na⁺–K⁺ ATPase — the pump maintains the resting gradient but does not generate the potential change"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9014",
+    "subject": "Biology",
+    "chapter": "Principles of Inheritance and Variation",
+    "ncert_class": 12,
+    "topic": "Hardy–Weinberg principle",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "In a randomly mating population of 1000 individuals, 90 individuals show the recessive phenotype for a trait governed by a single autosomal gene with two alleles. Assuming the population is in Hardy–Weinberg equilibrium, the expected number of heterozygous individuals is:",
+    "options": [
+      "420",
+      "90",
+      "490",
+      "210"
+    ],
+    "correct_option": "A",
+    "explanation": "Individuals showing the recessive phenotype are homozygous recessive, so q² = 90/1000 = 0.09, giving q = √0.09 = 0.3. Then p = 1 − q = 0.7. The heterozygote frequency is 2pq = 2 × 0.7 × 0.3 = 0.42, so 0.42 × 1000 = 420 individuals carry the recessive allele without showing the trait. Sanity check: p² + 2pq + q² = 0.49 + 0.42 + 0.09 = 1.",
+    "common_wrong_reasoning": {
+      "B": "reports the recessive count again — q² is the frequency of homozygous recessives, not of carriers",
+      "C": "gives p², the frequency of homozygous dominant individuals, instead of 2pq",
+      "D": "computes pq = 0.21 correctly but forgets the factor 2 in the heterozygote frequency 2pq"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9015",
+    "subject": "Biology",
+    "chapter": "Photosynthesis in Higher Plants",
+    "ncert_class": 11,
+    "topic": "C₄ pathway (Hatch and Slack cycle)",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "In C₄ plants, the primary CO₂ acceptor and the first stable product of CO₂ fixation are, respectively:",
+    "options": [
+      "phosphoenolpyruvate (PEP) and oxaloacetic acid (OAA)",
+      "RuBP and phosphoglyceric acid (PGA)",
+      "RuBP and oxaloacetic acid (OAA)",
+      "phosphoenolpyruvate (PEP) and phosphoglyceric acid (PGA)"
+    ],
+    "correct_option": "A",
+    "explanation": "In the Hatch–Slack (C₄) pathway, the primary CO₂ acceptor in the mesophyll cells is PEP (phosphoenolpyruvate), and the enzyme PEP carboxylase fixes CO₂ to form OAA (oxaloacetic acid), a 4-carbon compound — hence the name C₄ plants. OAA is then converted to malate or aspartate and transported to the bundle sheath cells, where CO₂ is released for the Calvin cycle. RuBP and PGA belong to the C₃ pathway: in C₃ plants, RuBP is the CO₂ acceptor and PGA is the first stable product.",
+    "common_wrong_reasoning": {
+      "B": "quotes the C₃ (Calvin) pathway — RuBP as acceptor and PGA as first product are correct for C₃ plants, not C₄",
+      "C": "mixes the two pathways — RuBP is a C₃ acceptor while OAA is the C₄ product",
+      "D": "pairs the correct C₄ acceptor with the wrong product — PGA is a 3-carbon compound from the C₃ cycle, not the 4-carbon OAA"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  }
+]

@@ -106,15 +106,14 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
         final completedToday = UserProgressService
             .instance.dailyChallengeCompletedToday();
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: const BackButtonToHome(),
-            title: const Text(
+            title: Text(
               "Daily NEET Challenge",
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -149,28 +148,28 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                           color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.local_fire_department_rounded,
-                          color: AppColors.surface,
+                          color: AppColors.textOnPrimary,
                           size: 42,
                         ),
                       ),
                       const SizedBox(height: 14),
                       Text(
                         "${data.streakDays} Day Streak!",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.surface,
+                          color: AppColors.textOnPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
+                      Text(
                         "Complete today's 10 high-yield NTA NEET questions to keep your streak alive & earn XP!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.surface,
+                          color: AppColors.textOnPrimary,
                           height: 1.4,
                         ),
                       ),
@@ -181,12 +180,12 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                 const SizedBox(height: 28),
 
                 // ── Daily Rules ──
-                const Text(
+                Text(
                   "CHALLENGE DETAILS",
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -259,8 +258,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                     Center(
                       child: Text(
                         "Last completed: ${_formatLastDate(data.lastDailyChallengeDate)}",
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -326,9 +325,9 @@ class _DetailRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Row(
         children: [
@@ -347,18 +346,18 @@ class _DetailRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],

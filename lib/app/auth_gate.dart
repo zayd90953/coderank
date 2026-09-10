@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/theme/color_palette.dart';
 import '../features/welcome/presentation/welcome_screen.dart';
 import '../features/navigation/main_nav_screen.dart';
 
@@ -12,10 +13,13 @@ class AuthGate extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: Colors.white,
+          // A-1 contract: dark-first. Match the splash so the auth
+          // check never flashes a white screen.
+          return Scaffold(
             body: Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: ColorPaletteController.instance.current.primary,
+              ),
             ),
           );
         }

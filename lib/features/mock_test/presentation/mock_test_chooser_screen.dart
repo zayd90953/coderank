@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import 'mock_test_quick_screen.dart';
@@ -19,16 +18,17 @@ class MockTestChooserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButtonToHome(),
-        title: const Text(
+        title: Text(
           'Mock Test',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -40,12 +40,12 @@ class MockTestChooserScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'CHOOSE A LENGTH',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: onSurfaceVariant,
                 letterSpacing: 1.0,
               ),
             ),
@@ -65,10 +65,10 @@ class MockTestChooserScreen extends StatelessWidget {
             const SizedBox(height: 14),
             _ModeCard(
               palette: palette,
-              gradientColors: const [Color(0xFFFF6B35), Color(0xFFFF8A3D)],
+              gradientColors: [Color(0xFFFF6B35), Color(0xFFFF8A3D)],
               shadowColor: const Color(0xFFFF6B35),
               icon: Icons.bolt_rounded,
-              iconColor: AppColors.surface,
+              iconColor: Theme.of(context).colorScheme.surfaceContainer,
               title: 'Quick Mock Test',
               subtitle:
                   '45 Questions  •  2 Hours  •  180 Marks\nA fast warm-up or last-minute revision.',
@@ -121,8 +121,12 @@ class _ModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
+    final outline = Theme.of(context).colorScheme.outline;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
     return Material(
-      color: AppColors.surface,
+      color: surfaceContainer,
       borderRadius: BorderRadius.circular(22),
       child: InkWell(
         onTap: onTap,
@@ -131,7 +135,7 @@ class _ModeCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: outline),
             boxShadow: [
               BoxShadow(
                 color: shadowColor.withValues(alpha: 0.14),
@@ -167,10 +171,10 @@ class _ModeCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: onSurface,
                             ),
                           ),
                         ),
@@ -196,9 +200,9 @@ class _ModeCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: onSurfaceVariant,
                         height: 1.4,
                         fontWeight: FontWeight.w500,
                       ),

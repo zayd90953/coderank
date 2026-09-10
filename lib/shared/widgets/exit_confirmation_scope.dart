@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/design/app_colors.dart';
 import '../../core/theme/color_palette.dart';
 
 /// A [PopScope] wrapper that intercepts the device back gesture/button on
@@ -26,30 +25,30 @@ class ExitConfirmationScope extends StatelessWidget {
       context: context,
       barrierDismissible: true,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Row(
           children: [
             Icon(Icons.exit_to_app_rounded, color: palette.primary, size: 24),
             const SizedBox(width: 10),
-            const Text(
+            Text(
               "Exit CodeRank?",
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           "Are you sure you want to close the app?",
-          style: TextStyle(fontSize: 14, color: AppColors.subtitle),
+          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            style: TextButton.styleFrom(foregroundColor: AppColors.subtitle),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant),
             child: const Text(
               "Cancel",
               style: TextStyle(fontWeight: FontWeight.w600),

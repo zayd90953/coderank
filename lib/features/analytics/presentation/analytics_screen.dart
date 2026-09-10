@@ -26,17 +26,16 @@ class AnalyticsScreen extends StatelessWidget {
         final predictedAir = data.predictedAir;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             // Always show a back button — pops if pushed, switches to Home
             // when this screen is the active tab.
             leading: const BackButtonToHome(),
-            title: const Text(
+            title: Text(
               "Performance Analytics",
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -69,11 +68,12 @@ class AnalyticsScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "NEET PREDICTION",
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "NEET PREDICTION",
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.75),
                                   fontSize: 11,
@@ -84,13 +84,14 @@ class AnalyticsScreen extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 predictedAir,
-                                style: const TextStyle(
-                                  color: AppColors.surface,
+                                style: TextStyle(
+                                  color: AppColors.textOnPrimary,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
                             ],
+                            ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -114,8 +115,8 @@ class AnalyticsScreen extends StatelessWidget {
                                 const SizedBox(width: 4),
                                 Text(
                                   percentile,
-                                  style: const TextStyle(
-                                    color: AppColors.surface,
+                                  style: TextStyle(
+                                    color: AppColors.textOnPrimary,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -194,26 +195,31 @@ class AnalyticsScreen extends StatelessWidget {
                 WeeklyTrendCard(history: data.history),
                 const SizedBox(height: 16),
 
-                // A-5: focus this week weak-area callout.
-                FocusCallout(subjectStats: data.subjectStats),
+                // A-5: focus this week weak-area callout. Now computes
+                // genuine weekly accuracy per subject from session history,
+                // with an all-time fallback when weekly data is thin.
+                FocusCallout(
+                  subjectStats: data.subjectStats,
+                  history: data.history,
+                ),
                 const SizedBox(height: 30),
 
                 // Subject Mastery Breakdown
-                const Text(
+                Text(
                   "Subject Mastery",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   "Track your accuracy and solved questions across NEET subjects.",
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -287,9 +293,9 @@ class AnalyticsScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -316,12 +322,15 @@ class AnalyticsScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            "AI Study Insights",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                          Flexible(
+                            child: Text(
+                              "AI Study Insights",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                             ),
                           ),
                         ],
@@ -356,21 +365,21 @@ class AnalyticsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Practice History",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         letterSpacing: -0.3,
                       ),
                     ),
                     if (data.history.isNotEmpty)
                       Text(
                         "${data.history.length} Sessions",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -386,33 +395,33 @@ class AnalyticsScreen extends StatelessWidget {
                       horizontal: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: Theme.of(context).colorScheme.outline),
                     ),
                     child: Column(
                       children: [
                         Icon(
                           Icons.history_rounded,
                           size: 48,
-                          color: AppColors.textSecondary.withValues(alpha: 0.4),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           "No Practice Sessions Yet",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           "Complete a practice test to see your history and stats.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -425,9 +434,9 @@ class AnalyticsScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: Theme.of(context).colorScheme.outline),
                       ),
                       child: Row(
                         children: [
@@ -452,18 +461,18 @@ class AnalyticsScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   record.subject,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
                                   "${record.correct} of ${record.total} correct • +${record.xpGained} XP",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -535,8 +544,8 @@ class _HeroStatItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.surface,
+          style: TextStyle(
+            color: AppColors.textOnPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -584,9 +593,9 @@ class _SubjectMasteryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -607,7 +616,7 @@ class _SubjectMasteryCard extends StatelessWidget {
                   gradient: gradient,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: AppColors.surface, size: 24),
+                child: Icon(icon, color: AppColors.textOnPrimary, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -616,18 +625,18 @@ class _SubjectMasteryCard extends StatelessWidget {
                   children: [
                     Text(
                       subject,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       "${stat.totalQuestions} questions solved • ${stat.sessionsCount} sessions",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -661,10 +670,10 @@ class _SubjectMasteryCard extends StatelessWidget {
                 children: [
                   Text(
                     "Accuracy: $acc%",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   if (direction != null) ...[
@@ -675,9 +684,9 @@ class _SubjectMasteryCard extends StatelessWidget {
               ),
               Text(
                 stat.totalQuestions == 0 ? "Not started" : "${stat.correctAnswers}/${stat.totalQuestions} correct",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -688,7 +697,7 @@ class _SubjectMasteryCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress == 0 && stat.totalQuestions > 0 ? 0.05 : progress,
               minHeight: 8,
-              backgroundColor: AppColors.border,
+              backgroundColor: Theme.of(context).colorScheme.outline,
               valueColor: AlwaysStoppedAnimation<Color>(
                 gradient.colors.first,
               ),
@@ -726,8 +735,8 @@ class _TrendPill extends StatelessWidget {
       case TrendDirection.steady:
         icon = Icons.trending_flat_rounded;
         label = 'steady';
-        bg = AppColors.surfaceElevated;
-        fg = AppColors.textSecondary;
+        bg = Theme.of(context).colorScheme.surfaceContainerHighest;
+        fg = Theme.of(context).colorScheme.onSurfaceVariant;
         break;
     }
     return Container(
@@ -781,18 +790,18 @@ class _InsightRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.35,
                 ),
               ),
