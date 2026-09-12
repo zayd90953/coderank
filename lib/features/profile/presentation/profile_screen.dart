@@ -7,6 +7,7 @@ import '../../../shared/services/firebase_user_util.dart';
 import '../../../shared/services/user_preferences_service.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
+import '../../auth/presentation/google_sign_in_flow.dart';
 import '../../navigation/main_nav_screen.dart';
 import '../../welcome/presentation/welcome_screen.dart';
 import 'sheets/avatar_picker_sheet.dart';
@@ -79,51 +80,32 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // P1-2: Switch Account flow for Google users. Signs them out of both
-  // Google and Firebase, then immediately re-triggers the Google
-  // sign-in flow which forces the account picker (see
-  // [AuthService.signInWithGoogle]).
-  void _switchGoogleAccount(BuildContext context) async {
+  // Google and Firebase, then re-triggers the shared linking-aware
+  // Google flow (picker is forced every time). A picker cancel routes
+  // to Welcome — the user was just signed out, so a silent no-op would
+  // strand them on a Profile with no user behind it.
+  Future<void> _switchGoogleAccount(BuildContext context) async {
     await AuthService.instance.signOut();
     if (!context.mounted) return;
-    try {
-      await AuthService.instance.signInWithGoogle();
-      if (!context.mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavScreen()),
-        (route) => false,
-      );
-    } on GoogleSignInCancelled {
-      // User dismissed the picker after the sign-out. Send them to
-      // the welcome screen so they're not stuck on a Profile with no
-      // user behind it.
-      if (!context.mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        (route) => false,
-      );
-    } on FirebaseAuthException catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.code == 'account-exists-with-different-credential'
-                ? "An account with this email already exists. Please use email and password instead."
-                : "Could not switch account. Please try again.",
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Could not switch account. Please try again."),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    }
+    await signInWithGoogleFlow(
+      context,
+      onSignedIn: () async {
+        if (!context.mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainNavScreen()),
+          (route) => false,
+        );
+      },
+      onCancelled: () async {
+        if (!context.mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          (route) => false,
+        );
+      },
+    );
   }
 
   // ── Change Email / Change Password (email/password users only) ──────

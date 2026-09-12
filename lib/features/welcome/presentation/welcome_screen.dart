@@ -1,114 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
-import '../../../shared/services/auth_service.dart';
 import '../../../shared/widgets/exit_confirmation_scope.dart';
+import '../../auth/presentation/google_sign_in_flow.dart';
 import '../../auth/presentation/signin_screen.dart';
-import '../../navigation/main_nav_screen.dart';
 
-/// Triggers the real Google Sign-In flow. On success navigates to
-/// [MainNavScreen]. On the user cancelling the account picker, this
-/// is a silent no-op. On any other error, shows an error dialog.
-///
-/// P1-2 wiring: replaces the previous "Coming Soon" placeholder. The
-/// account picker is forced every time via
-/// [GoogleSignIn.disconnect] inside [AuthService.signInWithGoogle]
-/// (see AuthService for why).
-Future<void> _signInWithGoogle(BuildContext context) async {
-  try {
-    await AuthService.instance.signInWithGoogle();
-    if (!context.mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const MainNavScreen()),
-      (route) => false,
-    );
-  } on GoogleSignInCancelled {
-    // User dismissed the picker — silent no-op.
-  } on FirebaseAuthException catch (e) {
-    if (!context.mounted) return;
-    await _showGoogleErrorDialog(
-      context,
-      _googleErrorMessage(e),
-    );
-  } catch (e) {
-    if (!context.mounted) return;
-    await _showGoogleErrorDialog(
-      context,
-      "Google sign-in failed. Please try again.",
-    );
-  }
-}
-
-String _googleErrorMessage(FirebaseAuthException e) {
-  switch (e.code) {
-    case 'account-exists-with-different-credential':
-      return "An account already exists with this email using a different sign-in method. Please use email and password instead.";
-    case 'invalid-credential':
-    case 'invalid-verification-code':
-    case 'invalid-verification-id':
-      return "Google sign-in failed because the credential is invalid. Please try again.";
-    case 'network-request-failed':
-      return "Network error. Please check your connection and try again.";
-    case 'operation-not-allowed':
-      return "Google sign-in is not enabled for this project. Please contact support.";
-    default:
-      return "Google sign-in failed. Please try again.";
-  }
-}
-
-Future<void> _showGoogleErrorDialog(
-    BuildContext context, String message) async {
-  final palette = ColorPaletteController.instance.current;
-  final onSurface = Theme.of(context).colorScheme.onSurface;
-  final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
-  final surfaceContainer = Theme.of(context).colorScheme.surfaceContainer;
-  final schemeError = Theme.of(context).colorScheme.error;
-  await showDialog<void>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: surfaceContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      title: Row(
-        children: [
-          Icon(Icons.error_outline_rounded, color: schemeError, size: 24),
-          const SizedBox(width: 10),
-          Text(
-            "Sign-In Failed",
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-              color: onSurface,
-            ),
-          ),
-        ],
-      ),
-      content: Text(
-        message,
-        style: TextStyle(
-            fontSize: 14, color: onSurfaceVariant, height: 1.4),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: palette.primary,
-            foregroundColor: AppColors.textOnPrimary,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: const Text(
-            "OK",
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+/// Delegates to the shared linking-aware Google flow (see
+/// [signInWithGoogleFlow]): success → MainNavScreen, picker cancel →
+/// silent no-op, `account-exists-with-different-credential` →
+/// one-tap account linking.
+Future<void> _signInWithGoogle(BuildContext context) =>
+    signInWithGoogleFlow(context);
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

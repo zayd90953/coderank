@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/user_preferences_service.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
+import '../../../../shared/widgets/subject_icon_badge.dart';
 import '../question/question_screen.dart';
 
 class PracticeSetupScreen extends StatefulWidget {
@@ -67,6 +68,11 @@ class _PracticeSetupScreenState extends State<PracticeSetupScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Unified subject badge — same visual system as the Home
+            // grid and the Practice Hub cards (A-6 follow-up).
+            SubjectIconBadge(subject: widget.subject, size: 48),
+            const SizedBox(height: 16),
+
             Text(
               'Set up your practice',
               style: TextStyle(
@@ -292,12 +298,16 @@ class _SectionTitle extends StatelessWidget {
           size: 21,
         ),
         const SizedBox(width: 9),
-        Text(
-          title,
-          style: TextStyle(
-            color: onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],

@@ -53,27 +53,64 @@ void main() {
 
     test('requesting more than the pool size returns available questions',
         () async {
-      // 750 Physics / 750 Chem / 1000 Bio exist = 2500 total.
+      // Post-AUD-1 pool: 643 Physics / 588 Chem / 998 Bio = 2229 total.
       // Requesting beyond the pool simply takes what is available.
       final questions = await repo.getMockTestQuestions(
         physicsCount: 800,
         chemCount: 800,
         bioCount: 1200,
       );
-      expect(questions.length, 2500,
+      expect(questions.length, 2229,
           reason: 'Should return all available questions when requesting beyond pool.');
-      expect(questions.where((q) => q.subject == 'Physics').length, 750);
-      expect(questions.where((q) => q.subject == 'Chemistry').length, 750);
-      expect(questions.where((q) => q.subject == 'Biology').length, 1000);
+      expect(questions.where((q) => q.subject == 'Physics').length, 643);
+      expect(questions.where((q) => q.subject == 'Chemistry').length, 588);
+      expect(questions.where((q) => q.subject == 'Biology').length, 998);
     });
 
     test('subject counts advertised by the app match the actual question bank',
         () async {
       final all = await repo.getAllQuestions();
-      expect(all.length, 2500);
-      expect(all.where((q) => q.subject == 'Physics').length, 750);
-      expect(all.where((q) => q.subject == 'Chemistry').length, 750);
-      expect(all.where((q) => q.subject == 'Biology').length, 1000);
+      expect(all.length, 2229);
+      expect(all.where((q) => q.subject == 'Physics').length, 643);
+      expect(all.where((q) => q.subject == 'Chemistry').length, 588);
+      expect(all.where((q) => q.subject == 'Biology').length, 998);
+    });
+  });
+
+  group('QuestionRepository — bank integrity (AUD-1)', () {
+    final repo = QuestionRepository();
+
+    test('no question has duplicate option values', () async {
+      final all = await repo.getAllQuestions();
+      for (final q in all) {
+        final normalized =
+            q.options.map((o) => o.trim().toLowerCase()).toSet();
+        expect(normalized.length, q.options.length,
+            reason: 'Question ${q.id} has duplicate option values');
+      }
+    });
+
+    test('every correctAnswer index is valid', () async {
+      final all = await repo.getAllQuestions();
+      for (final q in all) {
+        expect(q.correctAnswer, inInclusiveRange(0, q.options.length - 1),
+            reason: 'Question ${q.id} has an out-of-range correctAnswer');
+      }
+    });
+
+    test('every question has at least 3 options', () async {
+      final all = await repo.getAllQuestions();
+      for (final q in all) {
+        expect(q.options.length, greaterThanOrEqualTo(3),
+            reason: 'Question ${q.id} has fewer than 3 options');
+      }
+    });
+
+    test('no duplicate question texts in the bank', () async {
+      final all = await repo.getAllQuestions();
+      final texts = all.map((q) => q.question.trim().toLowerCase()).toSet();
+      expect(texts.length, all.length,
+          reason: 'The bank contains duplicate question texts');
     });
   });
 }

@@ -5,6 +5,7 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/firebase_user_util.dart';
 import '../../../shared/services/user_progress_service.dart';
+import '../../../shared/widgets/subject_icon_badge.dart';
 import '../../daily_challenge/presentation/daily_challenge_screen.dart';
 import '../../mock_test/presentation/mock_test_chooser_screen.dart';
 import '../../navigation/main_nav_screen.dart';
@@ -83,7 +84,7 @@ class HomeScreen extends StatelessWidget {
                           iconBg: Theme.of(context).colorScheme.surfaceContainerHighest,
                           title: "Practice",
                           subtitle: "Subject MCQs",
-                          badge: "2,500+ Qs",
+                          badge: "2,200+ Qs",
                           onTap: () => _openPractice(context),
                         ),
                       ),
@@ -136,33 +137,21 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _SubjectTile(
-                          palette: palette,
                           title: "Physics",
-                          tint: AppColors.physics,
-                          tintBg: AppColors.physicsLight,
-                          icon: Icons.bolt_rounded,
                           onTap: () => _openSubject(context, 'Physics'),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: _SubjectTile(
-                          palette: palette,
                           title: "Chemistry",
-                          tint: AppColors.chemistry,
-                          tintBg: AppColors.chemistryLight,
-                          icon: Icons.science_rounded,
                           onTap: () => _openSubject(context, 'Chemistry'),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: _SubjectTile(
-                          palette: palette,
                           title: "Biology",
-                          tint: AppColors.biology,
-                          tintBg: AppColors.biologyLight,
-                          icon: Icons.biotech_rounded,
                           onTap: () => _openSubject(context, 'Biology'),
                         ),
                       ),
@@ -369,9 +358,10 @@ class _ProgressCard extends StatelessWidget {
     final accuracy = data.overallAccuracy.round();
     final tierProgress = data.tierProgress;
     final ceiling = data.nextTierTargetXp;
-    final rankValue = data.totalQuestions == 0
-        ? "Unranked"
-        : "Top ${(100 - (data.tierProgress * 100)).clamp(0, 99).toStringAsFixed(0)}%";
+    // Honest, accuracy-based standing ("Unranked" until the user has
+    // practiced; "Top X%" after). The old XP-derived formula produced
+    // nonsense — it reset to "Top 99%" at every tier boundary.
+    final rankValue = data.percentile;
 
     return Container(
       width: double.infinity,
@@ -460,10 +450,19 @@ class _ProgressCard extends StatelessWidget {
                 height: 38,
                 color: Colors.white.withValues(alpha: 0.25),
               ),
+              // Ranking stat is tappable → Leaderboard tab (the doc
+              // comment always promised this; it was never wired).
               Expanded(
-                child: _ProgressStat(
-                  value: rankValue,
-                  label: "Ranking",
+                child: InkWell(
+                  onTap: () => MainNavScreen.switchTab(context, 2),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: _ProgressStat(
+                      value: rankValue,
+                      label: "Ranking",
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -632,20 +631,24 @@ class _ActionCard extends StatelessWidget {
                     child: Icon(icon, color: iconColor, size: 22),
                   ),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: palette.primarySubtle,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      badge,
-                      style: TextStyle(
-                        color: palette.primary,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.2,
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: palette.primarySubtle,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        badge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: palette.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                        ),
                       ),
                     ),
                   ),
@@ -802,23 +805,15 @@ class _DailyChallengeCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Subjects row (tinted circular icons + "Start" label)
+// Subjects row (unified SubjectIconBadge squircles + "Start" label)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _SubjectTile extends StatelessWidget {
-  final ColorPalette palette;
   final String title;
-  final Color tint;
-  final Color tintBg;
-  final IconData icon;
   final VoidCallback onTap;
 
   const _SubjectTile({
-    required this.palette,
     required this.title,
-    required this.tint,
-    required this.tintBg,
-    required this.icon,
     required this.onTap,
   });
 
@@ -838,16 +833,7 @@ class _SubjectTile extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: tintBg,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: tint, size: 26),
-              ),
+              SubjectIconBadge(subject: title, size: 52),
               const SizedBox(height: 10),
               Text(
                 title,
@@ -862,7 +848,7 @@ class _SubjectTile extends StatelessWidget {
                 "Start",
                 style: TextStyle(
                   fontSize: 11,
-                  color: palette.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),

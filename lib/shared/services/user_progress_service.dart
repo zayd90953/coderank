@@ -115,7 +115,7 @@ class UserProgressData {
     this.totalUnanswered = 0,
     this.totalSessions = 0,
     this.xpPoints = 0,
-    this.streakDays = 1,
+    this.streakDays = 0,
     this.lastActiveDate = '',
     this.subjectStats = const {},
     this.history = const [],
@@ -230,7 +230,7 @@ class UserProgressData {
       totalUnanswered: json['totalUnanswered'] as int? ?? 0,
       totalSessions: json['totalSessions'] as int? ?? 0,
       xpPoints: json['xpPoints'] as int? ?? 0,
-      streakDays: json['streakDays'] as int? ?? 1,
+      streakDays: json['streakDays'] as int? ?? 0,
       lastActiveDate: json['lastActiveDate'] as String? ?? '',
       subjectStats: parsedStats,
       history: parsedHistory,
@@ -259,14 +259,15 @@ class UserProgressService {
       if (jsonString != null && jsonString.isNotEmpty) {
         final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
         var data = UserProgressData.fromJson(decoded);
-        data = _checkStreak(data);
+        // AUD-2: the streak counts consecutive days with at least one
+        // COMPLETED SESSION — opening the app neither extends nor resets
+        // it. App-open only expires a streak that is already dead (last
+        // practiced before yesterday); see `_expireStreakIfStale`.
+        data = _expireStreakIfStale(data);
         progressNotifier.value = data;
       } else {
-        // Initialize with default starting state & streak
-        final nowStr = _todayString();
+        // Brand-new user: no streak, nothing practiced yet.
         final initialData = UserProgressData(
-          lastActiveDate: nowStr,
-          streakDays: 1,
           subjectStats: const {
             'Physics': SubjectStat(subject: 'Physics'),
             'Chemistry': SubjectStat(subject: 'Chemistry'),
@@ -286,64 +287,59 @@ class UserProgressService {
     return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
   }
 
-  UserProgressData _checkStreak(UserProgressData data) {
-    final today = _todayString();
-    if (data.lastActiveDate == today) {
+  String _yesterdayString() {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    return "${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}";
+  }
+
+  /// AUD-2: A streak only survives while the user keeps practicing.
+  /// `lastActiveDate` is the last day a session was completed, so:
+  ///   * practiced today or yesterday → streak still alive (it dies at
+  ///     midnight if today goes unpracticed — the usual grace window),
+  ///   * last practiced earlier      → streak is dead, expire to 0.
+  /// No XP is ever awarded here — opening the app earns nothing.
+  UserProgressData _expireStreakIfStale(UserProgressData data) {
+    final last = data.lastActiveDate;
+    if (last.isEmpty ||
+        last == _todayString() ||
+        last == _yesterdayString()) {
       return data;
     }
-
-    if (data.lastActiveDate.isEmpty) {
-      return UserProgressData(
-        totalQuestions: data.totalQuestions,
-        totalCorrect: data.totalCorrect,
-        totalIncorrect: data.totalIncorrect,
-        totalUnanswered: data.totalUnanswered,
-        totalSessions: data.totalSessions,
-        xpPoints: data.xpPoints,
-        streakDays: 1,
-        lastActiveDate: today,
-        subjectStats: data.subjectStats,
-        history: data.history,
-        lastDailyChallengeDate: data.lastDailyChallengeDate,
-        dailyChallengeXpEarned: data.dailyChallengeXpEarned,
-      );
-    }
-
-    final lastDate = DateTime.tryParse(data.lastActiveDate);
-    if (lastDate != null) {
-      final now = DateTime.now();
-      final difference = DateTime(now.year, now.month, now.day)
-          .difference(DateTime(lastDate.year, lastDate.month, lastDate.day))
-          .inDays;
-
-      int newStreak = data.streakDays;
-      if (difference == 1) {
-        newStreak += 1;
-      } else if (difference > 1) {
-        newStreak = 1; // Streak reset
-      }
-
-      return UserProgressData(
-        totalQuestions: data.totalQuestions,
-        totalCorrect: data.totalCorrect,
-        totalIncorrect: data.totalIncorrect,
-        totalUnanswered: data.totalUnanswered,
-        totalSessions: data.totalSessions,
-        xpPoints: data.xpPoints + (difference == 1 ? 50 : 0), // Streak bonus
-        streakDays: newStreak,
-        lastActiveDate: today,
-        subjectStats: data.subjectStats,
-        history: data.history,
-        lastDailyChallengeDate: data.lastDailyChallengeDate,
-        dailyChallengeXpEarned: data.dailyChallengeXpEarned,
-      );
-    }
-
-    return data;
+    // Streak is dead.
+    return UserProgressData(
+      totalQuestions: data.totalQuestions,
+      totalCorrect: data.totalCorrect,
+      totalIncorrect: data.totalIncorrect,
+      totalUnanswered: data.totalUnanswered,
+      totalSessions: data.totalSessions,
+      xpPoints: data.xpPoints,
+      streakDays: 0,
+      lastActiveDate: data.lastActiveDate,
+      subjectStats: data.subjectStats,
+      history: data.history,
+      lastDailyChallengeDate: data.lastDailyChallengeDate,
+      dailyChallengeXpEarned: data.dailyChallengeXpEarned,
+    );
   }
 
   Future<int> recordSession(PracticeSession session) async {
     final currentData = progressNotifier.value;
+
+    // ── Streak engine (AUD-2) ────────────────────────────────────────
+    // A day counts toward the streak when at least one session is
+    // completed on it. Practicing on consecutive days extends the
+    // streak; any gap restarts it at 1. The +50 "open the app" bonus
+    // is gone — the daily challenge (+50) is the recurring reward.
+    final today = _todayString();
+    int newStreak = currentData.streakDays;
+    String newLastActive = currentData.lastActiveDate;
+    if (currentData.lastActiveDate != today) {
+      newStreak =
+          currentData.lastActiveDate == _yesterdayString()
+              ? currentData.streakDays + 1
+              : 1;
+      newLastActive = today;
+    }
 
     // Calculate XP earned in this session
     // +15 XP for each correct answer
@@ -395,8 +391,8 @@ class UserProgressService {
       totalUnanswered: newTotalUnanswered,
       totalSessions: newTotalSessions,
       xpPoints: newXp,
-      streakDays: currentData.streakDays,
-      lastActiveDate: _todayString(),
+      streakDays: newStreak,
+      lastActiveDate: newLastActive,
       subjectStats: updatedSubjectStats,
       history: updatedHistory,
       lastDailyChallengeDate: currentData.lastDailyChallengeDate,
@@ -430,10 +426,9 @@ class UserProgressService {
   }
 
   Future<void> resetProgress() async {
-    final today = _todayString();
     final clearedData = UserProgressData(
-      streakDays: 1,
-      lastActiveDate: today,
+      streakDays: 0,
+      lastActiveDate: '',
       subjectStats: const {
         'Physics': SubjectStat(subject: 'Physics'),
         'Chemistry': SubjectStat(subject: 'Chemistry'),

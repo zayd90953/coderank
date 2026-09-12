@@ -11,6 +11,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 DATA_FILE = HERE / "demo_questions.json"
+DATA_FILE_BATCH2 = HERE / "demo_questions_batch2.json"
 MAIN_BANK = HERE.parent / "lib" / "features" / "practice" / "data" / "questions.json"
 
 REQUIRED_FIELDS = [
@@ -34,6 +35,9 @@ def err(qid, msg):
 
 with open(DATA_FILE, encoding="utf-8") as f:
     questions = json.load(f)
+if DATA_FILE_BATCH2.exists():
+    with open(DATA_FILE_BATCH2, encoding="utf-8") as f:
+        questions += json.load(f)
 
 if not isinstance(questions, list) or not questions:
     print("FATAL: demo_questions.json must be a non-empty JSON array.")

@@ -78,13 +78,13 @@ class AuthService {
   //      account's `idToken` and `accessToken`.
   //   4. Hand it to Firebase via `signInWithCredential`.
   //
-  // If the user already has a Firebase session and the chosen Google
-  // account maps to the same email as an existing email/password
-  // account, Firebase will REJECT the sign-in with
-  // `account-exists-with-different-credential`. That is the known gap:
-  // the two providers
-  // create separate accounts and the user must sign in with whichever
-  // provider they originally used, or implement account linking.
+  // If the chosen Google account maps to an email that already has an
+  // email/password account, Firebase rejects with
+  // `account-exists-with-different-credential`. The exception carries
+  // both the email (`e.email`) and the pending Google credential
+  // (`e.credential`) — the UI layer catches this and offers one-tap
+  // linking via [linkGoogleToPasswordAccount], so the same email is ONE
+  // account across both providers.
   Future<UserCredential> signInWithGoogle() async {
     // 1) Force the picker.
     try {
@@ -110,6 +110,32 @@ class AuthService {
 
     // 4) Hand off to Firebase.
     return await _auth.signInWithCredential(credential);
+  }
+
+  /// Account linking: signs in to the existing email/password account
+  /// and attaches the pending Google credential to it, so the same
+  /// email is a single Firebase account usable via either provider.
+  ///
+  /// Called from the UI when [signInWithGoogle] fails with
+  /// `account-exists-with-different-credential`. If the password is
+  /// wrong, the underlying `signInWithEmailAndPassword` throws
+  /// `wrong-password` / `invalid-credential` and the user can retry.
+  /// If Google is already linked (edge case), the link step is skipped.
+  Future<UserCredential> linkGoogleToPasswordAccount({
+    required String email,
+    required String password,
+    required AuthCredential googleCredential,
+  }) async {
+    final userCred = await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+    final user = userCred.user;
+    if (user != null &&
+        !user.providerData.any((p) => p.providerId == 'google.com')) {
+      await user.linkWithCredential(googleCredential);
+    }
+    return userCred;
   }
 
   // Sign out — covers both email/password and Google accounts.

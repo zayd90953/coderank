@@ -1,0 +1,912 @@
+[
+  {
+    "id": "NEET-9016",
+    "subject": "Physics",
+    "chapter": "Electric Charges and Fields",
+    "ncert_class": 12,
+    "topic": "Torque on a dipole in a uniform field",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "An electric dipole of dipole moment p is placed in a uniform electric field E. The torque experienced by the dipole is maximum when the angle between p and E is:",
+    "options": [
+      "0° — the dipole is parallel to the field",
+      "90° — the dipole is perpendicular to the field",
+      "180° — the dipole is antiparallel to the field",
+      "any angle — the torque is independent of orientation"
+    ],
+    "correct_option": "B",
+    "explanation": "The torque on a dipole in a uniform field is τ = pE sinθ, where θ is the angle between p and E. Since sinθ is maximum (= 1) at θ = 90°, the torque is maximum when the dipole is perpendicular to the field. At θ = 0° the dipole sits in stable equilibrium (τ = 0) and at 180° in unstable equilibrium (τ = 0); these are the orientations where the net torque vanishes, not where it peaks.",
+    "common_wrong_reasoning": {
+      "A": "confuses the torque-maximising orientation with the stable equilibrium orientation — at 0° the torque is actually zero",
+      "C": "picks the unstable equilibrium position, where the torque is also zero",
+      "D": "forgets the sinθ factor and treats the torque as orientation-independent"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9017",
+    "subject": "Physics",
+    "chapter": "Electric Charges and Fields",
+    "ncert_class": 12,
+    "topic": "Gauss's law",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A point charge q is placed exactly at the centre of a cube. The electric flux through one face of the cube is:",
+    "options": [
+      "q/ε₀",
+      "q/(2ε₀)",
+      "q/(3ε₀)",
+      "q/(6ε₀)"
+    ],
+    "correct_option": "D",
+    "explanation": "By Gauss's law, the total flux through any closed surface enclosing charge q is Φ = q/ε₀. The charge sits symmetrically at the centre of the cube, so by symmetry the total flux is shared equally among the six identical faces. Flux through one face = (q/ε₀)/6 = q/(6ε₀).",
+    "common_wrong_reasoning": {
+      "A": "quotes the total flux through the whole cube instead of the flux through a single face",
+      "B": "shares the flux between only two faces, as if the charge lay on an edge",
+      "C": "shares the flux between three faces, misapplying the symmetry of the cube"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9018",
+    "subject": "Physics",
+    "chapter": "Electrostatic Potential and Capacitance",
+    "ncert_class": 12,
+    "topic": "Potential of a charged conducting sphere",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "Two hollow conducting spheres of radii R₁ and R₂ (R₁ > R₂) carry equal charges. The potential of the spheres is:",
+    "options": [
+      "more on the bigger sphere",
+      "equal on both spheres",
+      "more on the smaller sphere",
+      "dependent on the material of the spheres"
+    ],
+    "correct_option": "C",
+    "explanation": "For a charged conducting sphere the potential at its surface (and everywhere inside) is V = kQ/R. With equal charges Q, the sphere with the smaller radius has the larger potential, since V ∝ 1/R. Here R₂ < R₁, so the smaller sphere is at a higher potential. Potential depends only on charge and geometry — the material of the conductor is irrelevant in electrostatics.",
+    "common_wrong_reasoning": {
+      "A": "associates 'bigger' with 'more' — potential varies inversely with radius, so the larger sphere is at the lower potential",
+      "B": "thinks equal charges imply equal potentials, forgetting the 1/R dependence",
+      "D": "brings in material properties, but electrostatic potential of a conductor depends only on charge and geometry"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9019",
+    "subject": "Physics",
+    "chapter": "Current Electricity",
+    "ncert_class": 12,
+    "topic": "Resistance of a stretched wire",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A wire of resistance 4 Ω is stretched uniformly to twice its original length. Its new resistance is:",
+    "options": [
+      "16 Ω",
+      "8 Ω",
+      "4 Ω",
+      "2 Ω"
+    ],
+    "correct_option": "A",
+    "explanation": "R = ρL/A. On stretching, the volume stays constant (V = AL), so doubling the length halves the cross-sectional area: L' = 2L, A' = A/2. The new resistance is R' = ρ(2L)/(A/2) = 4ρL/A = 4R = 4 × 4 = 16 Ω. The resistivity ρ is a material property and does not change on stretching.",
+    "common_wrong_reasoning": {
+      "B": "accounts for the doubled length but forgets that the area simultaneously halves, which contributes another factor of 2",
+      "C": "assumes resistance is unchanged because the volume and the material are unchanged — resistance depends on the geometry L/A, not on volume alone",
+      "D": "inverts the reasoning — resistance increases on stretching, it never decreases"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9020",
+    "subject": "Physics",
+    "chapter": "Moving Charges and Magnetism",
+    "ncert_class": 12,
+    "topic": "Force on a moving charge in a magnetic field",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "A charged particle moves with velocity v parallel to a uniform magnetic field B. The magnetic force experienced by the particle is:",
+    "options": [
+      "qvB, directed along the velocity",
+      "qvB, directed perpendicular to both v and B",
+      "zero",
+      "qvB, directed opposite to the magnetic field"
+    ],
+    "correct_option": "C",
+    "explanation": "The magnetic Lorentz force is F = qvB sinθ, where θ is the angle between v and B. For a particle moving parallel to the field, θ = 0° and sinθ = 0, so F = 0. The particle continues to move in a straight line, undeflected. Magnetic forces only act on the component of velocity perpendicular to the field.",
+    "common_wrong_reasoning": {
+      "A": "applies F = qvB and drops the sinθ factor, which vanishes when v is parallel to B",
+      "B": "remembers that a non-zero force would be perpendicular to v and B, but the magnitude itself is zero here",
+      "D": "uses the wrong geometry entirely — the force would be perpendicular to v and B, never opposite to B"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9021",
+    "subject": "Physics",
+    "chapter": "Electromagnetic Induction",
+    "ncert_class": 12,
+    "topic": "Faraday's law of induction",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A coil of 100 turns and cross-sectional area experiences a change of magnetic flux through it from 2 mWb to 6 mWb in 0.2 s. The magnitude of the average EMF induced in the coil is:",
+    "options": [
+      "0.02 V",
+      "2 V",
+      "20 V",
+      "0.4 V"
+    ],
+    "correct_option": "B",
+    "explanation": "By Faraday's law, the induced EMF is ε = N(ΔΦ/Δt). Here ΔΦ = 6 mWb − 2 mWb = 4 mWb = 4 × 10⁻³ Wb, Δt = 0.2 s and N = 100. So ε = 100 × (4 × 10⁻³)/0.2 = 100 × 0.02 = 2 V. The factor N appears because the flux changes through each of the 100 turns, and the EMFs of all turns add up.",
+    "common_wrong_reasoning": {
+      "A": "forgets the number of turns N and computes the per-turn EMF of 0.02 V",
+      "C": "slips a power of ten in the time or flux conversion",
+      "D": "reports the total change in flux linkage (N·ΔΦ = 0.4 Wb-turns) instead of its rate of change"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9022",
+    "subject": "Physics",
+    "chapter": "Ray Optics and Optical Instruments",
+    "ncert_class": 12,
+    "topic": "Lens maker's formula and focal length in a medium",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "A thin convex lens made of glass (refractive index 1.5) has focal length f in air. When the same lens is completely immersed in water (refractive index 1.33), its focal length:",
+    "options": [
+      "increases",
+      "decreases",
+      "remains the same",
+      "becomes zero"
+    ],
+    "correct_option": "A",
+    "explanation": "By the lens maker's formula, 1/f ∝ (μ_lens/μ_medium − 1). In air this factor is 1.5 − 1 = 0.5; in water it becomes 1.5/1.33 − 1 ≈ 0.13, which is much smaller. A smaller power means a larger focal length, so the lens converges less strongly underwater and f increases. The focal length of a lens is not a fixed property of the lens alone — it depends on the surrounding medium.",
+    "common_wrong_reasoning": {
+      "B": "assumes water 'bends rays more', but the refractive-index contrast between glass and water is smaller than between glass and air",
+      "C": "treats f as an intrinsic constant of the lens, forgetting the role of the surrounding medium in the lens maker's formula",
+      "D": "confuses a weaker converging action with a sign flip — the lens still converges light, just more weakly"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9023",
+    "subject": "Physics",
+    "chapter": "Thermodynamics",
+    "ncert_class": 11,
+    "topic": "First law of thermodynamics for an isothermal process",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "In an isothermal expansion of an ideal gas, which of the following is correct?",
+    "options": [
+      "Q = 0",
+      "W = 0",
+      "ΔU > 0",
+      "Q = W"
+    ],
+    "correct_option": "D",
+    "explanation": "The internal energy of an ideal gas depends only on temperature: U = nCvT. In an isothermal process T is constant, so ΔU = 0. The first law, ΔU = Q − W, then gives Q = W — all the heat absorbed by the gas is converted into the work done during expansion. Q = 0 describes an adiabatic process, and W = 0 describes an isochoric (constant-volume) process.",
+    "common_wrong_reasoning": {
+      "A": "confuses isothermal with adiabatic — in an adiabatic expansion it is Q that is zero",
+      "B": "confuses isothermal with isochoric — no work is done only when the volume is constant",
+      "C": "forgets that ΔU = nCvΔT and ΔT = 0 for an isothermal process, so ΔU = 0, not positive"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9024",
+    "subject": "Physics",
+    "chapter": "Atoms",
+    "ncert_class": 12,
+    "topic": "Bohr's model — energy levels of hydrogen",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "The ionisation energy of a hydrogen atom in its ground state is 13.6 eV. The energy required to excite the electron from the ground state (n = 1) to the first excited state (n = 2) is:",
+    "options": [
+      "3.4 eV",
+      "10.2 eV",
+      "12.1 eV",
+      "13.6 eV"
+    ],
+    "correct_option": "B",
+    "explanation": "Bohr's energy formula gives En = −13.6/n² eV. So E₁ = −13.6 eV and E₂ = −13.6/4 = −3.4 eV. The excitation energy is the difference: ΔE = E₂ − E₁ = −3.4 − (−13.6) = 10.2 eV. The ionisation energy (13.6 eV) corresponds to taking the electron all the way to n = ∞ (E = 0), which is a different process.",
+    "common_wrong_reasoning": {
+      "A": "quotes the energy of the n = 2 level itself instead of the energy difference between the two levels",
+      "C": "computes the n = 1 → n = 3 jump (13.6 × (1 − 1/9) = 12.1 eV) instead of n = 1 → n = 2",
+      "D": "reports the ionisation energy rather than the excitation energy — ionisation removes the electron entirely"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9025",
+    "subject": "Physics",
+    "chapter": "Units and Measurements",
+    "ncert_class": 11,
+    "topic": "Dimensional analysis",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "The dimensional formula of Planck's constant is:",
+    "options": [
+      "[M L² T⁻²]",
+      "[M L T⁻¹]",
+      "[M L² T⁻¹]",
+      "[M L² T⁻³]"
+    ],
+    "correct_option": "C",
+    "explanation": "From E = hν, h = E/ν. Energy has dimensions [M L² T⁻²] and frequency has dimensions [T⁻¹], so h has dimensions [M L² T⁻²]/[T⁻¹] = [M L² T⁻¹]. This is the same dimensional formula as angular momentum (L = mvr), which is why h is often called the quantum of action/angular momentum.",
+    "common_wrong_reasoning": {
+      "A": "reports the dimensions of energy — stops at E = hν without dividing by the frequency",
+      "B": "reports the dimensions of linear momentum — misses the second power of length",
+      "D": "reports the dimensions of power (energy per unit time)"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9026",
+    "subject": "Physics",
+    "chapter": "Wave Optics",
+    "ncert_class": 12,
+    "topic": "Fringe width in Young's double-slit experiment",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "In a Young's double-slit experiment performed in air, the fringe width is β. If the entire apparatus is immersed in water of refractive index 4/3, the fringe width becomes:",
+    "options": [
+      "decreases to three-fourths of its value in air",
+      "increases to four-thirds of its value in air",
+      "remains unchanged",
+      "becomes zero"
+    ],
+    "correct_option": "A",
+    "explanation": "The fringe width is β = λD/d. On immersion, D and d do not change, but the wavelength of light in a medium of refractive index n becomes λ' = λ/n. With n = 4/3: λ' = (3/4)λ, so β' = (3/4)β — the fringes come closer together. The pattern itself does not disappear; interference continues in the medium.",
+    "common_wrong_reasoning": {
+      "B": "inverts the refractive-index ratio — wavelength decreases inside a denser medium, it does not increase",
+      "C": "forgets that the wavelength of light depends on the medium even though the source frequency does not",
+      "D": "assumes immersion destroys the interference — only the scale of the pattern changes"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9027",
+    "subject": "Chemistry",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "ncert_class": 11,
+    "topic": "Mole concept",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "The total number of atoms present in 4.25 g of NH₃ is approximately (N_A = 6.022 × 10²³ mol⁻¹, molar mass of NH₃ = 17 g mol⁻¹):",
+    "options": [
+      "6.022 × 10²²",
+      "1.505 × 10²³",
+      "6.022 × 10²³",
+      "2.409 × 10²⁴"
+    ],
+    "correct_option": "C",
+    "explanation": "Moles of NH₃ = 4.25/17 = 0.25 mol. Each NH₃ molecule contains 4 atoms (1 N + 3 H), so the number of moles of atoms = 0.25 × 4 = 1 mol. Hence the number of atoms = 1 × N_A = 6.022 × 10²³. Two steps must not be skipped: mass → moles of molecules, then moles of molecules → moles of atoms using the atomicity.",
+    "common_wrong_reasoning": {
+      "A": "drops a power of ten while converting grams to moles (uses 0.025 mol instead of 0.25 mol)",
+      "B": "counts NH₃ molecules (0.25 N_A) instead of individual atoms — forgets the factor of 4 atoms per molecule",
+      "D": "treats 4.25 g as one mole and then multiplies by 4 — the mass-to-mole conversion is skipped"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9028",
+    "subject": "Chemistry",
+    "chapter": "Chemical Bonding and Molecular Structure",
+    "ncert_class": 11,
+    "topic": "VSEPR theory and hybridisation",
+    "difficulty": "Medium",
+    "bloom_level": "recall",
+    "question_text": "The hybridisation of sulphur and the shape of the SF₄ molecule are respectively:",
+    "options": [
+      "sp³d — see-saw shape",
+      "sp³ — tetrahedral shape",
+      "sp³d² — square planar shape",
+      "sp³d — trigonal bipyramidal shape"
+    ],
+    "correct_option": "A",
+    "explanation": "Sulphur in SF₄ forms four bond pairs with fluorines and carries one lone pair (steric number 5), so the hybridisation is sp³d. The five electron pairs arrange in a trigonal bipyramidal electron geometry, but the lone pair occupies an equatorial position to minimise repulsions. With one equatorial position occupied by the lone pair, the molecular shape is see-saw — not a complete trigonal bipyramid.",
+    "common_wrong_reasoning": {
+      "B": "counts only the four bond pairs and ignores the lone pair on sulphur",
+      "C": "overcounts the steric number as 6, which belongs to six electron pairs (e.g. SF₆ is octahedral/sp³d²)",
+      "D": "reports the electron-pair geometry instead of the molecular shape — the lone pair must be excluded from the shape"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9029",
+    "subject": "Chemistry",
+    "chapter": "Thermodynamics",
+    "ncert_class": 11,
+    "topic": "Gibbs energy and spontaneity",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A reaction is spontaneous at all temperatures when:",
+    "options": [
+      "ΔH > 0 and ΔS > 0",
+      "ΔH < 0 and ΔS > 0",
+      "ΔH < 0 and ΔS < 0",
+      "ΔH > 0 and ΔS < 0"
+    ],
+    "correct_option": "B",
+    "explanation": "Spontaneity is governed by ΔG = ΔH − TΔS; a process is spontaneous when ΔG < 0. If ΔH < 0 and ΔS > 0, both terms favour spontaneity: −TΔS is negative for every positive T, and ΔH is negative regardless of T. So ΔG < 0 at all temperatures. When ΔH > 0, ΔS > 0 spontaneity requires high T; when ΔH < 0, ΔS < 0 it requires low T; and ΔH > 0, ΔS < 0 is never spontaneous.",
+    "common_wrong_reasoning": {
+      "A": "this combination (ΔH > 0, ΔS > 0) is spontaneous only at sufficiently high temperature, when TΔS overcomes the endothermic ΔH",
+      "C": "this combination (ΔH < 0, ΔS < 0) is spontaneous only at low temperature — the −TΔS term eventually turns ΔG positive",
+      "D": "this combination (ΔH > 0, ΔS < 0) makes both terms positive, so ΔG can never be negative"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9030",
+    "subject": "Chemistry",
+    "chapter": "Chemical Kinetics",
+    "ncert_class": 12,
+    "topic": "First-order reactions and half-life",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "For a first-order reaction, the rate constant is k = 6.93 × 10⁻³ s⁻¹. The half-life of the reaction is:",
+    "options": [
+      "100 s",
+      "10 s",
+      "200 s",
+      "693 s"
+    ],
+    "correct_option": "A",
+    "explanation": "For a first-order reaction the half-life is independent of the initial concentration: t½ = 0.693/k. Substituting k = 6.93 × 10⁻³ s⁻¹ gives t½ = 0.693/(6.93 × 10⁻³) = 100 s. Note that 0.693 = ln 2, which is where the factor comes from integrating the first-order rate law.",
+    "common_wrong_reasoning": {
+      "B": "slips two powers of ten in the division — 0.693/6.93 is 0.1, not 0.01",
+      "C": "uses t½ ≈ 2/k instead of 0.693/k — the coefficient is ln 2 ≈ 0.7, not 2",
+      "D": "drops the 6.93 factor and divides 0.693 by 10⁻³ instead of by 6.93 × 10⁻³"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9031",
+    "subject": "Chemistry",
+    "chapter": "Equilibrium",
+    "ncert_class": 11,
+    "topic": "pH of strong acids",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "Assuming complete ionisation, the pH of a 0.005 M aqueous solution of H₂SO₄ is:",
+    "options": [
+      "2.3",
+      "2",
+      "1",
+      "3"
+    ],
+    "correct_option": "B",
+    "explanation": "H₂SO₄ is dibasic, so complete ionisation gives two moles of H⁺ per mole of acid: [H⁺] = 2 × 0.005 = 0.01 M. Therefore pH = −log(0.01) = 2. The diprotic nature of sulphuric acid is the key step — treating it as a monoprotic acid loses a factor of 2 in [H⁺].",
+    "common_wrong_reasoning": {
+      "A": "treats H₂SO₄ as monoprotic — [H⁺] = 0.005 M gives pH ≈ 2.3",
+      "C": "slips a decimal — 0.01 M H⁺ corresponds to pH 2, not pH 1 (pH 1 needs 0.1 M H⁺)",
+      "D": "uses 0.001 M as the hydrogen ion concentration"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9032",
+    "subject": "Chemistry",
+    "chapter": "Electrochemistry",
+    "ncert_class": 12,
+    "topic": "Nernst equation and cell EMF",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "For the cell Zn(s) | Zn²⁺(aq) || Cu²⁺(aq) | Cu(s), the cell EMF will increase when:",
+    "options": [
+      "[Zn²⁺] is increased",
+      "[Cu²⁺] is decreased",
+      "[Cu²⁺] is increased",
+      "both [Zn²⁺] and [Cu²⁺] are doubled"
+    ],
+    "correct_option": "C",
+    "explanation": "The Nernst equation for the cell reaction Zn + Cu²⁺ → Zn²⁺ + Cu is E = E° − (0.059/2) log([Zn²⁺]/[Cu²⁺]). Increasing [Cu²⁺] decreases the ratio [Zn²⁺]/[Cu²⁺], so the log term decreases, and since it is subtracted, E increases. Increasing [Zn²⁺] or decreasing [Cu²⁺] does the opposite. Doubling both concentrations leaves the ratio — and hence E — unchanged.",
+    "common_wrong_reasoning": {
+      "A": "increases the numerator of the log ratio, which makes the subtracted term larger and lowers the EMF",
+      "B": "works in the wrong direction — lowering the cathode ion concentration reduces the driving force of the cell reaction",
+      "D": "doubling both concentrations keeps the reaction quotient unchanged, so the EMF does not change"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9033",
+    "subject": "Chemistry",
+    "chapter": "Classification of Elements and Periodicity in Properties",
+    "ncert_class": 11,
+    "topic": "Ionisation enthalpy trends and anomalies",
+    "difficulty": "Medium",
+    "bloom_level": "recall",
+    "question_text": "Which of the following elements has the highest first ionisation enthalpy?",
+    "options": [
+      "Boron",
+      "Carbon",
+      "Nitrogen",
+      "Oxygen"
+    ],
+    "correct_option": "C",
+    "explanation": "First ionisation enthalpy generally increases across a period, but nitrogen (1s² 2s² 2p³) has a half-filled 2p subshell, which is an exceptionally stable configuration. Removing an electron from nitrogen would destroy this stability, so its ionisation enthalpy is higher than that of oxygen (1s² 2s² 2p⁴), where a paired electron in the 2p orbital is lost more easily. Hence IE₁(N) > IE₁(O), and nitrogen has the highest value among the four.",
+    "common_wrong_reasoning": {
+      "A": "boron lies furthest left among the four, so its ionisation enthalpy is the lowest of the group",
+      "B": "carbon follows the general increase across the period but lacks the half-filled-subshell bonus that nitrogen has",
+      "D": "assumes ionisation enthalpy rises monotonically across a period and overlooks the oxygen anomaly caused by nitrogen's extra stability"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9034",
+    "subject": "Chemistry",
+    "chapter": "Coordination Compounds",
+    "ncert_class": 12,
+    "topic": "Hybridisation and geometry of Ni complexes",
+    "difficulty": "Hard",
+    "bloom_level": "analysis",
+    "question_text": "The hybridisation states of the nickel atom in [NiCl₄]²⁻ and [Ni(CN)₄]²⁻ are, respectively (atomic number of Ni = 28):",
+    "options": [
+      "dsp² and sp³",
+      "sp³ and dsp²",
+      "sp³ and sp³",
+      "dsp² and dsp²"
+    ],
+    "correct_option": "B",
+    "explanation": "Ni²⁺ is 3d⁸. In [NiCl₄]²⁻, Cl⁻ is a weak-field ligand: no pairing of the 3d electrons occurs, the complex uses the outer 4s and 4p orbitals, giving sp³ hybridisation — tetrahedral and paramagnetic (2 unpaired electrons). In [Ni(CN)₄]²⁻, CN⁻ is a strong-field ligand: the two unpaired 3d electrons pair up, leaving one vacant 3d orbital (dsp², inner-orbital hybridisation), so the complex is square planar and diamagnetic. The ligand field strength decides which orbitals are available.",
+    "common_wrong_reasoning": {
+      "A": "swaps the two ligands' field strengths — Cl⁻ is weak-field (outer orbital) and CN⁻ is strong-field (inner orbital)",
+      "C": "treats CN⁻ as a weak-field ligand as well, ignoring the pairing of the 3d⁸ electrons it forces",
+      "D": "treats Cl⁻ as a strong-field ligand, but it cannot force pairing in 3d⁸, so the tetrahedral sp³ complex forms"
+    },
+    "neet_pyq_year": [2004],
+    "avg_time_seconds": 110,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9035",
+    "subject": "Chemistry",
+    "chapter": "Haloalkanes and Haloarenes",
+    "ncert_class": 12,
+    "topic": "SN1 and SN2 mechanisms",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "Which of the following alkyl halides undergoes solvolysis by the SN1 mechanism most readily?",
+    "options": [
+      "Chloromethane",
+      "Chloroethane",
+      "2-Chloropropane",
+      "2-Chloro-2-methylpropane"
+    ],
+    "correct_option": "D",
+    "explanation": "The rate-determining step of an SN1 reaction is the ionisation of the C–X bond to form a carbocation, so the reactivity order follows carbocation stability: 3° > 2° > 1° > CH₃. 2-Chloro-2-methylpropane (tert-butyl chloride) ionises to the most stable tertiary carbocation, so it reacts fastest by SN1. The same substrates ranked least hindered → most reactive apply to SN2, which is exactly the reverse order.",
+    "common_wrong_reasoning": {
+      "A": "picks the least hindered substrate — that logic selects the fastest SN2 substrate, not SN1",
+      "B": "primary carbocations are too unstable for SN1; primary halides react by SN2 instead",
+      "C": "a secondary carbocation is more stable than methyl/primary but still less stable than the tertiary one"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9036",
+    "subject": "Chemistry",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "ncert_class": 12,
+    "topic": "Acidity of phenols",
+    "difficulty": "Medium",
+    "bloom_level": "recall",
+    "question_text": "Phenol is more acidic than ethanol because:",
+    "options": [
+      "the phenoxide ion is stabilised by resonance while the ethoxide ion is not",
+      "the ethoxide ion is stabilised by resonance while the phenoxide ion is not",
+      "phenol has a lower molecular mass than ethanol",
+      "the oxygen of the –OH group in phenol is sp² hybridised while in ethanol it is sp³"
+    ],
+    "correct_option": "A",
+    "explanation": "Acidity depends on the stability of the conjugate base. The negative charge of the phenoxide ion is delocalised by resonance over the aromatic ring (into the ortho and para positions), which substantially stabilises it. In the ethoxide ion the charge is localised on the oxygen atom, and the +I effect of the ethyl group actually intensifies it. A more stable conjugate base means a stronger parent acid, so phenol (pKa ≈ 10) beats ethanol (pKa ≈ 15.9).",
+    "common_wrong_reasoning": {
+      "B": "reverses the facts — the ethoxide ion has no π system to delocalise its charge into",
+      "C": "molecular mass has no bearing on acidity; charge delocalisation does",
+      "D": "the –OH oxygen is effectively sp³ hybridised in both molecules; the difference lies in charge delocalisation, not hybridisation"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9037",
+    "subject": "Chemistry",
+    "chapter": "Biomolecules",
+    "ncert_class": 12,
+    "topic": "Nucleic acids and RNA types",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "Which of the following types of RNA is the most abundant in an animal cell?",
+    "options": [
+      "tRNA",
+      "rRNA",
+      "mRNA",
+      "snRNA"
+    ],
+    "correct_option": "B",
+    "explanation": "Ribosomal RNA (rRNA) makes up roughly 80% of the total RNA of a cell because every ribosome is built from large amounts of it, and ribosomes are numerous. tRNA is the next most abundant (~15%), while mRNA is only a small fraction (~3–5%) despite its central role — it is short-lived and needed in small copies. snRNA is involved in splicing in eukaryotic nuclei and is present in tiny amounts.",
+    "common_wrong_reasoning": {
+      "A": "tRNA is abundant (~15%) but second to rRNA, which forms the structural bulk of ribosomes",
+      "C": "mRNA is functionally central but chemically minor and rapidly turned over",
+      "D": "snRNA is a small nuclear RNA involved in splicing and is present only in small quantities"
+    },
+    "neet_pyq_year": [2017],
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9038",
+    "subject": "Chemistry",
+    "chapter": "Chemistry in Everyday Life",
+    "ncert_class": 12,
+    "topic": "Drugs and their classifications",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "Which of the following drugs is used as an antacid?",
+    "options": [
+      "Paracetamol",
+      "Chloramphenicol",
+      "Ranitidine",
+      "Norethindrone"
+    ],
+    "correct_option": "C",
+    "explanation": "Ranitidine is an antacid — it is an H₂-receptor antagonist that reduces the secretion of gastric acid, and is prescribed for hyperacidity and ulcers. Paracetamol is an analgesic and antipyretic, chloramphenicol is a broad-spectrum antibiotic (notable in typhoid treatment), and norethindrone is a progesterone derivative used in antifertility pills.",
+    "common_wrong_reasoning": {
+      "A": "paracetamol relieves pain and fever; it does not reduce gastric acid secretion",
+      "B": "chloramphenicol is an antibiotic that kills or inhibits bacteria",
+      "D": "norethindrone is an antifertility agent — a synthetic progesterone derivative"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9039",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Properties of DNA",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "DNA fragments are:",
+    "options": [
+      "negatively charged",
+      "positively charged",
+      "neutral",
+      "charged depending on their size"
+    ],
+    "correct_option": "A",
+    "explanation": "Every nucleotide of DNA carries a phosphate group, and it is the phosphate backbone that gives DNA fragments a uniform negative charge — regardless of fragment length. This property is exploited in gel electrophoresis: when an electric field is applied, DNA fragments migrate towards the anode (the positive electrode), with smaller fragments moving faster through the gel matrix.",
+    "common_wrong_reasoning": {
+      "B": "confuses the direction of migration — DNA moves towards the positive anode because it is itself negative",
+      "C": "the phosphate groups are ionised at physiological pH, so DNA is never neutral",
+      "D": "charge per fragment grows with length, but the charge density is the same — all fragments are negatively charged"
+    },
+    "neet_pyq_year": [2017],
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9040",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Translation and ribozymes",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "In bacteria, which rRNA acts both as a structural component of the ribosome and as a ribozyme (catalytic RNA) during translation?",
+    "options": [
+      "16S rRNA",
+      "5S rRNA",
+      "23S rRNA",
+      "28S rRNA"
+    ],
+    "correct_option": "C",
+    "explanation": "In the 70S bacterial ribosome, the large 50S subunit contains 23S rRNA, and it is the 23S rRNA that catalyses peptide bond formation — it acts as peptidyl transferase, an RNA with enzymatic activity (a ribozyme), while also providing structural scaffolding for the subunit. 16S rRNA is structural/decoding in the small 30S subunit, 5S rRNA is structural only, and 28S rRNA belongs to eukaryotic (80S) ribosomes, not bacteria.",
+    "common_wrong_reasoning": {
+      "A": "16S rRNA is structural and participates in decoding in the 30S subunit, but the peptidyl transferase activity resides in 23S rRNA",
+      "B": "5S rRNA is a purely structural component of the 50S subunit",
+      "D": "28S rRNA occurs in the 60S subunit of eukaryotic ribosomes — bacteria have 70S ribosomes"
+    },
+    "neet_pyq_year": [2016],
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9041",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Gene terminology",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "The equivalent of a structural gene is:",
+    "options": [
+      "Operon",
+      "Muton",
+      "Recon",
+      "Cistron"
+    ],
+    "correct_option": "D",
+    "explanation": "A cistron is the segment of DNA that codes for a single polypeptide — functionally the same as a structural gene. The other terms come from Benzer's fine-structure analysis of the gene: a muton is the smallest unit of mutation (a single base pair) and a recon is the smallest unit of recombination. An operon is a larger unit — a cluster of structural genes plus operator and promoter regulated together in prokaryotes.",
+    "common_wrong_reasoning": {
+      "A": "an operon is a regulated cluster of several structural genes, not a single structural gene",
+      "B": "a muton is the smallest mutable unit — a single nucleotide, far smaller than a gene",
+      "C": "a recon is the smallest recombination unit, a genetic-mapping concept, not a coding unit"
+    },
+    "neet_pyq_year": [2016],
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9042",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Post-transcriptional processing and spliceosomes",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "Spliceosomes are NOT found in the cells of:",
+    "options": [
+      "Fungi",
+      "Bacteria",
+      "Plants",
+      "Animals"
+    ],
+    "correct_option": "B",
+    "explanation": "Spliceosomes are the snRNP–protein complexes that remove introns from eukaryotic hnRNA during post-transcriptional processing. They exist in plants, animals and fungi — all eukaryotes, whose genes typically contain introns. Prokaryotic (bacterial) genes generally lack intron–exon architecture, their mRNA is transcribed in a form ready for translation, and bacteria possess no spliceosome machinery.",
+    "common_wrong_reasoning": {
+      "A": "fungi are eukaryotes with intron-containing genes, so their cells do run spliceosome-mediated splicing",
+      "C": "plants are eukaryotes and splice their pre-mRNA with spliceosomes",
+      "D": "animals are eukaryotes; splicing of hnRNA by spliceosomes was first characterised in animal cells"
+    },
+    "neet_pyq_year": [2017],
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9043",
+    "subject": "Biology",
+    "chapter": "Molecular Basis of Inheritance",
+    "ncert_class": 12,
+    "topic": "Nucleosome and chromatin organisation",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "The association of histone H1 with a nucleosome indicates that:",
+    "options": [
+      "the DNA is being packed into higher-order chromatin fibres",
+      "transcription is in progress",
+      "DNA replication is in progress",
+      "the DNA double helix is exposed"
+    ],
+    "correct_option": "A",
+    "explanation": "A nucleosome core particle consists of about 146 bp of DNA wrapped around two copies each of H2A, H2B, H3 and H4. Histone H1 binds where the linker DNA enters and leaves the core, sealing the DNA in place and promoting folding of nucleosomes into the 30 nm chromatin fibre — the next level of packaging. So H1 association signals condensation of DNA into higher-order chromatin, the opposite of exposed, transcription-ready DNA.",
+    "common_wrong_reasoning": {
+      "B": "transcription needs accessible DNA, whereas H1 association compacts it further",
+      "C": "replication involves nucleosome disassembly and reassembly; H1 binding is a chromatin-condensation feature",
+      "D": "H1 binding has the opposite effect — it sequesters the DNA into packed fibres rather than exposing the helix"
+    },
+    "neet_pyq_year": [2017],
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9044",
+    "subject": "Biology",
+    "chapter": "Digestion and Absorption",
+    "ncert_class": 11,
+    "topic": "Salivary digestion",
+    "difficulty": "Medium",
+    "bloom_level": "recall",
+    "question_text": "Which of the following functions is NOT performed by the secretions from the salivary glands?",
+    "options": [
+      "controlling the bacterial population in the mouth",
+      "digestion of complex carbohydrates",
+      "lubrication of the oral cavity",
+      "digestion of disaccharides"
+    ],
+    "correct_option": "D",
+    "explanation": "Saliva contains salivary amylase (ptyalin), which begins the digestion of starch — a complex carbohydrate — into maltose; lysozyme, an antibacterial agent that controls the bacterial population of the mouth; and mucus, which lubricates the oral cavity and food. Saliva contains no disaccharidase: enzymes such as maltase, sucrase and lactase that hydrolyse disaccharides are secreted in the intestinal juice (succus entericus), not in saliva.",
+    "common_wrong_reasoning": {
+      "A": "this IS performed — lysozyme in saliva is antibacterial and regulates oral bacteria",
+      "B": "this IS performed — salivary amylase hydrolyses starch, which is a complex carbohydrate",
+      "C": "this IS performed — mucus in saliva lubricates the mouth and bolus"
+    },
+    "neet_pyq_year": [2022],
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9045",
+    "subject": "Biology",
+    "chapter": "Digestion and Absorption",
+    "ncert_class": 11,
+    "topic": "Regions and sphincters of the alimentary canal",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "Once the undigested and unabsorbed substances enter the caecum, their backflow into the small intestine is prevented by:",
+    "options": [
+      "the sphincter of Oddi",
+      "the pyloric sphincter",
+      "the ileocaecal valve",
+      "the gastro-oesophageal sphincter"
+    ],
+    "correct_option": "C",
+    "explanation": "The ileocaecal valve guards the junction between the ileum (last part of the small intestine) and the caecum (first part of the large intestine). It allows the one-way passage of undigested material into the caecum and prevents regurgitation back into the ileum. The pyloric sphincter guards the stomach–duodenum junction, the gastro-oesophageal sphincter the oesophagus–stomach junction, and the sphincter of Oddi the opening of the hepato-pancreatic duct into the duodenum.",
+    "common_wrong_reasoning": {
+      "A": "the sphincter of Oddi regulates bile and pancreatic juice entry into the duodenum",
+      "B": "the pyloric sphincter controls the exit of chyme from the stomach",
+      "D": "the gastro-oesophageal sphincter prevents reflux of stomach contents into the oesophagus"
+    },
+    "neet_pyq_year": [2023],
+    "avg_time_seconds": 45,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9046",
+    "subject": "Biology",
+    "chapter": "Body Fluids and Circulation",
+    "ncert_class": 11,
+    "topic": "Blood groups and transfusion compatibility",
+    "difficulty": "Medium",
+    "bloom_level": "application",
+    "question_text": "A person with blood group A Rh⁻ can safely receive a blood transfusion from which of the following donor types?",
+    "options": [
+      "O Rh⁻ and A Rh⁻",
+      "B Rh⁻ and A Rh⁻",
+      "AB Rh⁻ and A Rh⁺",
+      "O Rh⁺ only"
+    ],
+    "correct_option": "A",
+    "explanation": "A group-A individual carries anti-B antibodies in the plasma, so any donor blood carrying the B antigen (groups B and AB) would be attacked — that rules out B and AB. The Rh factor adds a second constraint: an Rh⁻ recipient must not receive Rh⁺ blood, since exposure to the D antigen triggers anti-D sensitisation. O Rh⁻ (the universal donor within these constraints) carries neither A/B antigens nor the D antigen, and A Rh⁻ matches the recipient exactly, so both are safe.",
+    "common_wrong_reasoning": {
+      "B": "group-B donor blood carries the B antigen, which the recipient's anti-B antibodies would agglutinate",
+      "C": "AB blood carries the B antigen, and A Rh⁺ blood carries the D antigen — both are unsafe for an A Rh⁻ recipient",
+      "D": "although O is the ABO universal donor, Rh⁺ blood still carries the D antigen and cannot be given to an Rh⁻ recipient"
+    },
+    "neet_pyq_year": [2024],
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9047",
+    "subject": "Biology",
+    "chapter": "Human Reproduction",
+    "ncert_class": 12,
+    "topic": "Mammary glands and milk ejection pathway",
+    "difficulty": "Hard",
+    "bloom_level": "analysis",
+    "question_text": "Arrange the following parts of the human mammary gland in the order traversed by milk during milk ejection: A. Mammary duct, B. Lactiferous duct, C. Mammary alveolus, D. Ampulla, E. Mammary tubule.",
+    "options": [
+      "D → C → E → A → B",
+      "C → E → A → D → B",
+      "C → E → B → A → D",
+      "A → C → E → D → B"
+    ],
+    "correct_option": "B",
+    "explanation": "Milk is synthesised and secreted by the mammary alveoli (C), which open into mammary tubules (E). The tubules of each lobe join to form a mammary duct (A); several mammary ducts then join to form a wider ampulla (D), where milk is stored, and the ampulla is connected to the lactiferous duct (B) near the nipple through which milk is sucked out. So the route is alveolus → tubule → duct → ampulla → lactiferous duct.",
+    "common_wrong_reasoning": {
+      "A": "starts from the ampulla and works backwards — milk originates in the alveoli, not the storage region",
+      "C": "puts the lactiferous duct before the ampulla — the ampulla widens from the mammary ducts and only then connects to the lactiferous duct",
+      "D": "starts from the mammary duct, skipping the alveolus where milk is actually produced"
+    },
+    "neet_pyq_year": [2024],
+    "avg_time_seconds": 110,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9048",
+    "subject": "Biology",
+    "chapter": "Chemical Coordination and Integration",
+    "ncert_class": 11,
+    "topic": "Hormones and their functions",
+    "difficulty": "Hard",
+    "bloom_level": "analysis",
+    "question_text": "Match List I (hormone) with List II (function): A. Epinephrine, B. Thyroxine, C. Oxytocin, D. Glucagon — with I. Raises blood glucose (hyperglycaemia), II. Contraction of uterine smooth muscle, III. Maintains basal metabolic rate, IV. Emergency hormone (fight-or-flight). Choose the correct combination:",
+    "options": [
+      "A-IV, B-III, C-I, D-II",
+      "A-III, B-IV, C-II, D-I",
+      "A-II, B-III, C-IV, D-I",
+      "A-IV, B-III, C-II, D-I"
+    ],
+    "correct_option": "D",
+    "explanation": "Epinephrine (adrenaline) is the emergency hormone released by the adrenal medulla in fight-or-flight situations (IV). Thyroxine from the thyroid regulates the basal metabolic rate (III). Oxytocin from the posterior pituitary contracts the smooth muscle of the uterus during childbirth and of the mammary gland for milk ejection (II). Glucagon from the pancreatic α-cells promotes glycogenolysis and gluconeogenesis, raising blood glucose — hyperglycaemia (I). Hence A-IV, B-III, C-II, D-I.",
+    "common_wrong_reasoning": {
+      "A": "swaps the roles of oxytocin and glucagon — oxytocin drives uterine contraction while glucagon raises blood glucose",
+      "B": "swaps epinephrine and thyroxine — adrenaline is the emergency hormone and thyroxine the BMR regulator",
+      "C": "assigns smooth-muscle contraction to epinephrine and the emergency role to oxytocin — both pairings are wrong"
+    },
+    "neet_pyq_year": [2024],
+    "avg_time_seconds": 110,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9049",
+    "subject": "Biology",
+    "chapter": "Evolution",
+    "ncert_class": 12,
+    "topic": "Analogous organs and convergent evolution",
+    "difficulty": "Medium",
+    "bloom_level": "recall",
+    "question_text": "The thorn of Bougainvillea and the tendril of Cucurbita are both modified stems — the thorn protects the plant by deterring herbivores, while the tendril helps it climb. These two organs are an example of:",
+    "options": [
+      "analogous organs — convergent evolution",
+      "homologous organs — divergent evolution",
+      "homologous organs — convergent evolution",
+      "analogous organs — divergent evolution"
+    ],
+    "correct_option": "B",
+    "explanation": "Both the thorn of Bougainvillea and the tendril of Cucurbita are modifications of the same basic structure — the stem (axillary branch) — so they share a common origin but have diverged to perform different functions (protection vs climbing support). Same origin + different function = homologous organs, and the process that produced them is divergent evolution. Contrast this with analogous organs (e.g. wings of a butterfly and wings of a bird, or the eye of an octopus and the eye of a mammal), which have different origins but perform the same function and arise by convergent evolution.",
+    "common_wrong_reasoning": {
+      "A": "the thorn and tendril are both stem modifications — same origin, so they are homologous, not analogous",
+      "C": "pairs the correct organ type with the wrong process — convergent evolution produces analogous organs, not homologous ones",
+      "D": "gets both halves wrong — same-origin organs are homologous, and divergent evolution is what splits one structure into different functions"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 75,
+    "diagram": null
+  },
+  {
+    "id": "NEET-9050",
+    "subject": "Biology",
+    "chapter": "Photosynthesis in Higher Plants",
+    "ncert_class": 11,
+    "topic": "Light reaction — electron transport",
+    "difficulty": "Easy",
+    "bloom_level": "recall",
+    "question_text": "In the light reactions of photosynthesis, the terminal (final) electron acceptor of the photosynthetic electron transport chain is:",
+    "options": [
+      "oxygen",
+      "RuBP",
+      "NADP⁺",
+      "cytochrome c"
+    ],
+    "correct_option": "C",
+    "explanation": "Electrons extracted from water at PSII travel through plastoquinone, the cytochrome b₆f complex and plastocyanin to PSI, and are finally transferred to NADP⁺, reducing it to NADPH (catalysed by the enzyme FNR — ferredoxin–NADP⁺ reductase). NADPH then powers the Calvin cycle. Oxygen is a by-product of water photolysis at PSII, not an electron acceptor; RuBP is the CO₂ acceptor of the dark reaction; and cytochromes are intermediate carriers within the chain.",
+    "common_wrong_reasoning": {
+      "A": "oxygen is released during the splitting of water — it is a product of the light reaction, not the terminal electron acceptor",
+      "B": "RuBP accepts CO₂ in the Calvin cycle (dark reaction), not electrons in the light reaction",
+      "D": "cytochrome c-type carriers sit in the middle of the electron transport chain and pass electrons onward, they do not terminate the chain"
+    },
+    "neet_pyq_year": null,
+    "avg_time_seconds": 45,
+    "diagram": null
+  }
+]

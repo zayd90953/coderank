@@ -8,7 +8,7 @@ class QuestionRepository {
   static const String _questionsPath =
       'lib/features/practice/data/questions.json';
 
-  /// Lazily-parsed copy of the 2,500-question bank, shared across every
+  /// Lazily-parsed copy of the ~2,200-question bank (post AUD-1 dedupe),
   /// [QuestionRepository] instance. Without this, each practice / mock /
   /// daily-challenge launch re-reads and re-parses the whole JSON file.
   /// Callers must treat the returned lists as read-only (none mutate them).

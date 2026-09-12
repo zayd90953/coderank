@@ -77,14 +77,17 @@ Claude Code must read and follow this before touching any screen. This is the vi
 - [x] M-2: Launch experience — native purple boot splash removed and unified to brand green (Android/iOS/web), splash redesigned (animated bubbles + logo bounce), launcher icons regenerated from new app icon — DONE
 - [x] M-3: App-wide dynamic theming — light mode is the default with dark optional (System/Light/Dark picker); 40+ screens migrated off hardcoded dark tokens to theme-derived surfaces/text; contrast fixes for settings tiles and mock-test landing heroes — DONE
 - [x] M-4: Launch crash + overflow fixes — splash TickerProvider crash fixed (red screen on device), 10 RenderFlex overflow fixes across welcome/sign-in/analytics/profile, verified via phone-dimension smoke test across 12 screens — DONE
+- [x] AUD-1: Question bank dedupe + integrity repair — 150 questions with duplicate option values repaired in place (correct index recomputed), 22 degenerate questions removed, 113 duplicate question texts deduped: 2,500 → 2,229 clean questions (643/588/998). Bank-integrity regression tests added — DONE
+- [x] AUD-2: Streak counts practice, not app opens — a day counts only when a session is completed; consecutive days extend, any gap restarts, last-practiced-before-yesterday expires to 0 on app open; the old +50 open-the-app bonus removed. Unit-tested — DONE
+- [x] AUD-3: Home "Your Progress" card fixed — fake XP-derived "Top N%" ranking (reset at every tier boundary) replaced with the accuracy-based percentile; Ranking stat is now tappable → Leaderboard tab (was a dead target) — DONE
+- [x] AUD-4: Account linking — same email = ONE account across Google and password. On `account-exists-with-different-credential`, the shared Google flow offers one-tap linking (password → sign-in → linkWithCredential). All 4 Google call sites unified into one linking-aware flow — DONE
+- [x] A-6: Practice Hub — Gen-Z redesign — gradient hero with streak/XP/solved stat strip (streak earns hero placement post-AUD-2), fully-tappable subject mastery cards with color-coded accuracy bars, Daily Challenge card with live done-today state, honest mock-test copy, light-mode contrast bug fixed, legacy "Classic Practice" dead-end removed — DONE
+- [x] A-6b: Unified subject icon system — one shared `SubjectIconBadge` widget (Home subjects grid, Practice Hub cards, Practice Setup header): soft 10%-opacity squircle containers (never filled circles in light mode), theme-adaptive tokens (light: 10% tints of #007AFF/#F59E0B/#10B981 with deepened AA glyphs; dark: shared #163020 container with #60A5FA/#FBBF24/#34D399 glyphs), standardized geometry (radius 30% of size, glyph 50%), WCAG AA contrast locked by regression tests — DONE
 
 ### Remaining — work through in this order
-- [ ] A-6: Practice Hub — Gen-Z redesign
-- [ ] A-7: Practice setup screens — redesign (not just restyle)
+- [ ] A-7: Practice setup screens — redesign (not just restyle). Note: the unified subject badge already landed in the setup header (A-6b); A-7 reworks the option flow itself.
 - [ ] A-8: Real ranking system (computed from actual user data, not hardcoded)
 - [ ] A-9: App-wide production polish pass
-- [ ] AUD-1: Deduplicate the question bank (113 duplicate question texts) — needs a dedupe policy decision
-- [ ] AUD-2: Streak/XP bonus is granted on app open, not on practice — needs a definition of "streak"
 - [ ] R-1: Extend question data model to new schema (see QUESTION_SCHEMA.md)
 - [ ] R-2: Update question repository for chapter/topic/bloom-level queries
 - [ ] R-3: Weak-area tracking service
