@@ -4,6 +4,47 @@ import 'package:coderank/features/practice/data/question_repository.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  group('QuestionRepository — chapter/topic/bloom queries (R-2)', () {
+    final repo = QuestionRepository();
+
+    test('getChapterCoverage returns sorted, positive counts', () async {
+      final coverage = await repo.getChapterCoverage('Biology');
+      expect(coverage, isNotEmpty);
+      final keys = coverage.keys.toList();
+      expect(keys, equals(List<String>.from(keys)..sort()));
+      for (final count in coverage.values) {
+        expect(count, greaterThan(0));
+      }
+    });
+
+    test('getQuestionsByChapter returns only that chapter', () async {
+      final coverage = await repo.getChapterCoverage('Physics');
+      final chapter = coverage.keys.first;
+      final questions = await repo.getQuestionsByChapter('Physics', chapter);
+      expect(questions, isNotEmpty);
+      for (final q in questions) {
+        expect(q.subject, 'Physics');
+        expect(q.chapter, chapter);
+      }
+      expect(questions.length, coverage[chapter]);
+    });
+
+    test('topic and bloom queries return empty on the untagged app bank',
+        () async {
+      // The 2,229-question app bank carries no topic/bloom tags; schema-
+      // format questions aren't in the bank file yet.
+      expect(await repo.getQuestionsByTopic('Biology', 'Anything'), isEmpty);
+      expect(
+        await repo.getQuestionsByBloomLevel('Biology', 'recall'),
+        isEmpty,
+      );
+      expect(
+        await repo.getTopicsForChapter('Biology', 'Any chapter'),
+        isEmpty,
+      );
+    });
+  });
+
   group('QuestionRepository — mock test paper composition (P1-3)', () {
     final repo = QuestionRepository();
 

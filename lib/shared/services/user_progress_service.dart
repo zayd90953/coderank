@@ -126,6 +126,21 @@ class UserProgressData {
   double get overallAccuracy =>
       totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0.0;
 
+  // ── B-5: 100-question ranking gate ──────────────────────────────────
+  /// Percentile and predicted-AIR estimates are meaningless noise until the
+  /// user has answered a real sample of questions. Below this count the
+  /// user is "Unranked": the Leaderboard rank chip shows no number and the
+  /// Analytics hero keeps its prediction locked.
+  static const int rankingMinQuestions = 100;
+
+  /// True once [rankingMinQuestions] questions have been answered and the
+  /// percentile / AIR estimates become meaningful.
+  bool get isRankingUnlocked => totalQuestions >= rankingMinQuestions;
+
+  /// Questions still needed before ranking unlocks (0 when unlocked).
+  int get rankingQuestionsRemaining =>
+      (rankingMinQuestions - totalQuestions).clamp(0, rankingMinQuestions);
+
   String get tier {
     if (xpPoints >= 5000) return "Master";
     if (xpPoints >= 3000) return "Diamond";
@@ -163,9 +178,10 @@ class UserProgressData {
     return ((xpPoints - floor) / (ceiling - floor)).clamp(0.0, 1.0);
   }
 
-  /// Dynamic estimated percentile among active NEET aspirants
+  /// Dynamic estimated percentile among active NEET aspirants.
+  /// B-5: returns "Unranked" until 100 questions have been answered.
   String get percentile {
-    if (totalQuestions == 0) return "Unranked";
+    if (!isRankingUnlocked) return "Unranked";
     if (overallAccuracy >= 90 && totalQuestions >= 50) return "Top 1%";
     if (overallAccuracy >= 80 && totalQuestions >= 30) return "Top 3%";
     if (overallAccuracy >= 70 && totalQuestions >= 20) return "Top 8%";
@@ -174,9 +190,10 @@ class UserProgressData {
     return "Top 40%";
   }
 
-  /// Estimated All-India Rank (AIR) based on performance & questions solved
+  /// Estimated All-India Rank (AIR) based on performance & questions solved.
+  /// B-5: returns "Locked" until 100 questions have been answered.
   String get predictedAir {
-    if (totalQuestions == 0) return "—";
+    if (!isRankingUnlocked) return "Locked";
     final effectiveScore = (overallAccuracy * 7.2).round(); // out of 720
     if (effectiveScore >= 680) return "AIR #340";
     if (effectiveScore >= 650) return "AIR #1,120";

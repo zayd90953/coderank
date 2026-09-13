@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
+import '../../../shared/services/weak_area_tracking_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
+import '../../../shared/widgets/explanation_card.dart';
 import '../../practice/models/practice_session.dart';
 import '../../practice/models/question_model.dart';
 import 'daily_challenge_results_screen.dart';
@@ -140,6 +142,17 @@ class _DailyChallengeQuestionScreenState
       await UserProgressService.instance.markDailyChallengeCompleted(
         xpEarned: sessionXp + _completionBonusXp,
       );
+
+      // R-3: weak-area tracking batch (a timeout counts as a miss).
+      await WeakAreaTrackingService.instance.recordQuestionOutcomes([
+        for (var i = 0; i < widget.questions.length; i++)
+          if (_session.completedQuestions.contains(i))
+            (
+              question: widget.questions[i],
+              isCorrect: _session.selectedAnswers[i] ==
+                  widget.questions[i].correctAnswer,
+            ),
+      ]);
     } catch (_) {
       // Persistence must never block the results screen — mirrors the
       // mock-test and practice runners, which also swallow failures.
@@ -415,32 +428,14 @@ class _DailyChallengeQuestionScreenState
 
             const SizedBox(height: 10),
 
-            // Explanation.
+            // Explanation (R-7: shared explanation card with the
+            // misconception callout when schema tagging provides it).
             if (_answered)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: _selectedAnswer == correctAnswer
-                      ? AppColors.success.withValues(alpha: 0.08)
-                      : AppColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  _selectedAnswer == correctAnswer
-                      ? "Correct! ${question.explanation}"
-                      : _selectedAnswer == null
-                          ? "Time's up! ${question.explanation}"
-                          : "Not quite. ${question.explanation}",
-                  style: TextStyle(
-                    color: _selectedAnswer == correctAnswer
-                        ? AppColors.success
-                        : AppColors.error,
-                    fontSize: 14,
-                    height: 1.4,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              ExplanationCard(
+                selectedOptionIndex: _selectedAnswer,
+                correctOptionIndex: correctAnswer,
+                explanation: question.explanation,
+                commonWrongReasoning: question.commonWrongReasoning,
               ),
 
             const SizedBox(height: 20),

@@ -5,13 +5,17 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/firebase_user_util.dart';
 import '../../../shared/services/user_progress_service.dart';
+import '../../../shared/services/weak_area_tracking_service.dart';
 import '../../../shared/widgets/subject_icon_badge.dart';
 import '../../daily_challenge/presentation/daily_challenge_screen.dart';
+import '../../diagnostic/presentation/diagnostic_subject_chooser_sheet.dart';
 import '../../mock_test/presentation/mock_test_chooser_screen.dart';
 import '../../navigation/main_nav_screen.dart';
 import '../../practice/presentation/practice_screen.dart';
+import '../../practice/presentation/question/question_screen.dart';
 import '../../practice/presentation/setup/practice_setup_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
+import '../../recommendations/data/recommendation_engine.dart';
 
 /// The Home tab. Mirrors the `home_wanted.jpeg` reference:
 /// time-based greeting + rank-progress subtitle, XP/streak/tier
@@ -52,6 +56,18 @@ class HomeScreen extends StatelessWidget {
         child: ValueListenableBuilder<UserProgressData>(
           valueListenable: UserProgressService.instance.progressNotifier,
           builder: (context, data, _) {
+            return ValueListenableBuilder<WeakAreaData>(
+              // R-6: recommendations fuse progress + weak-area state, so
+              // they recompute live whenever either changes.
+              valueListenable:
+                  WeakAreaTrackingService.instance.weakAreasNotifier,
+              builder: (context, weakAreas, _) {
+                final recommendations = RecommendationEngine.build(
+                  progress: data,
+                  weakAreas: weakAreas,
+                  dailyChallengeDoneToday: UserProgressService.instance
+                      .dailyChallengeCompletedToday(),
+                );
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
               child: Column(
@@ -66,6 +82,19 @@ class HomeScreen extends StatelessWidget {
                     onAvatarTap: () => _openProfile(context),
                   ),
                   const SizedBox(height: 22),
+
+                  // ── R-6: Recommended for you (recommendation-first) ────
+                  _RecommendationSection(
+                    recommendations: recommendations,
+                    onOpenPractice: () => _openPractice(context),
+                    onOpenDailyChallenge: () => _openDailyChallenge(context),
+                    onOpenDiagnosticChooser: () =>
+                        showDiagnosticSubjectChooser(context),
+                    onOpenSubject: (subject) => _openSubject(context, subject),
+                    onOpenChapterDrill: (subject, chapter) =>
+                        _openChapterDrill(context, subject, chapter),
+                  ),
+                  const SizedBox(height: 28),
 
                   // ── Your Progress card ─────────────────────────────────
                   _ProgressCard(palette: palette, data: data),
@@ -115,23 +144,9 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  // ── Subjects row ──────────────────────────────────────
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const _SectionTitle("Subjects"),
-                      TextButton(
-                        onPressed: () => _openPractice(context),
-                        child: Text(
-                          "See all",
-                          style: TextStyle(
-                            color: palette.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // ── Subjects row (B-4: "See all" removed — the three
+                  // subject tiles below are already the full set) ──────────
+                  const _SectionTitle("Subjects"),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -168,6 +183,8 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             );
+              },
+            );
           },
         ),
       ),
@@ -201,6 +218,25 @@ class HomeScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const DailyChallengeScreen()),
+    );
+  }
+
+  /// R-6: chapter-focused drill from the weak-chapter recommendation —
+  /// opens QuestionScreen with the optional chapter filter (R-5).
+  void _openChapterDrill(
+    BuildContext context,
+    String subject,
+    String chapter,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => QuestionScreen(
+          subject: subject,
+          chapter: chapter,
+          questionCount: 10,
+        ),
+      ),
     );
   }
 
@@ -339,6 +375,205 @@ class _GreetingHeader extends StatelessWidget {
     }
     final acc = data.overallAccuracy.round();
     return "$acc% accuracy across ${data.totalQuestions} questions • Keep it up!";
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// R-6: "Recommended for you" — the tutoring engine's front door
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Horizontal carousel of the engine's top picks. Every card routes to a
+/// real destination (no dead buttons): drills open a chapter-focused
+/// session, the daily opens the challenge, the nudge opens the
+/// diagnostic chooser, the rest land in the Practice Hub / setup.
+class _RecommendationSection extends StatelessWidget {
+  final List<StudyRecommendation> recommendations;
+  final VoidCallback onOpenPractice;
+  final VoidCallback onOpenDailyChallenge;
+  final VoidCallback onOpenDiagnosticChooser;
+  final void Function(String subject) onOpenSubject;
+  final void Function(String subject, String chapter) onOpenChapterDrill;
+
+  const _RecommendationSection({
+    required this.recommendations,
+    required this.onOpenPractice,
+    required this.onOpenDailyChallenge,
+    required this.onOpenDiagnosticChooser,
+    required this.onOpenSubject,
+    required this.onOpenChapterDrill,
+  });
+
+  void _open(BuildContext context, StudyRecommendation rec) {
+    switch (rec.kind) {
+      case RecommendationKind.weakChapterDrill:
+        if (rec.subject != null && rec.chapter != null) {
+          onOpenChapterDrill(rec.subject!, rec.chapter!);
+        } else {
+          onOpenPractice();
+        }
+        break;
+      case RecommendationKind.dailyChallenge:
+        onOpenDailyChallenge();
+        break;
+      case RecommendationKind.diagnosticNudge:
+        onOpenDiagnosticChooser();
+        break;
+      case RecommendationKind.streakKeeper:
+      case RecommendationKind.mistakeReview:
+        onOpenPractice();
+        break;
+      case RecommendationKind.momentum:
+        if (rec.subject != null) {
+          onOpenSubject(rec.subject!);
+        } else {
+          onOpenPractice();
+        }
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionTitle('Recommended for you'),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: recommendations.length,
+            padding: EdgeInsets.zero,
+            separatorBuilder: (context, index) =>
+                const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final rec = recommendations[index];
+              return _RecommendationCard(
+                recommendation: rec,
+                onTap: () => _open(context, rec),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RecommendationCard extends StatelessWidget {
+  final StudyRecommendation recommendation;
+  final VoidCallback onTap;
+
+  const _RecommendationCard({
+    required this.recommendation,
+    required this.onTap,
+  });
+
+  (IconData, Color, String) _visuals(ColorScheme scheme, ColorPalette palette) {
+    switch (recommendation.kind) {
+      case RecommendationKind.streakKeeper:
+        return (
+          Icons.local_fire_department_rounded,
+          const Color(0xFFFF8A00),
+          'STREAK',
+        );
+      case RecommendationKind.dailyChallenge:
+        return (Icons.bolt_rounded, const Color(0xFFFFC300), 'DAILY');
+      case RecommendationKind.diagnosticNudge:
+        return (
+          Icons.troubleshoot_rounded,
+          const Color(0xFF8B5CF6),
+          'CHECK-UP',
+        );
+      case RecommendationKind.weakChapterDrill:
+        return (Icons.build_circle_rounded, AppColors.error, 'WEAK SPOT');
+      case RecommendationKind.mistakeReview:
+        return (
+          Icons.history_edu_rounded,
+          scheme.onSurfaceVariant,
+          'REVIEW',
+        );
+      case RecommendationKind.momentum:
+        return (Icons.rocket_launch_rounded, palette.primary, 'MOMENTUM');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final palette = ColorPaletteController.instance.current;
+    final (icon, accent, chipLabel) = _visuals(scheme, palette);
+
+    return Material(
+      key: const ValueKey('recommendation_card'),
+      color: scheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: 250,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: scheme.outline),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: accent, size: 19),
+                  ),
+                  const Spacer(),
+                  Text(
+                    chipLabel,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8,
+                      color: accent,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                recommendation.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: scheme.onSurface,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                recommendation.subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: scheme.onSurfaceVariant,
+                  height: 1.25,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -619,6 +854,12 @@ class _ActionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                // B-3: spaceBetween (not a Spacer) — a Spacer competes with
+                // the Flexible badge for flex space 50/50, starving the green
+                // pill and ellipsizing its text even when the card has room.
+                // With spaceBetween the badge sizes to its content (up to the
+                // full leftover width) and only shrinks when truly tight.
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
                     width: 42,
@@ -630,7 +871,6 @@ class _ActionCard extends StatelessWidget {
                     ),
                     child: Icon(icon, color: iconColor, size: 22),
                   ),
-                  const Spacer(),
                   Flexible(
                     child: Container(
                       padding: const EdgeInsets.symmetric(

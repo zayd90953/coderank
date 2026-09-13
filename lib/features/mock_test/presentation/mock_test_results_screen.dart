@@ -4,6 +4,7 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../features/practice/models/question_model.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
+import '../data/score_calibration.dart';
 import '../../navigation/main_nav_screen.dart';
 
 /// Results screen displayed after submitting a full-length Mock Test.
@@ -19,12 +20,18 @@ class MockTestResultsScreen extends StatelessWidget {
   final int xpEarned;
   final bool timeExpired;
 
+  /// R-8: per-question time in seconds (finalized at submission by the
+  /// runner). Drives the average-time-per-question stat. Null (legacy
+  /// callers/tests) skips that stat.
+  final List<int>? secondsSpent;
+
   const MockTestResultsScreen({
     super.key,
     required this.questions,
     required this.selectedAnswers,
     this.xpEarned = 0,
     this.timeExpired = false,
+    this.secondsSpent,
   });
 
   // ── Score calculations ────────────────────────────────────────────────────
@@ -48,6 +55,27 @@ class MockTestResultsScreen extends StatelessWidget {
 
   double get _accuracy =>
       questions.isEmpty ? 0 : (_correct / questions.length) * 100;
+
+  /// R-8: average time spent per ATTEMPTED question (answered or
+  /// reviewed), in seconds — the honest pace metric. Attempted = every
+  /// question that got time booked against it.
+  int? get _avgSecondsPerAttempted {
+    final spent = secondsSpent;
+    if (spent == null || spent.length != questions.length) return null;
+    final attempted = <int>[];
+    for (var i = 0; i < spent.length; i++) {
+      if (selectedAnswers[i] != null && spent[i] > 0) attempted.add(spent[i]);
+    }
+    if (attempted.isEmpty) return null;
+    return attempted.fold<int>(0, (a, b) => a + b) ~/ attempted.length;
+  }
+
+  // R-9: calibration from this attempt (null when nothing attempted).
+  ScoreCalibration? get _calibration => ScoreCalibration.from(
+        correct: _correct,
+        wrong: _wrong,
+        totalQuestions: questions.length,
+      );
 
   // Section stats
   Map<String, _SectionStats> _sectionStats() {
@@ -266,6 +294,14 @@ class MockTestResultsScreen extends StatelessWidget {
               const SizedBox(height: 10),
             ],
 
+            // ── R-9: calibrated NEET prediction (projection, percentile
+            // band, predicted AIR with honest uncertainty) ──
+            if (_calibration != null) ...[
+              const SizedBox(height: 14),
+              _CalibrationCard(calibration: _calibration!),
+              const SizedBox(height: 10),
+            ],
+
             const SizedBox(height: 24),
 
             // ── Quick Stats ──
@@ -299,6 +335,31 @@ class MockTestResultsScreen extends StatelessWidget {
                 ),
               ],
             ),
+
+            // R-8: pace stat — only when timing data is available.
+            if (_avgSecondsPerAttempted != null) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(
+                    Icons.hourglass_bottom_rounded,
+                    size: 15,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'Avg $_avgSecondsPerAttempted per attempted question',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
 
             const SizedBox(height: 32),
 
@@ -552,6 +613,134 @@ class _StatBox extends StatelessWidget {
           Text(label,
               style: TextStyle(
                   fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── R-9: calibrated NEET prediction card ─────────────────────────────────
+
+/// Projects this attempt to a full-paper score, maps it through the
+/// historical trend to a percentile band and (past the threshold) a
+/// predicted AIR — always with the uncertainty note visible so the
+/// estimate is never mistaken for a promise.
+class _CalibrationCard extends StatelessWidget {
+  final ScoreCalibration calibration;
+
+  const _CalibrationCard({required this.calibration});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final c = calibration;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: scheme.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.insights_rounded,
+                size: 18,
+                color: Color(0xFF8B5CF6),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'NEET PREDICTION',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Projected score: ${c.projectedScore} / ${c.maxScore}',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: scheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Current pace held across the questions you left.',
+            style: TextStyle(
+              fontSize: 11.5,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Flexible(
+                child: Text(
+                  'Percentile ~${c.percentileLow.toStringAsFixed(1)}–${c.percentileHigh.toStringAsFixed(1)}',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onSurface,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  '(mid ${c.percentileMid.toStringAsFixed(1)})',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (c.predictedAir != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Predicted AIR ~${c.predictedAirLow}–${c.predictedAirHigh}',
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+                color: scheme.onSurface,
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 13,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  '${c.confidenceNote} Historical trend estimate — not a guarantee.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.35,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

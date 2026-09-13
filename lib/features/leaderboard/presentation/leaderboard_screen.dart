@@ -59,6 +59,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           userAcc: userAcc,
           userStreak: userStreak,
           tabIndex: _selectedTab,
+          // B-5: the user only appears among the cohort once ranking is
+          // unlocked (100 questions answered) — no fabricated entry before.
+          ranked: data.isRankingUnlocked,
         );
 
         final currentUserRank = dynamicLeaderboard
@@ -76,6 +79,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               ),
             )
             .rank;
+
+        // B-5: ranking gate — without 100 answered questions there is no
+        // honest rank to display, so the chip shows a lock instead of a
+        // fabricated position in the mock cohort.
+        final ranked = data.isRankingUnlocked;
 
         return Scaffold(
           appBar: AppBar(
@@ -167,14 +175,20 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       color: palette.primary,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      "#$currentUserRank",
-                      style: TextStyle(
-                        color: AppColors.textOnPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: ranked
+                        ? Text(
+                            "#$currentUserRank",
+                            style: TextStyle(
+                              color: AppColors.textOnPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.lock_rounded,
+                            color: AppColors.textOnPrimary,
+                            size: 16,
+                          ),
                   ),
                   const SizedBox(width: 12),
                   CircleAvatar(
@@ -205,7 +219,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          "$userAcc% accuracy • ${data.tier} Tier",
+                          ranked
+                              ? "$userAcc% accuracy • ${data.tier} Tier"
+                              : "Answer ${data.rankingQuestionsRemaining} more questions to get ranked",
                           style: TextStyle(
                             fontSize: 11,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -549,6 +565,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     required int userAcc,
     required int userStreak,
     required int tabIndex,
+    required bool ranked,
   }) {
     // Standard base high achievers in NEET cohort
     final List<Map<String, dynamic>> peers = [
@@ -573,7 +590,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       "isCurrentUser": true,
     };
 
-    final all = [...peers, userEntry];
+    // B-5: before the gate is met the user has no honest rank, so they are
+    // not inserted into the cohort at all.
+    final all = ranked ? [...peers, userEntry] : [...peers];
     all.sort((a, b) => (b["xp"] as int).compareTo(a["xp"] as int));
 
     return List.generate(all.length, (index) {

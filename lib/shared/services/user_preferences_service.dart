@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_progress_service.dart';
+import 'weak_area_tracking_service.dart';
 
 /// User-controlled settings and profile data that persists across launches.
 ///
@@ -210,6 +211,8 @@ class UserPreferencesService {
   /// avatar). Delegates the actual stats reset to [UserProgressService].
   Future<void> resetProgress() async {
     await UserProgressService.instance.resetProgress();
+    // R-3: weak-area mastery resets with the rest of study progress.
+    await WeakAreaTrackingService.instance.reset();
     final next = UserPreferences(
       // Preserve identity & app-level prefs.
       displayName: current.displayName,

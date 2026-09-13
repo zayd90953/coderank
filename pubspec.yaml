@@ -48,7 +48,7 @@ flutter_native_splash:
   # Plain green backdrop matching the in-app SplashScreen
   # (ColorPalette.brandGreen primary) so the native window is invisible
   # while the engine boots — the only launch screen the user sees is the
-  # Flutter one (logo + tagline). No image: the native phase is just the
+  # Flutter one (logo + tagline). No image on <12: the native phase is just the
   # solid color, otherwise it would appear as a second logo-only screen.
   color: "#39D353"
 
@@ -57,3 +57,8 @@ flutter_native_splash:
 
   android_12:
     color: "#39D353"
+    # B-1: Android 12+ always draws an icon on its system splash — when none
+    # is configured it falls back to the LAUNCHER ICON, producing a second
+    # logo screen before the Flutter splash. A fully transparent icon makes
+    # the system splash green-on-green (invisible) so only one splash shows.
+    image: "assets/branding/splash_icon_transparent.png"

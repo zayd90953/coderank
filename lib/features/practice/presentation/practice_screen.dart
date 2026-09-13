@@ -6,6 +6,7 @@ import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../../shared/widgets/subject_icon_badge.dart';
 import '../../daily_challenge/presentation/daily_challenge_screen.dart';
+import '../../diagnostic/presentation/diagnostic_subject_chooser_sheet.dart';
 import '../../mock_test/presentation/mock_test_chooser_screen.dart';
 import 'setup/practice_setup_screen.dart';
 
@@ -163,6 +164,15 @@ class PracticeScreen extends StatelessWidget {
                       ),
                     );
                   },
+                ),
+                const SizedBox(height: 12),
+                _QuickActionCard(
+                  label: "Diagnostic Test",
+                  subtitle:
+                      "Quick check-up across every chapter — find your weak spots",
+                  icon: Icons.troubleshoot_rounded,
+                  iconColor: const Color(0xFF8B5CF6),
+                  onTap: () => showDiagnosticSubjectChooser(context),
                 ),
               ],
             ),

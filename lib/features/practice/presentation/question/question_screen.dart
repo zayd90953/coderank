@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/user_progress_service.dart';
+import '../../../../shared/services/weak_area_tracking_service.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
+import '../../../../shared/widgets/explanation_card.dart';
+import '../../../../shared/utils/pacing_utils.dart';
 import '../../data/question_repository.dart';
 import '../../models/question_model.dart';
 import '../../models/practice_session.dart';
@@ -18,12 +21,18 @@ class QuestionScreen extends StatefulWidget {
   final String difficulty;
   final int? timeLimit;
 
+  /// R-5: optional chapter focus. When set, the session draws ONLY from
+  /// this chapter (the weak-chapter drill recommendation routes here with
+  /// the chapter payload). Null keeps the classic subject-wide draw.
+  final String? chapter;
+
   const QuestionScreen({
     super.key,
     required this.subject,
     this.questionCount = 10,
     this.difficulty = 'Mixed',
     this.timeLimit = 60,
+    this.chapter,
   });
 
   @override
@@ -49,6 +58,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Timer? _timer;
   int timeRemaining = 60;
 
+  // R-8: per-question pacing — how long THIS question has been on
+  // screen, and how the answer compared to its expected pace. Tracked
+  // even in untimed sessions (pacing is about the question, not the
+  // session clock). Timed-out questions are also recorded for stats.
+  final Stopwatch _questionStopwatch = Stopwatch();
+  final List<bool> _slowAnswers = [];
+
   final QuestionRepository _repository = QuestionRepository();
 
   @override
@@ -65,8 +81,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<void> _loadQuestions() async {
     try {
-      final loadedQuestions =
-      await _repository.getQuestionsBySubject(widget.subject);
+      // R-5: chapter-focused drill vs classic subject-wide draw.
+      final loadedQuestions = widget.chapter != null
+          ? await _repository.getQuestionsByChapter(
+              widget.subject, widget.chapter!)
+          : await _repository.getQuestionsBySubject(widget.subject);
 
       if (!mounted) return;
 
@@ -105,6 +124,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
         isLoading = false;
       });
 
+      _restartPaceClock(); // R-8: first question's clock starts now
       if (questions.isNotEmpty && widget.timeLimit != null) {
         _startTimer();
       }
@@ -116,6 +136,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
         errorMessage = e.toString();
       });
     }
+  }
+
+  /// R-8: restarts the per-question pacing clock. Runs for timed AND
+  /// untimed sessions — pacing is about the question, not the clock.
+  void _restartPaceClock() {
+    _questionStopwatch
+      ..reset()
+      ..start();
   }
 
   void _startTimer() {
@@ -147,6 +175,18 @@ class _QuestionScreenState extends State<QuestionScreen> {
   void _stopTimer() {
     _timer?.cancel();
     _timer = null;
+    _questionStopwatch.stop();
+  }
+
+  /// R-8: closes the stopwatch for the current question and flags the
+  /// answer if it blew past the question's expected pace.
+  void _recordPace() {
+    _questionStopwatch.stop();
+    final seconds = _questionStopwatch.elapsed.inSeconds;
+    final isSlow = questions.isNotEmpty &&
+        currentQuestion < questions.length &&
+        PaceUtils.isSlowAnswer(questions[currentQuestion], seconds);
+    _slowAnswers.add(isSlow);
   }
 
   void _retryLoading() {
@@ -166,6 +206,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
       session.recordTimeout(
         questionIndex: currentQuestion,
       );
+      // R-8: a session-clock expiry is the ultimate slow answer.
+      _recordPace();
     });
   }
 
@@ -175,6 +217,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
 
     _stopTimer();
+    _recordPace(); // R-8: capture this answer's pace before moving on
 
     final correctAnswer = questions[currentQuestion].correctAnswer;
 
@@ -196,6 +239,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
         selectedAnswer = null;
         answered = false;
       });
+      _restartPaceClock(); // R-8: fresh clock for the next question
 
       if (widget.timeLimit != null) {
         _startTimer();
@@ -208,12 +252,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<void> _showResults() async {
     int xpEarned = 0;
+    // A-9: capture the tier before/after recording so the results screen
+    // can stage a full-screen tier-up moment when this session crosses a
+    // tier boundary (XP only ever grows, so any change is an upgrade).
+    String? tierUp;
 
     // Record the finished session exactly once. Back-navigation from the
     // results screen re-enters this method, so without the guard every
     // revisit would re-count XP, subject stats and history.
     if (!_resultsRecorded) {
       _resultsRecorded = true;
+      final tierBefore = UserProgressService.instance.current.tier;
       try {
         xpEarned = await UserProgressService.instance.recordSession(session);
       } catch (_) {
@@ -221,9 +270,29 @@ class _QuestionScreenState extends State<QuestionScreen> {
         // mock-test runner, which also swallows recordSession failures.
         xpEarned = 0;
       }
+      final tierAfter = UserProgressService.instance.current.tier;
+      if (tierAfter != tierBefore) tierUp = tierAfter;
+
+      // R-3: feed per-question outcomes to weak-area tracking — one batch
+      // per session; a timeout counts as a miss. Never blocks the results
+      // screen (mirrors recordSession's swallowed-failure posture).
+      try {
+        await WeakAreaTrackingService.instance.recordQuestionOutcomes([
+          for (var i = 0; i < questions.length; i++)
+            if (session.completedQuestions.contains(i))
+              (
+                question: questions[i],
+                isCorrect: session.selectedAnswers[i] ==
+                    questions[i].correctAnswer,
+              ),
+        ]);
+      } catch (_) {}
     }
 
     if (!mounted) return;
+
+    // R-8: how many answered questions blew past their expected pace.
+    final slowCount = _slowAnswers.where((s) => s).length;
 
     // P4-REGRESSION #3: use push so the device back from results pops to
     // the (just-completed) question screen, and the question screen's own
@@ -234,9 +303,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
         builder: (_) => ResultsScreen(
           session: session,
           xpEarned: xpEarned,
+          tierUp: tierUp,
           questionCount: widget.questionCount,
           difficulty: widget.difficulty,
           timeLimit: widget.timeLimit,
+          slowAnswerCount: slowCount,
         ),
       ),
     );
@@ -574,7 +645,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     borderRadius:
                     BorderRadius.circular(16),
 
-                    child: Container(
+                    // A-9: AnimatedContainer — the green/red reveal on
+                    // answering fades in instead of snapping.
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
                       width: double.infinity,
 
                       padding:
@@ -705,49 +780,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
             const SizedBox(height: 10),
 
-            // EXPLANATION / TIMEOUT
+            // EXPLANATION / TIMEOUT (R-7: shared explanation card with
+            // the misconception callout when schema tagging provides it)
             if (answered)
-              Container(
-                width: double.infinity,
-
-                padding:
-                const EdgeInsets.all(16),
-
-                decoration: BoxDecoration(
-                  color: selectedAnswer ==
-                      correctAnswer
-                      ? AppColors.success
-                      .withValues(
-                    alpha: 0.08,
-                  )
-                      : AppColors.error.withValues(
-                    alpha: 0.08,
-                  ),
-
-                  borderRadius:
-                  BorderRadius.circular(16),
-                ),
-
-                child: Text(
-                  selectedAnswer ==
-                      correctAnswer
-                      ? "Correct! ${question.explanation}"
-                      : selectedAnswer == null
-                      ? "Time's up! ${question.explanation}"
-                      : "Not quite. ${question.explanation}",
-
-                  style: TextStyle(
-                    color: selectedAnswer ==
-                        correctAnswer
-                        ? AppColors.success
-                        : AppColors.error,
-
-                    fontSize: 14,
-                    height: 1.4,
-                    fontWeight:
-                    FontWeight.w600,
-                  ),
-                ),
+              ExplanationCard(
+                selectedOptionIndex: selectedAnswer,
+                correctOptionIndex: correctAnswer,
+                explanation: question.explanation,
+                commonWrongReasoning: question.commonWrongReasoning,
               ),
 
             const SizedBox(height: 20),

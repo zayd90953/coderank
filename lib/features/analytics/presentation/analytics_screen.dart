@@ -164,6 +164,32 @@ class AnalyticsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      // B-5: while the ranking gate is active, tell the user
+                      // exactly what unlocks the NEET prediction.
+                      if (!data.isRankingUnlocked)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.lock_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  "Answer ${data.rankingQuestionsRemaining} more questions to unlock your NEET prediction",
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       const SizedBox(height: 18),
                       Row(
                         children: [

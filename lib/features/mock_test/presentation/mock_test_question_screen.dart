@@ -7,6 +7,8 @@ import '../../../core/theme/color_palette.dart';
 import '../../../features/practice/models/question_model.dart';
 import '../../../features/practice/models/practice_session.dart';
 import '../../../shared/services/user_progress_service.dart';
+import '../../../shared/services/weak_area_tracking_service.dart';
+import '../../../shared/utils/pacing_utils.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import 'mock_test_results_screen.dart';
 
@@ -44,6 +46,13 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
   late int _timeRemaining;
   Timer? _timer;
 
+  // R-8: per-question pacing. secondsSpent[i] is finalized when the user
+  // MOVES OFF question i (not while it's still open); the current question
+  // spends live from _questionStopwatch. Drives the pace hint chip and
+  // the average-time stat on the results screen.
+  late final List<int> _secondsSpent;
+  final Stopwatch _questionStopwatch = Stopwatch();
+
   bool _submitted = false;
 
   @override
@@ -51,7 +60,9 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
     super.initState();
     _selectedAnswers = List.filled(widget.questions.length, null);
     _markedForReview = List.filled(widget.questions.length, false);
+    _secondsSpent = List.filled(widget.questions.length, 0);
     _timeRemaining = widget.durationSeconds;
+    _questionStopwatch.start();
     _startTimer();
   }
 
@@ -80,18 +91,33 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
 
   // ── Navigation ─────────────────────────────────────────────────────────────
 
+  /// R-8: closes the stopwatch for the current question and books the
+  /// elapsed time into [_secondsSpent] before leaving it.
+  void _finalizeCurrentPace() {
+    _questionStopwatch.stop();
+    _secondsSpent[_current] = _questionStopwatch.elapsed.inSeconds;
+    _questionStopwatch
+      ..reset()
+      ..start();
+  }
+
   void _goTo(int index) {
     if (index < 0 || index >= widget.questions.length) return;
+    _finalizeCurrentPace();
     setState(() => _current = index);
     Navigator.pop(context); // close the palette drawer if open
   }
 
   void _prev() {
-    if (_current > 0) setState(() => _current--);
+    if (_current > 0) {
+      _finalizeCurrentPace();
+      setState(() => _current--);
+    }
   }
 
   void _next() {
     if (_current < widget.questions.length - 1) {
+      _finalizeCurrentPace();
       setState(() => _current++);
     }
   }
@@ -213,9 +239,22 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
     int xpEarned = 0;
     try {
       xpEarned = await UserProgressService.instance.recordSession(session);
+
+      // R-3: weak-area tracking batch (a timeout counts as a miss).
+      await WeakAreaTrackingService.instance.recordQuestionOutcomes([
+        for (var i = 0; i < widget.questions.length; i++)
+          if (session.completedQuestions.contains(i))
+            (
+              question: widget.questions[i],
+              isCorrect: session.selectedAnswers[i] ==
+                  widget.questions[i].correctAnswer,
+            ),
+      ]);
     } catch (_) {}
 
     if (!mounted) return;
+    // R-8: book the final question's time for the results average.
+    _finalizeCurrentPace();
     // P4-REGRESSION #3: use push so device back works normally.
     Navigator.push(
       context,
@@ -225,6 +264,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
           selectedAnswers: _selectedAnswers,
           xpEarned: xpEarned,
           timeExpired: timeExpired,
+          secondsSpent: _secondsSpent,
         ),
       ),
     );
@@ -422,6 +462,12 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
     final isLowTime = _timeRemaining < 600; // < 10 minutes
     final isCritical = _timeRemaining < 120; // < 2 minutes
 
+    // R-8: live pace hint — is THIS question running past its expected
+    // time? (Rebuilds every second via the session timer's setState.)
+    final livePaceSeconds = _questionStopwatch.elapsed.inSeconds;
+    final isRunningSlow = !_submitted &&
+        PaceUtils.isSlowAnswer(q, livePaceSeconds);
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
@@ -513,6 +559,34 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                   ),
                 ),
               ),
+              // R-8: gentle "you're over pace on THIS question" hint.
+              if (isRunningSlow) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.hourglass_top_rounded,
+                          size: 11, color: AppColors.warning),
+                      SizedBox(width: 3),
+                      Text(
+                        'Slow',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.warning,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
           actions: [

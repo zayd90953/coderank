@@ -48,6 +48,96 @@ class QuestionRepository {
     return _loadQuestions();
   }
 
+  // ── R-2: chapter / topic / bloom-level queries (tutoring engine) ──
+  //
+  // All of these run over the same cached bank. Note: the current 2,229-
+  // question app-format bank has no topic/bloom tagging, so topic/bloom
+  // filters match nothing in it today — they become meaningful the moment
+  // schema-format questions (demo bank or future tagged uploads) land in
+  // the bank file. Chapter filtering works on both formats: the app bank
+  // tags `chapter`, and schema questions derive everything the model
+  // needs. Query helpers tolerate nulls rather than throwing.
+
+  /// All questions of [subject] within [chapter] (exact NCERT chapter
+  /// name, e.g. "Human Reproduction"). Case-sensitive, matching the bank.
+  Future<List<QuestionModel>> getQuestionsByChapter(
+    String subject,
+    String chapter,
+  ) async {
+    final questions = await _loadQuestions();
+    return questions
+        .where((q) => q.subject == subject && q.chapter == chapter)
+        .toList();
+  }
+
+  /// All questions of [subject] whose schema-format topic matches
+  /// [topic] (sub-topic within a chapter). App-format questions have no
+  /// topic and never match.
+  Future<List<QuestionModel>> getQuestionsByTopic(
+    String subject,
+    String topic,
+  ) async {
+    final questions = await _loadQuestions();
+    return questions
+        .where(
+          (q) =>
+              q.subject == subject && q.topic != null && q.topic == topic,
+        )
+        .toList();
+  }
+
+  /// All questions of [subject] at the given bloom level
+  /// (`recall` / `application` / `analysis`). App-format questions have
+  /// no bloom tag and never match.
+  Future<List<QuestionModel>> getQuestionsByBloomLevel(
+    String subject,
+    String bloomLevel,
+  ) async {
+    final questions = await _loadQuestions();
+    return questions
+        .where(
+          (q) =>
+              q.subject == subject &&
+              q.bloomLevel != null &&
+              q.bloomLevel == bloomLevel,
+        )
+        .toList();
+  }
+
+  /// Every NCERT chapter that has at least one question for [subject],
+  /// with its question count, sorted alphabetically. Feeds the diagnostic
+  /// test (R-4) and weak-area tracking (R-3).
+  Future<Map<String, int>> getChapterCoverage(String subject) async {
+    final questions = await _loadQuestions();
+    final counts = <String, int>{};
+    for (final q in questions.where((q) => q.subject == subject)) {
+      counts[q.chapter] = (counts[q.chapter] ?? 0) + 1;
+    }
+    final keys = counts.keys.toList()..sort();
+    return {for (final k in keys) k: counts[k]!};
+  }
+
+  /// The distinct schema-format topics within [subject] + [chapter]
+  /// (sorted). Empty for app-format-only chapters.
+  Future<List<String>> getTopicsForChapter(
+    String subject,
+    String chapter,
+  ) async {
+    final questions = await _loadQuestions();
+    final topics = questions
+        .where(
+          (q) =>
+              q.subject == subject &&
+              q.chapter == chapter &&
+              q.topic != null,
+        )
+        .map((q) => q.topic!)
+        .toSet()
+        .toList()
+      ..sort();
+    return topics;
+  }
+
   /// Compose a NEET-style mock test paper: `[Physics] [Chemistry] [Biology]`,
   /// in that order, with each section capped at the requested count.
   ///
