@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required in the main manifest so release builds have network access
+         (Firebase Auth / Google Sign-In and any Firebase call). The debug and
+         profile manifests alone do not apply to release builds. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="CodeRank"
         android:name="${applicationName}"

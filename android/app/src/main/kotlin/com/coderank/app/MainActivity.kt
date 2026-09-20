@@ -1,4 +1,4 @@
-package com.example.coderank
+package com.coderank.app
 
 import io.flutter.embedding.android.FlutterActivity
 
