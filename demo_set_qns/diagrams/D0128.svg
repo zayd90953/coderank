@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="240" viewBox="0 0 340 240">
+<rect x="2" y="2" width="336" height="236" rx="12" ry="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+<line x1="60" y1="120" x2="170" y2="40" stroke="#1F2937" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="170" y1="40" x2="280" y2="120" stroke="#1F2937" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="60" y1="120" x2="170" y2="200" stroke="#1F2937" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="170" y1="200" x2="280" y2="120" stroke="#1F2937" stroke-width="2.0" stroke-linecap="round"/>
+<text x="105" y="75" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1F2937" text-anchor="middle">P = 2 Ω</text>
+<text x="238" y="75" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1F2937" text-anchor="middle">Q = 6 Ω</text>
+<text x="105" y="172" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1F2937" text-anchor="middle">R = 5 Ω</text>
+<text x="240" y="172" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#DC2626" text-anchor="middle" font-weight="bold">S = ?</text>
+<line x1="20" y1="120" x2="55" y2="120" stroke="#1F2937" stroke-width="2.0" stroke-linecap="round"/>
+<line x1="15.1" y1="120" x2="59.9" y2="120" stroke="#FFFFFF" stroke-width="4.0" stroke-linecap="round"/>
+<line x1="32.5" y1="108" x2="32.5" y2="132" stroke="#1F2937" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="42.5" y1="114" x2="42.5" y2="126" stroke="#1F2937" stroke-width="2.6" stroke-linecap="round"/>
+<circle cx="32.5" cy="108" r="1" fill="#FFFFFF"/>
+<circle cx="170" cy="120" r="12" fill="none" stroke="#D97706" stroke-width="2.0"/>
+<text x="170" y="125" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#D97706" text-anchor="middle" font-weight="bold">G</text>
+</svg>

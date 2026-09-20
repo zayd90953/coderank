@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
+import '../../../../shared/services/firestore_sync_service.dart';
 import '../../../../shared/services/user_progress_service.dart';
 import '../../../../shared/services/weak_area_tracking_service.dart';
+import '../../../../shared/utils/numeric_display_formatter.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
 import '../../../../shared/widgets/explanation_card.dart';
 import '../../../../shared/utils/pacing_utils.dart';
@@ -52,6 +54,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
   /// (device back) and tapping "Next Question" re-enters [_showResults],
   /// and the session must only be persisted once.
   bool _resultsRecorded = false;
+
+  /// Cloud-submission idempotency key. Generated lazily exactly once per
+  /// session instance, so a retried submission of the same session reuses
+  /// the same ID and the server dedupes on users/{uid}/sessions/{sessionId}.
+  String? _cloudSessionId;
 
   late PracticeSession session;
 
@@ -287,6 +294,12 @@ class _QuestionScreenState extends State<QuestionScreen> {
               ),
         ]);
       } catch (_) {}
+
+      // Cloud verification (normal practice only): fire-and-forget — never
+      // blocks the results screen and never touches local progress. The
+      // local XP above is the offline ledger; the server keeps the
+      // authoritative one. Skipped when signed out.
+      unawaited(_submitCloudVerification());
     }
 
     if (!mounted) return;
@@ -311,6 +324,69 @@ class _QuestionScreenState extends State<QuestionScreen> {
         ),
       ),
     );
+  }
+
+  /// Submits the completed practice session for server-side verification.
+  ///
+  /// Contract notes:
+  ///  * NORMAL PRACTICE ONLY — daily challenge, mock and diagnostic flows
+  ///    are intentionally NOT submitted here. The server supports them,
+  ///    but this screen must never claim another session kind.
+  ///  * Answers are keyed by question ID (never an index).
+  ///  * Only questions actually completed are submitted, each in exactly
+  ///    one state (answered or timed out) as the server contract requires.
+  ///  * One stable sessionId per session instance → a network retry of the
+  ///    same session can never double-award: the server deduplicates on
+  ///    users/{uid}/sessions/{sessionId} inside its transaction.
+  ///  * The result — including the server-verified record — does NOT modify
+  ///    local progress. Local XP was already recorded above. Any failure
+  ///    (function unavailable, offline, signed out) simply leaves this as
+  ///    an unverified local-only result and the app stays fully usable.
+  Future<void> _submitCloudVerification() async {
+    // Signed out (or tests): nothing to verify against.
+    if (UserProgressService.instance.userId == null) return;
+
+    // Belt-and-braces: this screen is practice-only.
+    if (session.isDailyChallenge) return;
+
+    final completedIndexes = session.completedQuestions
+        .where((i) => i >= 0 && i < questions.length)
+        .toList();
+    // Defensive: an empty session has nothing to verify.
+    if (completedIndexes.isEmpty) return;
+
+    try {
+      final request = SessionSubmitRequest(
+        sessionId: _cloudSessionId ??=
+            DateTime.now().millisecondsSinceEpoch.toString(),
+        sessionKind: 'practice',
+        subject: widget.subject,
+        questionIds: [for (final i in completedIndexes) questions[i].id],
+        selectedAnswers: {
+          for (final i in completedIndexes)
+            if (session.selectedAnswers[i] != null)
+              questions[i].id: session.selectedAnswers[i]!,
+        },
+        timedOutQuestionIds: {
+          for (final i in completedIndexes)
+            if (!session.selectedAnswers.containsKey(i)) questions[i].id,
+        },
+        timestamp: DateTime.now(),
+      );
+
+      final result =
+          await FirestoreSyncService.instance.submitSession(request);
+      if (!result.success) {
+        // Unverified local-only result — keep the app fully usable.
+        debugPrint(
+          'Practice cloud verification unavailable: ${result.errorMessage}',
+        );
+      }
+    } catch (e) {
+      // submitSession only throws when no UID is set; guard above should
+      // make this unreachable, but the results flow must never break.
+      debugPrint('Practice cloud verification error: $e');
+    }
   }
 
   @override
@@ -554,11 +630,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
             // QUESTION
             Text(
-              question.question.replaceFirst(
-                RegExp(
-                  r'^\[See diagram [^\]]+\]\s*',
+              formatNumericDisplay(
+                question.question.replaceFirst(
+                  RegExp(
+                    r'^\[See diagram [^\]]+\]\s*',
+                  ),
+                  '',
                 ),
-                '',
               ),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
@@ -744,7 +822,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
                           Expanded(
                             child: Text(
-                              options[index],
+                              formatNumericDisplay(options[index]),
                               style:
                               TextStyle(
                                 color:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/design/app_colors.dart';
+import '../utils/numeric_display_formatter.dart';
 
 /// R-7: the post-answer explanation card.
 ///
@@ -104,7 +105,7 @@ class ExplanationCard extends StatelessWidget {
 
           // ── Teacher explanation (why the right answer is right) ──
           Text(
-            explanation,
+            formatNumericDisplay(explanation),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 13.5,

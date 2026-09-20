@@ -8,6 +8,7 @@ import '../../../features/practice/models/question_model.dart';
 import '../../../features/practice/models/practice_session.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/services/weak_area_tracking_service.dart';
+import '../../../shared/utils/numeric_display_formatter.dart';
 import '../../../shared/utils/pacing_utils.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import 'mock_test_results_screen.dart';
@@ -676,9 +677,11 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                   children: [
                     // Question text
                     Text(
-                      q.question.replaceFirst(
-                        RegExp(r'^\[See diagram [^\]]+\]\s*'),
-                        '',
+                      formatNumericDisplay(
+                        q.question.replaceFirst(
+                          RegExp(r'^\[See diagram [^\]]+\]\s*'),
+                          '',
+                        ),
                       ),
                       style: TextStyle(
                         fontSize: 18,
@@ -738,7 +741,7 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Text(
-                                    q.options[idx],
+                                    formatNumericDisplay(q.options[idx]),
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,

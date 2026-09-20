@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="220" viewBox="0 0 340 220">
+<rect x="2" y="2" width="336" height="216" rx="12" ry="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+<line x1="40" y1="110" x2="170" y2="40" stroke="#2563EB" stroke-width="3.0" stroke-linecap="round"/>
+<line x1="40" y1="110" x2="170" y2="180" stroke="#2563EB" stroke-width="3.0" stroke-linecap="round"/>
+<polygon points="150,60 150,160 190,110" fill="none" stroke="#D97706" stroke-width="2.0" stroke-linejoin="round"/>
+<text x="196" y="114" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#D97706" text-anchor="middle" font-weight="bold">Helicase</text>
+<line x1="40" y1="110" x2="40" y2="35" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="40,35 44.09,43.02 35.91,43.02" fill="#059669"/>
+<text x="28" y="28" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#059669" text-anchor="middle" font-weight="bold">Leading strand</text>
+<line x1="150" y1="70" x2="172" y2="82" stroke="#DC2626" stroke-width="3.0" stroke-linecap="round"/>
+<line x1="120" y1="92" x2="142" y2="104" stroke="#DC2626" stroke-width="3.0" stroke-linecap="round"/>
+<line x1="95" y1="112" x2="117" y2="124" stroke="#DC2626" stroke-width="3.0" stroke-linecap="round"/>
+<line x1="70" y1="132" x2="92" y2="144" stroke="#DC2626" stroke-width="3.0" stroke-linecap="round"/>
+<line x1="50" y1="150" x2="72" y2="162" stroke="#DC2626" stroke-width="3.0" stroke-linecap="round"/>
+<text x="120" y="205" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#DC2626" text-anchor="middle" font-weight="bold">Lagging strand — discontinuous</text>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="230" viewBox="0 0 320 230">
+<rect x="2" y="2" width="316" height="226" rx="12" ry="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+<rect x="40" y="30" width="240" height="40" fill="None" stroke="#059669" stroke-width="2.0" rx="8" ry="8"/>
+<text x="160" y="48" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#059669" text-anchor="middle" font-weight="bold">Producers</text>
+<text x="160" y="64" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1F2937" text-anchor="middle">50000 kJ</text>
+<line x1="290" y1="72" x2="290" y2="102" stroke="#94A3B8" stroke-width="1.6" stroke-linecap="round"/>
+<polygon points="290,102 285.91,93.98 294.09,93.98" fill="#94A3B8"/>
+<rect x="75" y="80" width="170" height="40" fill="None" stroke="#D97706" stroke-width="2.0" rx="8" ry="8"/>
+<text x="160" y="98" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#D97706" text-anchor="middle" font-weight="bold">Herbivores</text>
+<text x="160" y="114" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1F2937" text-anchor="middle">5000 kJ</text>
+<line x1="290" y1="122" x2="290" y2="152" stroke="#94A3B8" stroke-width="1.6" stroke-linecap="round"/>
+<polygon points="290,152 285.91,143.98 294.09,143.98" fill="#94A3B8"/>
+<rect x="110" y="130" width="100" height="40" fill="None" stroke="#DC2626" stroke-width="2.0" rx="8" ry="8"/>
+<text x="160" y="148" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="bold">Carnivores</text>
+<text x="160" y="164" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1F2937" text-anchor="middle">500 kJ</text>
+<line x1="290" y1="172" x2="290" y2="202" stroke="#94A3B8" stroke-width="1.6" stroke-linecap="round"/>
+<polygon points="290,202 285.91,193.98 294.09,193.98" fill="#94A3B8"/>
+<rect x="140" y="180" width="40" height="40" fill="None" stroke="#7C3AED" stroke-width="2.0" rx="8" ry="8"/>
+<text x="160" y="198" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#7C3AED" text-anchor="middle" font-weight="bold">Top carnivores</text>
+<text x="160" y="214" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1F2937" text-anchor="middle">50 kJ</text>
+</svg>

@@ -6,6 +6,7 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/services/weak_area_tracking_service.dart';
+import '../../../shared/utils/numeric_display_formatter.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../../shared/widgets/explanation_card.dart';
 import '../../practice/models/practice_session.dart';
@@ -283,9 +284,11 @@ class _DailyChallengeQuestionScreenState
 
             // Question text.
             Text(
-              question.question.replaceFirst(
-                RegExp(r'^\[See diagram [^\]]+\]\s*'),
-                '',
+              formatNumericDisplay(
+                question.question.replaceFirst(
+                  RegExp(r'^\[See diagram [^\]]+\]\s*'),
+                  '',
+                ),
               ),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
@@ -400,7 +403,7 @@ class _DailyChallengeQuestionScreenState
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
-                              options[index],
+                              formatNumericDisplay(options[index]),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 16,

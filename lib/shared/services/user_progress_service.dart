@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/practice/models/practice_session.dart';
@@ -269,7 +271,36 @@ class UserProgressService {
 
   UserProgressData get current => progressNotifier.value;
 
+  // ── Firebase UID lifecycle ──────────────────────────────────────────
+  // Nullable — null when no user is signed in or Firebase is not yet
+  // initialized.  Safe to read from any isolate; mutations are only
+  // expected from the main isolate (AuthGate / initialize).
+  String? _userId;
+
+  /// The currently authenticated Firebase Auth UID, or `null` when
+  /// signed out.
+  String? get userId => _userId;
+
+  /// Called by [AuthGate] when [authStateChanges] emits an authenticated
+  /// [User], and once during [initialize] from the cached session.
+  void setUserId(String uid) => _userId = uid;
+
+  /// Called by [AuthGate] when the user signs out.
+  void clearUserId() => _userId = null;
+
   Future<void> initialize() async {
+    // ── Hydrate UID from any previously cached Firebase session ──────
+    // Safe to call when Firebase is not initialized (tests, early boot):
+    // the catch block below swallows the error.
+    if (Firebase.apps.isNotEmpty) {
+      try {
+        final uid = FirebaseAuth.instance.currentUser?.uid;
+        if (uid != null) _userId = uid;
+      } catch (_) {
+        // Firebase not ready yet or not signed in — UID stays null.
+      }
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_storageKey);

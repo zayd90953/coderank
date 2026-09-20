@@ -93,7 +93,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             // when this screen is the active tab.
             leading: const BackButtonToHome(),
             title: Text(
-              "NEET Leaderboard",
+              "Leaderboard",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
@@ -121,6 +121,35 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       _buildTabButton(2, "Subject Champs"),
                     ],
                   ),
+                ),
+              ),
+
+              // T-2: honest disclosure — the cohort below is a static demo
+              // benchmark, not real CodeRank users. The user's own row is
+              // explicitly tagged "Your progress" so the two can never be
+              // confused.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 4, 24, 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        "Demo leaderboard — rankings are not live and do not represent actual CodeRank users.",
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          height: 1.3,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -524,7 +553,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "${entry.college} • ${entry.accuracy}% acc",
+                  "${entry.college} • ${entry.accuracy}% acc"
+                  // T-2: sample peers are explicitly labelled so no row can
+                  // be mistaken for a real CodeRank user.
+                  "${entry.isCurrentUser ? "" : " • Demo cohort"}",
                   style: TextStyle(
                     fontSize: 11,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -542,6 +574,18 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              // T-2: the user's own row is explicitly their real, local
+              // progress — visually distinct from the demo cohort label.
+              Text(
+                entry.isCurrentUser ? "Your progress" : " ",
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: entry.isCurrentUser
+                      ? palette.primary
+                      : Colors.transparent,
                 ),
               ),
               Text(

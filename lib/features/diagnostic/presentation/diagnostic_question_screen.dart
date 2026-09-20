@@ -4,6 +4,7 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/services/weak_area_tracking_service.dart';
+import '../../../shared/utils/numeric_display_formatter.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../../shared/widgets/explanation_card.dart';
 import '../../practice/models/practice_session.dart';
@@ -229,7 +230,7 @@ class _DiagnosticQuestionScreenState extends State<DiagnosticQuestionScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    question.question,
+                    formatNumericDisplay(question.question),
                     style: TextStyle(
                       fontSize: 19,
                       height: 1.4,
@@ -278,7 +279,7 @@ class _DiagnosticQuestionScreenState extends State<DiagnosticQuestionScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    question.options[i],
+                                    formatNumericDisplay(question.options[i]),
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: revealed && isCorrect

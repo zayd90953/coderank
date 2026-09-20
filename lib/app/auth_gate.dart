@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/color_palette.dart';
 import '../features/welcome/presentation/welcome_screen.dart';
 import '../features/navigation/main_nav_screen.dart';
+import '../shared/services/user_progress_service.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -25,10 +26,24 @@ class AuthGate extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
+          // Keep the progress service aware of the authenticated UID so
+          // future cloud-sync code can key reads/writes to this user.
+          // A duplicate setUserId call on rebuild is harmless (idempotent).
+          final uid = snapshot.data!.uid;
+          if (UserProgressService.instance.userId != uid) {
+            UserProgressService.instance.setUserId(uid);
+          }
+
           // P4-REGRESSION #1: route to the shell (Home + bottom nav) instead
           // of the bare HomeScreen — otherwise the bottom nav, Rank tab, and
           // Analytics tab are unreachable after login.
           return const MainNavScreen();
+        }
+
+        // Signed out — clear the UID so future cloud-sync code stops
+        // keying to a stale user.
+        if (UserProgressService.instance.userId != null) {
+          UserProgressService.instance.clearUserId();
         }
 
         return const WelcomeScreen();

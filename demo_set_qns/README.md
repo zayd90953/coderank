@@ -1,77 +1,107 @@
-# demo_set_qns — NEET Demo Question Set
+# demo_set_qns — NEET Question Bank (5,000+ schema-compliant questions)
 
-A small demonstration set of **15 schema-compliant NEET questions** built to the
-exact structure defined in [`QUESTION_SCHEMA.md`](../QUESTION_SCHEMA.md).
-This folder is self-contained — nothing in the existing app, question bank, or
-schema was modified.
+A demonstration bank of **5,032 questions** built to the exact structure
+defined in [`QUESTION_SCHEMA.md`](../QUESTION_SCHEMA.md). This folder is
+self-contained — nothing in the existing app, question bank, or schema was
+modified.
 
 ## Contents
 
 | File | Purpose |
 |---|---|
-| `demo_questions.json` | 15 NEET questions (5 Physics, 5 Chemistry, 5 Biology) in the `QUESTION_SCHEMA.md` JSON format |
-| `validate_demo_questions.py` | Standalone validator that checks every field rule in the schema |
-| `README.md` | This file |
+| `demo_questions.json` | Batch 1 — the original 15 hand-authored questions |
+| `demo_questions_batch2.json` | Batch 2 — 35 questions (12 authentic PYQ transcriptions + 23 originals) |
+| `demo_questions_generated.json` | The scaled bank — 4,982 questions (NEET-9060 → NEET-14041) |
+| `validate_demo_questions.py` | Validator enforcing every schema rule over all files |
+| `generators/` | Reproducible question-generation pipeline (Python, stdlib only) |
+| `APP_INTEGRATION_NOTES.md` | What changes in the app if this bank replaces the current one |
 
-## Why these questions
+## Distribution (full bank incl. batches 1–2)
 
-All questions were **authored fresh for this demo set** (original wording — no
-copyrighted question text is reproduced). They are modelled on:
+| Subject | Count | | Difficulty | Count |
+|---|---|---|---|---|
+| Physics | 2,716 | | Easy | 1,584 |
+| Chemistry | 1,567 | | Medium | 2,758 |
+| Biology | 749 | | Hard | 640 |
 
-- **NEET UG exam pattern (2024–25)**: 180 compulsory questions — Physics 45,
-  Chemistry 45, Biology 90; +4 for correct, −1 for incorrect.
-- **High-weightage chapters** per published paper analyses, e.g.
-  Electrostatic Potential & Capacitance, Current Electricity, Ray Optics,
-  Laws of Motion, Coordination Compounds, Equilibrium, Electrochemistry,
-  Biomolecules, Molecular Basis of Inheritance, Human/Neural Physiology,
-  Principles of Inheritance, Photosynthesis.
-- **Real PYQ patterns**, cited per question via the `neet_pyq_year` field:
-  - NEET 2024: "12 pF capacitor with a 50 V battery" energy calculation
-    (NEET-9001)
-  - NEET 2019: peroxide-effect / anti-Markovnikov HBr addition (NEET-9006)
-  - NEET 2016: 999-base RNA frameshift-style coding question (NEET-9012)
-  - PYQ family: Hershey–Chase bacteriophage experiment (NEET-9011)
+ID ranges: batches 1–2 use `NEET-9001…9050`; the generated bank uses
+`NEET-9060…14041`. The validator cross-checks all IDs against the main bank
+(`NEET-0001…2500`) — zero collisions.
 
-`neet_pyq_year` is an **honest** field: only questions genuinely modelled on an
-identifiable PYQ carry a year; the rest are `null` rather than padded.
+## Copyright policy — what was sourced and how
+
+Copying question text, options, or explanations from commercial question
+banks/coaching material (MTG, Arihant, Allen modules, etc.) would be a
+copyright violation, and was **not done**. Instead the bank is built from
+three copyright-safe layers:
+
+1. **Authentic PYQ transcriptions (52 questions, batches 1–2).** Real NEET
+   exam-paper questions are government examination content, widely republished
+   for preparation. Each carries its true year in `neet_pyq_year`.
+2. **Curated original factual MCQs (~90 questions).** Hand-authored questions
+   built on NCERT *facts* (facts are not copyrightable) with fully original
+   wording, explanations, and misconception mappings. Sources consulted to
+   decide what to cover: ExamSIDE's year-wise PYQ index (2000–2026), eSaral's
+   chapter weightage analyses, SATHEE (IIT-Kanpur) and Collegedunia chapter
+   breakdowns, and BYJU'S PYQ collections.
+3. **Computed template questions (the bulk).** 71 parameterised templates
+   (37 Physics, 24 Chemistry, 10 Biology) modelled on the recurring NEET
+   archetypes identified from those sources. Each template draws random
+   parameters from a physically/chemically sensible range and **computes** the
+   correct answer from the real formula — no answer is ever asserted. Wide,
+   continuous parameter spaces keep stems unique (the 5,000-question run
+   produced zero duplicate stems). Examples: V = E − Ir, R′ = n²R,
+   m = MIt/(zF), μ = √(n(n+2)), Chargaff's rule, Hardy–Weinberg 2pq,
+   codon-table translation.
+
+`neet_pyq_year` remains an honest field: only questions genuinely modelled on
+an identifiable PYQ family carry a year; everything else is `null`.
+
+## Quality machinery (`generators/`)
+
+- **Selftest hooks** — every template is run 300× (21,300 runs total): options
+  must be pairwise distinct as *rendered strings*, the correct letter must be
+  set, explanations must be substantive. Current status: **0 failures**.
+- **Seeded RNG** (`common.py`) — the bank is byte-for-byte reproducible; the
+  output diffs cleanly if templates change.
+- **Letter shuffling after value verification** — correctness never depends on
+  which letter the right answer lands on; misconception dictionaries are
+  remapped to the final letters automatically.
+- **Distractor provenance** — every wrong option comes from a *named
+  misconception* ("forgot valency z", "used Celsius in η = 1 − Tc/Th",
+  "used r³ instead of r² in Stokes' law"), not random noise. Collisions
+  (when two misconception formulas agree for a parameter draw) are resolved
+  deterministically, never by deleting a distractor silently.
+
+### Regenerating
+
+```bash
+python demo_set_qns/generators/generate_bank.py   # writes demo_questions_generated.json
+python demo_set_qns/validate_demo_questions.py    # exit 0 = all pass
+```
+
+The orchestrator's quotas live in `generate_bank.py` (`QUOTAS`,
+`TARGET_TOTAL`); scaling to 10,000+ is a config change, not new code. Biology
+is the limiting subject (factual questions are curated, not generated) — its
+count grows by extending `bio_bank.py` / `bio_bank2.py` or the computed
+bio templates.
 
 ## Schema compliance
 
-Every question carries all required fields from `QUESTION_SCHEMA.md`:
+Every question carries all required fields, with `common_wrong_reasoning` on
+all computed/curated questions, `avg_time_seconds` defaulted per difficulty
+(45/75/110 s), and `diagram: null` (no asset files needed). The validator also
+rejects duplicate stems across the whole folder.
 
-- `id` — unique, in the existing bank's `NEET-XXXX` convention, using the
-  `9001–9015` block so it can never collide with the main bank's
-  `NEET-0001 … NEET-2500`.
-- `subject` / `chapter` / `ncert_class` / `topic` — exact NCERT chapter names
-  and class (11 or 12).
-- `difficulty` — Easy / Medium / Hard (defaults 45 s / 75 s / 110 s applied to
-  `avg_time_seconds`).
-- `bloom_level` — recall / application / analysis per the schema guide.
-- `question_text`, `options` (exactly 4), `correct_option` (A–D).
-- `explanation` — full teacher-style working, never "B is correct".
-- `common_wrong_reasoning` — one genuine misconception per wrong option,
-  included only where a real, nameable misconception exists.
+## Honest caveats
 
-Optional fields used where applicable: `neet_pyq_year`, `avg_time_seconds`
-(`diagram` is `null` throughout — the demo set is deliberately diagram-free so
-no new asset files are needed).
-
-## Distribution
-
-| Subject | Count | Easy | Medium | Hard |
-|---|---|---|---|---|
-| Physics | 5 | 0 | 5 | 0 |
-| Chemistry | 5 | 1 | 3 | 1 |
-| Biology | 5 | 2 | 3 | 0 |
-
-Biology is deliberately not over-weighted here; in a full bank it should scale
-towards the exam's 90/180 Biology share.
-
-## Validate
-
-```bash
-python demo_set_qns/validate_demo_questions.py
-```
-
-Exit code 0 = all 15 questions pass every schema rule, including a uniqueness
-check of IDs against the main 2,500-question bank.
+- **Expert review before merging into the live bank is strongly
+  recommended.** The computed answers are machine-verified against the
+  formulas, and spot checks passed, but a subject teacher should review each
+  template family once before students see it.
+- Diagram-based questions (graph reading, circuit/tracing figures) are absent
+  by design — they need real assets and are a natural next phase.
+- The generated bank emphasises numerical/analysis items in Physics and
+  Chemistry; Biology leans on the curated set plus computation-friendly topics
+  (genetics, molecular biology). Round out Biology by growing the curated
+  banks if a 90:45:45 exam-weight split is desired.

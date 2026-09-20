@@ -12,6 +12,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 DATA_FILE = HERE / "demo_questions.json"
 DATA_FILE_BATCH2 = HERE / "demo_questions_batch2.json"
+DATA_FILE_GENERATED = HERE / "demo_questions_generated.json"
 MAIN_BANK = HERE.parent / "lib" / "features" / "practice" / "data" / "questions.json"
 
 REQUIRED_FIELDS = [
@@ -38,6 +39,9 @@ with open(DATA_FILE, encoding="utf-8") as f:
 if DATA_FILE_BATCH2.exists():
     with open(DATA_FILE_BATCH2, encoding="utf-8") as f:
         questions += json.load(f)
+if DATA_FILE_GENERATED.exists():
+    with open(DATA_FILE_GENERATED, encoding="utf-8") as f:
+        questions += json.load(f)
 
 if not isinstance(questions, list) or not questions:
     print("FATAL: demo_questions.json must be a non-empty JSON array.")
@@ -48,6 +52,15 @@ demo_ids = [q.get("id") for q in questions]
 for qid in set(d for d in demo_ids if d):
     if demo_ids.count(qid) > 1:
         err(qid, f"duplicate id within demo set ({demo_ids.count(qid)} occurrences)")
+
+# --- duplicate stems within the generated bank -----------------------------
+stem_counts: dict[tuple[str, str], int] = {}
+for q in questions:
+    key = (q.get("subject"), q.get("question_text"))
+    stem_counts[key] = stem_counts.get(key, 0) + 1
+for (subj, stem), count in stem_counts.items():
+    if count > 1:
+        err(f"STEM-DUP x{count}", f"[{subj}] {stem[:70]}...")
 
 main_ids = set()
 if MAIN_BANK.exists():

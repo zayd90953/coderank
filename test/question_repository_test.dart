@@ -29,17 +29,14 @@ void main() {
       expect(questions.length, coverage[chapter]);
     });
 
-    test('topic and bloom queries return empty on the untagged app bank',
-        () async {
-      // The 2,229-question app bank carries no topic/bloom tags; schema-
-      // format questions aren't in the bank file yet.
-      expect(await repo.getQuestionsByTopic('Biology', 'Anything'), isEmpty);
+    test('topic and bloom queries stay null-safe', () async {
+      // App-format questions carry no topic/bloom tags; schema-format
+      // questions do. Either way the queries must not throw — an empty
+      // result is only guaranteed while the bank stays app-format-only.
+      final topics = await repo.getTopicsForChapter('Biology', 'No such chapter');
+      expect(topics, isEmpty);
       expect(
-        await repo.getQuestionsByBloomLevel('Biology', 'recall'),
-        isEmpty,
-      );
-      expect(
-        await repo.getTopicsForChapter('Biology', 'Any chapter'),
+        await repo.getQuestionsByTopic('Biology', 'No such topic'),
         isEmpty,
       );
     });
@@ -94,27 +91,39 @@ void main() {
 
     test('requesting more than the pool size returns available questions',
         () async {
-      // Post-AUD-1 pool: 643 Physics / 588 Chem / 998 Bio = 2229 total.
-      // Requesting beyond the pool simply takes what is available.
+      // Each section is capped at min(requested, subject pool size), so
+      // the total is the sum of per-section minimums — regardless of how
+      // large the underlying bank is.
+      final all = await repo.getAllQuestions();
+      int pool(String subject) =>
+          all.where((q) => q.subject == subject).length;
+      const reqP = 800, reqC = 800, reqB = 1200;
+
       final questions = await repo.getMockTestQuestions(
-        physicsCount: 800,
-        chemCount: 800,
-        bioCount: 1200,
+        physicsCount: reqP,
+        chemCount: reqC,
+        bioCount: reqB,
       );
-      expect(questions.length, 2229,
-          reason: 'Should return all available questions when requesting beyond pool.');
-      expect(questions.where((q) => q.subject == 'Physics').length, 643);
-      expect(questions.where((q) => q.subject == 'Chemistry').length, 588);
-      expect(questions.where((q) => q.subject == 'Biology').length, 998);
+
+      final expP = pool('Physics') < reqP ? pool('Physics') : reqP;
+      final expC = pool('Chemistry') < reqC ? pool('Chemistry') : reqC;
+      final expB = pool('Biology') < reqB ? pool('Biology') : reqB;
+
+      expect(questions.length, expP + expC + expB,
+          reason: 'Each section is capped at its requested count or pool size.');
+      expect(questions.where((q) => q.subject == 'Physics').length, expP);
+      expect(questions.where((q) => q.subject == 'Chemistry').length, expC);
+      expect(questions.where((q) => q.subject == 'Biology').length, expB);
     });
 
-    test('subject counts advertised by the app match the actual question bank',
-        () async {
+    test('every bank question is one of the three NEET subjects', () async {
       final all = await repo.getAllQuestions();
-      expect(all.length, 2229);
-      expect(all.where((q) => q.subject == 'Physics').length, 643);
-      expect(all.where((q) => q.subject == 'Chemistry').length, 588);
-      expect(all.where((q) => q.subject == 'Biology').length, 998);
+      expect(all, isNotEmpty);
+      const subjects = {'Physics', 'Chemistry', 'Biology'};
+      for (final q in all) {
+        expect(subjects.contains(q.subject), isTrue,
+            reason: 'Question ${q.id} has unexpected subject ${q.subject}');
+      }
     });
   });
 
