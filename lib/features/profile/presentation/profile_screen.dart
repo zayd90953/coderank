@@ -1101,8 +1101,7 @@ class ProfileScreen extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurface)),
         content: Text(
           "CodeRank is a smart NEET prep companion built for ambitious students. "
-          "Practice topic-wise, take mock tests, and climb the daily leaderboard "
-          "as you build the consistency that cracks NEET.",
+          "Practice topic-wise, take mock tests, and build the consistency that cracks NEET.",
           style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
         ),
         actions: [

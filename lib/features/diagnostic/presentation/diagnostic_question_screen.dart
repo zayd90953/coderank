@@ -4,6 +4,7 @@ import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/services/weak_area_tracking_service.dart';
+import '../../../shared/utils/app_haptics.dart';
 import '../../../shared/utils/numeric_display_formatter.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../../shared/widgets/explanation_card.dart';
@@ -80,6 +81,10 @@ class _DiagnosticQuestionScreenState extends State<DiagnosticQuestionScreen> {
     if (_selectedAnswer == null || _answered || questions.isEmpty) return;
     // _session is ready whenever questions are rendered (loading guard).
     final correctAnswer = questions[_currentQuestion].correctAnswer;
+    // A-10: tactile verdict — the reveal is animated, the hand gets a say too.
+    _selectedAnswer == correctAnswer
+        ? AppHaptics.success()
+        : AppHaptics.error();
     setState(() {
       _answered = true;
       _session.recordAnswer(

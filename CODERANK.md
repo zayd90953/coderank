@@ -87,6 +87,8 @@ Read and follow this before touching any screen. This is the visual identity of 
 - [x] AUD-4: Account linking — same email = ONE account across Google and password; one-tap linking flow — DONE
 - [x] A-6: Practice Hub — Gen-Z redesign (gradient hero, streak/XP/solved stat strip, tappable subject mastery cards, Daily Challenge card, honest mock-test copy, legacy dead-end removed) — DONE
 - [x] A-6b: Unified subject icon system — shared `SubjectIconBadge` widget, theme-adaptive tokens, WCAG AA contrast locked by regression tests — DONE
+- [x] A-10: Motion layer (shared primitives, minimal code) — `AppHaptics` (semantic tick/success/error/celebrate wired into all three question runners, nav, results choreography), brand 300ms fade-up page transitions on both themes via one `_FadeUpTransitionsBuilder`, reusable `CountUp` widget (Home XP pill + progress stats), reusable `StaggeredEntrance` (Row/Column, Expanded-safe, timer-free — Home action cards + subject tiles cascade in) — DONE
+- [x] A-11: Launch hardening — iOS bundle id `com.example.coderank` → `in.coderank.app` (pbxproj + firebase_options), Android release minify+shrinkResources with minimal ProGuard rules, Nunito/Inter bundled locally (9 TTFs, google_fonts CDN dependency removed — offline-first-launch renders brand type), college picker filters by selected state (TODO resolved, value clamped), dead `ColorSwatch` widget deleted (test pruned), GitHub Actions CI (analyze --fatal-infos + test) — DONE
 
 ### Remaining — work through in this order
 

@@ -16,9 +16,9 @@ const List<OnboardingModel> onboardingData = [
   ),
 
   OnboardingModel(
-    title: "Compete. Improve. Crack NEET.",
+    title: "Practice. Improve. Crack NEET.",
     description:
-    "Climb the All India leaderboard, beat your best score, and stay motivated every day.",
+    "Track your accuracy, beat your best score, and stay motivated every day.",
     image: "assets/onboarding/onboarding3.jpeg",
   ),
 ];

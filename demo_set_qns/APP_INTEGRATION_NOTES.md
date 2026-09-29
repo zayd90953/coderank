@@ -52,7 +52,8 @@ repository parses the entire file up front.
 | `common_wrong_reasoning` | **no field exists** | app cannot show per-option misconceptions unless `QuestionModel` is extended (optional, see §4) |
 | `neet_pyq_year` | **no field exists** | optional extension (see §4) |
 | `avg_time_seconds` | `timeLimitSeconds` | direct rename; unlike the current bank, our values are actually populated |
-| `diagram` | `diagramId` | rename; `null` maps to `null` safely |
+| `diagram` | `diagramId` | rename; `null` maps to `null` safely. 220 questions now carry a real SVG filename — the files live in `demo_set_qns/diagrams/` and must be bundled as assets (see §6) |
+| `type` | — (new field) | `mcq` / `assertion_reason` / `statement_match`; default `mcq` when absent. The current app model has no such field — optional extension (see §6) |
 | — | `sourcePattern` | **must be synthesized** (see below) |
 
 Suggested derivations:
@@ -105,6 +106,63 @@ would improve the app:
    that applies the §2 mapping and emits an app-format JSON file.
 3. Validate the converted output with a small Dart test or a Python check that
    asserts every required `QuestionModel.fromJson` key exists with the right type.
-4. Decide merge policy: append (ids NEET-9001+ don't collide with NEET-0001–2499)
-   or replace. Appending is zero-risk; replacing should wait for a subject-expert
-   review of the new questions.
+4. Decide merge policy: the new batch occupies `NEET-15000+` and cannot collide
+   with the existing bank (`NEET-0001…2500` originals + the absorbed
+   `NEET-9060…14041` block). Appending is zero-risk; replacing should wait for
+   a subject-expert review of the new questions.
+
+## 6. New formats — what the app needs to render them
+
+### 6a. Diagram questions (220, all formats `mcq` + non-null `diagram`)
+
+- **Dependency**: add `flutter_svg` to `pubspec.yaml` (pure-Dart SVG renderer;
+  no native build steps).
+- **Assets**: declare the folder in `pubspec.yaml`:
+  ```yaml
+  flutter:
+    assets:
+      - assets/practice/diagrams/
+  ```
+  and copy `demo_set_qns/diagrams/*.svg` there (filenames already match the
+  `diagram`/`diagramId` field: `D0001.svg` …). The schema's original convention
+  was PNG in `assets/practice/diagrams/`; these are `.svg` — keep the extension
+  consistent between the field value and the bundled files.
+- **Rendering**: `SvgPicture.asset('assets/practice/diagrams/${q.diagramId}')`
+  below the question text. The SVGs carry their own white rounded card, so they
+  work on both light and dark backgrounds without tinting.
+- **Fallback**: if `diagramId` is set but the file is missing, show a "figure
+  unavailable" box rather than crashing — treat missing assets as a soft error.
+
+### 6b. Assertion–Reason (79, `type: "assertion_reason"`)
+
+- The stem already contains `Assertion (A): … / Reason (R): …` as plain text —
+  rendering it as-is in the existing question widget works, but splitting the
+  lines (split on `\n`) and styling the labels bold reads much better.
+- Options are always the canonical four-NEET-AR set in the same order; no
+  shuffling logic is needed or wanted.
+
+### 6c. Statement-match (35, `type: "statement_match"`)
+
+- Stem contains `Statement I/II/III:` lines plus the standard "which … is/are
+  correct?" closer; options are combination strings ("I and II only", etc.).
+- Same rendering approach: keep the line breaks. No model changes needed —
+  everything fits the existing `question`/`options` shape.
+
+### 6d. Optional model extension for formats
+
+Add to `QuestionModel`: `final String type;` with
+`type: json['type'] ?? 'mcq'`. This lets the UI branch on format (e.g. show the
+figure card only for diagram questions, use the AR layout). Not required for
+correctness — a plain MCQ widget renders all formats, just less nicely.
+
+### 6e. Conversion-script notes for the new formats
+
+The §2 mapping needs these extra rules:
+- `questionType`: map `type == "assertion_reason"` → `"Correct match"` (or add
+  your own value — the model treats it as an opaque string); diagram questions
+  → `"Diagram-based"` (the value already exists in the app's vocabulary but is
+  never used by the current bank).
+- `diagramId`: pass through the `.svg` filename; make sure the assets folder
+  registration (§6a) happens in the same release, or null these out instead.
+- AR/statement-match stems contain `\n` characters — they are plain strings in
+  JSON and survive conversion unchanged.

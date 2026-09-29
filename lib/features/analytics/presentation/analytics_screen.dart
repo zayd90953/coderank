@@ -378,7 +378,7 @@ class AnalyticsScreen extends StatelessWidget {
                         color: AppColors.physics,
                         title: "Daily Goal: 20 Questions",
                         description: totalQuestions < 20
-                            ? "Solve at least 20 questions daily to climb the leaderboard to Diamond Tier."
+                            ? "Solve at least 20 questions daily to reach the Diamond Tier."
                             : "Great consistency! You've solved $totalQuestions questions so far.",
                       ),
                     ],

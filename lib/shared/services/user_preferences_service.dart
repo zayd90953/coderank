@@ -151,9 +151,24 @@ class UserPreferencesService {
 
   // ── Mutators ──────────────────────────────────────────────────────────────
 
+  /// Writes the display name EXACTLY as given — passing null or blank
+  /// clears it. Deliberately does NOT use [UserPreferences.copyWith], whose
+  /// `??` fallback can never null a field (same defect [setTarget] works
+  /// around); clearing must revert the UI to the auth-profile name.
   Future<void> setDisplayName(String? value) async {
-    final next = current.copyWith(
-      displayName: (value == null || value.trim().isEmpty) ? null : value.trim(),
+    final trimmed = value?.trim();
+    final cur = current;
+    final next = UserPreferences(
+      displayName: (trimmed == null || trimmed.isEmpty) ? null : trimmed,
+      // Preserve every other field exactly.
+      avatarAssetKey: cur.avatarAssetKey,
+      targetYear: cur.targetYear,
+      targetState: cur.targetState,
+      targetCollege: cur.targetCollege,
+      themeMode: cur.themeMode,
+      dailyReminderEnabled: cur.dailyReminderEnabled,
+      practiceQuestionCount: cur.practiceQuestionCount,
+      practiceSecondsPerQuestion: cur.practiceSecondsPerQuestion,
     );
     prefsNotifier.value = next;
     await _persist(next);
@@ -165,12 +180,25 @@ class UserPreferencesService {
     await _persist(next);
   }
 
+  /// Writes the target fields EXACTLY as given — passing null clears a
+  /// field. Deliberately does NOT use [UserPreferences.copyWith], whose
+  /// `??` fallback can never null a field; the target picker's
+  /// "— Not set —" clear option depends on being able to erase a value.
   Future<void> setTarget({
     int? year,
     String? state,
     String? college,
   }) async {
-    final next = current.copyWith(
+    final cur = current;
+    final next = UserPreferences(
+      // Preserve identity & app-level prefs.
+      displayName: cur.displayName,
+      avatarAssetKey: cur.avatarAssetKey,
+      themeMode: cur.themeMode,
+      dailyReminderEnabled: cur.dailyReminderEnabled,
+      practiceQuestionCount: cur.practiceQuestionCount,
+      practiceSecondsPerQuestion: cur.practiceSecondsPerQuestion,
+      // Target fields written exactly as provided.
       targetYear: year,
       targetState: state,
       targetCollege: college,

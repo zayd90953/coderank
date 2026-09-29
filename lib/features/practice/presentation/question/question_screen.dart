@@ -8,6 +8,7 @@ import '../../../../core/theme/color_palette.dart';
 import '../../../../shared/services/firestore_sync_service.dart';
 import '../../../../shared/services/user_progress_service.dart';
 import '../../../../shared/services/weak_area_tracking_service.dart';
+import '../../../../shared/utils/app_haptics.dart';
 import '../../../../shared/utils/numeric_display_formatter.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
 import '../../../../shared/widgets/explanation_card.dart';
@@ -227,6 +228,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
     _recordPace(); // R-8: capture this answer's pace before moving on
 
     final correctAnswer = questions[currentQuestion].correctAnswer;
+
+    // A-10: tactile verdict — the reveal is animated, the hand gets a say too.
+    selectedAnswer == correctAnswer
+        ? AppHaptics.success()
+        : AppHaptics.error();
 
     setState(() {
       answered = true;

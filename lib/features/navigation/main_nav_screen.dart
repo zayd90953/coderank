@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/design/app_colors.dart';
 import '../../core/theme/color_palette.dart';
+import '../../shared/utils/app_haptics.dart';
 import '../home/presentation/home_screen.dart';
 import '../practice/presentation/practice_screen.dart';
-import '../leaderboard/presentation/leaderboard_screen.dart';
 import '../analytics/presentation/analytics_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
@@ -111,7 +111,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
     final List<Widget> screens = [
       const HomeScreen(),
       const PracticeScreen(),
-      const LeaderboardScreen(),
       const AnalyticsScreen(),
     ];
 
@@ -174,18 +173,11 @@ class _MainNavScreenState extends State<MainNavScreen> {
                     onTap: () => setTab(1),
                   ),
                   _NavItem(
-                    key: const ValueKey('nav_rank'),
-                    icon: Icons.emoji_events_rounded,
-                    label: "Rank",
-                    isSelected: _currentIndex == 2,
-                    onTap: () => setTab(2),
-                  ),
-                  _NavItem(
                     key: const ValueKey('nav_analytics'),
                     icon: Icons.insights_rounded,
                     label: "Analytics",
-                    isSelected: _currentIndex == 3,
-                    onTap: () => setTab(3),
+                    isSelected: _currentIndex == 2,
+                    onTap: () => setTab(2),
                   ),
                 ],
               ),
@@ -215,7 +207,10 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        AppHaptics.tick(); // A-10: every tab change gets a light tick.
+        onTap();
+      },
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

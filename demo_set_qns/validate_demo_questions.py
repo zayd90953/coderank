@@ -7,6 +7,7 @@ Exit code 0 = all questions pass, 1 = validation errors found.
 
 import json
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -21,6 +22,15 @@ REQUIRED_FIELDS = [
 ]
 OPTIONAL_FIELDS = [
     "common_wrong_reasoning", "neet_pyq_year", "avg_time_seconds", "diagram",
+    "type",
+]
+QUESTION_TYPES = {"mcq", "assertion_reason", "statement_match"}
+# Must stay in sync with AR_OPTIONS in generators/assertion_reason.py
+AR_OPTIONS = [
+    "Both assertion and reason are true, and the reason is the correct explanation of the assertion",
+    "Both assertion and reason are true, but the reason is not the correct explanation of the assertion",
+    "The assertion is true, but the reason is false",
+    "The assertion is false, but the reason is true",
 ]
 SUBJECTS = {"Physics", "Chemistry", "Biology"}
 DIFFICULTIES = {"Easy", "Medium", "Hard"}
@@ -127,6 +137,25 @@ for q in questions:
         if not options[idx].strip():
             err(qid, f"correct_option {co} points at an empty option")
 
+    # Optional: question type (defaults to plain MCQ)
+    qtype = q.get("type", "mcq")
+    if qtype not in QUESTION_TYPES:
+        err(qid, f"type must be one of {sorted(QUESTION_TYPES)}, got {qtype!r}")
+
+    # Format-specific structural rules
+    if options is not None and qtype == "assertion_reason":
+        if options != AR_OPTIONS:
+            err(qid, "assertion_reason must use the canonical option set")
+        if "Assertion (A):" not in (qt or "") or "Reason (R):" not in (qt or ""):
+            err(qid, "assertion_reason stem must contain 'Assertion (A):' and 'Reason (R):'")
+        if q.get("bloom_level") != "analysis":
+            err(qid, "assertion_reason must have bloom_level 'analysis'")
+    if options is not None and qtype == "statement_match":
+        if "Statement I:" not in (qt or ""):
+            err(qid, "statement_match stem must enumerate 'Statement I:'")
+        if options[-1] != "I, II and III":
+            err(qid, "statement_match option set must end with 'I, II and III'")
+
     exp = q.get("explanation")
     if not isinstance(exp, str) or len(exp.strip()) < 40:
         err(qid, "explanation must be a full teacher-style explanation (>= 40 chars)")
@@ -167,8 +196,22 @@ for q in questions:
         if actual != expected:
             err(qid, f"avg_time_seconds for {diff} should be {expected}, got {actual}")
 
-    if "diagram" in q and q["diagram"] is not None:
-        err(qid, "diagram must be null in this demo set (no asset files shipped)")
+    # Optional: diagram — must be a real, well-formed SVG in demo_set_qns/diagrams/
+    dia = q.get("diagram")
+    if dia is not None:
+        if not isinstance(dia, str) or not dia.endswith(".svg"):
+            err(qid, "diagram must be null or a filename ending in .svg")
+        else:
+            fpath = HERE / "diagrams" / dia
+            if not fpath.exists():
+                err(qid, f"diagram file missing: diagrams/{dia}")
+            else:
+                try:
+                    root = ET.fromstring(fpath.read_text(encoding="utf-8"))
+                    if not root.tag.endswith("svg"):
+                        err(qid, f"diagram {dia} is not an SVG document")
+                except ET.ParseError as e:
+                    err(qid, f"diagram {dia} is not well-formed XML: {e}")
 
 # --- Summary ----------------------------------------------------------------
 if errors:
@@ -181,3 +224,8 @@ print(f"\nAll {len(questions)} demo questions pass QUESTION_SCHEMA.md validation
 print("Distribution:",
       {s: sum(1 for q in questions if q["subject"] == s)
        for s in sorted(SUBJECTS)})
+n_dia = sum(1 for q in questions if q.get("diagram"))
+n_ar = sum(1 for q in questions if q.get("type") == "assertion_reason")
+n_sm = sum(1 for q in questions if q.get("type") == "statement_match")
+print(f"formats: {n_ar} assertion-reason, {n_sm} statement-match, "
+      f"{n_dia} with diagrams, rest plain MCQ")

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
+import '../../../../shared/utils/app_haptics.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
 import '../../models/practice_session.dart';
 import '../question/question_screen.dart';
@@ -420,6 +421,13 @@ class _PopsInState extends State<_PopsIn>
     vsync: this,
     duration: const Duration(milliseconds: 700),
   )..forward();
+
+  @override
+  void initState() {
+    super.initState();
+    // A-10: the reward moment gets a physical beat, in sync with the pop.
+    AppHaptics.celebrate();
+  }
 
   @override
   void dispose() {

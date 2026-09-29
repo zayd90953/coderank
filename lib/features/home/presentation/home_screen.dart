@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/firebase_user_util.dart';
+import '../../../shared/services/user_preferences_service.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/services/weak_area_tracking_service.dart';
+import '../../../shared/widgets/count_up.dart';
+import '../../../shared/widgets/staggered_entrance.dart';
 import '../../../shared/widgets/subject_icon_badge.dart';
 import '../../daily_challenge/presentation/daily_challenge_screen.dart';
 import '../../diagnostic/presentation/diagnostic_subject_chooser_sheet.dart';
@@ -18,8 +21,8 @@ import '../../profile/presentation/profile_screen.dart';
 import '../../recommendations/data/recommendation_engine.dart';
 
 /// The Home tab. Mirrors the `home_wanted.jpeg` reference:
-/// time-based greeting + rank-progress subtitle, XP/streak/tier
-/// header pills, a "Your Progress" card with ranking + Deep Analytics
+/// time-based greeting + progress subtitle, XP/streak/tier
+/// header pills, a "Your Progress" card with stats + Deep Analytics
 /// link, a "Continue Learning" row with badge chips + Explore All
 /// link, a "Daily NEET Challenge" card, and a "Subjects" row.
 ///
@@ -29,7 +32,6 @@ import '../../recommendations/data/recommendation_engine.dart';
 ///   * Explore All → PracticeScreen
 ///   * Daily Challenge card → DailyChallengeScreen
 ///   * Deep Analytics link → Analytics tab via MainNavScreen.switchTab
-///   * Rank card → Leaderboard tab via MainNavScreen.switchTab
 ///   * Subject tiles → PracticeSetupScreen(subject: ...)
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,11 +49,23 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = ColorPaletteController.instance.current;
     final user = firebaseCurrentUserOrNull();
-    final name = user?.displayName?.trim().isNotEmpty == true
-        ? user!.displayName!.trim().split(' ').first
-        : "Student";
 
-    return Scaffold(
+    // Name propagation fix: read the greeting name from the SAME source the
+    // profile page writes to (UserPreferencesService). Firebase Auth's
+    // `displayName` caches at sign-in, so reading it directly left Home
+    // showing a stale name after "Edit Display Name".
+    return ValueListenableBuilder<UserPreferences>(
+      valueListenable: UserPreferencesService.instance.prefsNotifier,
+      builder: (context, prefs, _) {
+        final fallbackName = user?.displayName?.trim().isNotEmpty == true
+            ? user!.displayName!.trim().split(' ').first
+            : "Student";
+        final custom = prefs.displayName?.trim();
+        final name = (custom != null && custom.isNotEmpty)
+            ? custom.split(' ').first
+            : fallbackName;
+
+        return Scaffold(
       body: SafeArea(
         child: ValueListenableBuilder<UserProgressData>(
           valueListenable: UserProgressService.instance.progressNotifier,
@@ -103,7 +117,9 @@ class HomeScreen extends StatelessWidget {
                   // ── Continue Learning row ─────────────────────────────
                   const _SectionTitle("Continue Learning"),
                   const SizedBox(height: 12),
-                  Row(
+                  // A-10: the two action cards cascade in from the left.
+                  StaggeredEntrance(
+                    axis: Axis.horizontal,
                     children: [
                       Expanded(
                         child: _ActionCard(
@@ -148,7 +164,9 @@ class HomeScreen extends StatelessWidget {
                   // subject tiles below are already the full set) ──────────
                   const _SectionTitle("Subjects"),
                   const SizedBox(height: 8),
-                  Row(
+                  // A-10: subject tiles cascade in, left to right.
+                  StaggeredEntrance(
+                    axis: Axis.horizontal,
                     children: [
                       Expanded(
                         child: _SubjectTile(
@@ -174,12 +192,6 @@ class HomeScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 22),
-
-                  // ── Rank card → leaderboard tab ───────────────────────
-                  _RankCard(
-                    palette: palette,
-                    onTap: () => MainNavScreen.switchTab(context, 2),
-                  ),
                 ],
               ),
             );
@@ -188,6 +200,8 @@ class HomeScreen extends StatelessWidget {
           },
         ),
       ),
+    );
+      },
     );
   }
 
@@ -593,25 +607,29 @@ class _ProgressCard extends StatelessWidget {
     final accuracy = data.overallAccuracy.round();
     final tierProgress = data.tierProgress;
     final ceiling = data.nextTierTargetXp;
-    // Honest, accuracy-based standing ("Unranked" until the user has
-    // practiced; "Top X%" after). The old XP-derived formula produced
-    // nonsense — it reset to "Top 99%" at every tier boundary.
-    final rankValue = data.percentile;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-      decoration: BoxDecoration(
-        color: palette.primary,
+    // The ENTIRE card is tappable → Analytics tab (same destination as the
+    // "Deep Analytics" link, which stays as a visual affordance). The card
+    // color lives on the Material (not the Container) so the InkWell ripple
+    // renders above it and the pressed state is visible.
+    return Material(
+      color: palette.primary,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        onTap: () => MainNavScreen.switchTab(context, 2), // Analytics tab
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: palette.primary.withValues(alpha: 0.28),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: palette.primary.withValues(alpha: 0.28),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -647,8 +665,9 @@ class _ProgressCard extends StatelessWidget {
                       size: 14,
                     ),
                     const SizedBox(width: 3),
-                    Text(
-                      "${data.xpPoints} XP · ${data.tier}",
+                    CountUp(
+                      value: data.xpPoints,
+                      suffix: " XP · ${data.tier}",
                       style: TextStyle(
                         color: AppColors.textOnPrimary,
                         fontSize: 11,
@@ -667,6 +686,7 @@ class _ProgressCard extends StatelessWidget {
                 child: _ProgressStat(
                   value: "$totalQuestions",
                   label: "Questions",
+                  countUpValue: totalQuestions,
                 ),
               ),
               Container(
@@ -678,26 +698,8 @@ class _ProgressCard extends StatelessWidget {
                 child: _ProgressStat(
                   value: "$accuracy%",
                   label: "Accuracy",
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 38,
-                color: Colors.white.withValues(alpha: 0.25),
-              ),
-              // Ranking stat is tappable → Leaderboard tab (the doc
-              // comment always promised this; it was never wired).
-              Expanded(
-                child: InkWell(
-                  onTap: () => MainNavScreen.switchTab(context, 2),
-                  borderRadius: BorderRadius.circular(10),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: _ProgressStat(
-                      value: rankValue,
-                      label: "Ranking",
-                    ),
-                  ),
+                  countUpValue: accuracy,
+                  countUpSuffix: "%",
                 ),
               ),
             ],
@@ -718,7 +720,7 @@ class _ProgressCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   data.totalQuestions == 0
-                      ? "Start practicing to build your rank"
+                      ? "Start practicing to build your streak"
                       : "Next tier at $ceiling XP",
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.78),
@@ -729,7 +731,7 @@ class _ProgressCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               InkWell(
-                onTap: () => MainNavScreen.switchTab(context, 3),
+                onTap: () => MainNavScreen.switchTab(context, 2), // Analytics tab (was 3 before leaderboard removal)
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -754,6 +756,8 @@ class _ProgressCard extends StatelessWidget {
           ),
         ],
       ),
+        ),
+      ),
     );
   }
 }
@@ -762,20 +766,37 @@ class _ProgressStat extends StatelessWidget {
   final String value;
   final String label;
 
-  const _ProgressStat({required this.value, required this.label});
+  /// A-10: when set, the number lands with a count-up instead of appearing.
+  final int? countUpValue;
+  final String countUpSuffix;
+
+  const _ProgressStat({
+    required this.value,
+    required this.label,
+    this.countUpValue,
+    this.countUpSuffix = '',
+  });
 
   @override
   Widget build(BuildContext context) {
+    final numberStyle = TextStyle(
+      color: AppColors.textOnPrimary,
+      fontSize: 21,
+      fontWeight: FontWeight.w800,
+    );
     return Column(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            color: AppColors.textOnPrimary,
-            fontSize: 21,
-            fontWeight: FontWeight.w800,
+        if (countUpValue != null)
+          CountUp(
+            value: countUpValue!,
+            suffix: countUpSuffix,
+            style: numberStyle,
+          )
+        else
+          Text(
+            value,
+            style: numberStyle,
           ),
-        ),
         const SizedBox(height: 3),
         Text(
           label,
@@ -1091,85 +1112,6 @@ class _SubjectTile extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w700,
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Rank card → leaderboard tab
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _RankCard extends StatelessWidget {
-  final ColorPalette palette;
-  final VoidCallback onTap;
-
-  const _RankCard({required this.palette, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: palette.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  Icons.emoji_events_rounded,
-                  color: palette.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Your Rank",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "See where you stand on the leaderboard",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: onSurfaceVariant,
               ),
             ],
           ),

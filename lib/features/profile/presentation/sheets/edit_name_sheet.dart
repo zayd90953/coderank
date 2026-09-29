@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/design/app_colors.dart';
 import '../../../../core/theme/color_palette.dart';
@@ -57,6 +58,14 @@ class _EditNameSheetContentState extends State<_EditNameSheetContent> {
       return;
     }
     await UserPreferencesService.instance.setDisplayName(value);
+    // Keep Firebase Auth in sync (name-propagation fix). The local prefs
+    // drive the UI; this only updates the auth profile. Best-effort: never
+    // block or fail the local save on a network call.
+    try {
+      await FirebaseAuth.instance.currentUser?.updateDisplayName(value);
+    } catch (_) {
+      // Offline or transient auth error — the local name is already saved.
+    }
     if (mounted) Navigator.of(context).pop(true);
   }
 

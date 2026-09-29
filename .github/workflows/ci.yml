@@ -1,0 +1,31 @@
+# CodeRank CI — analyze + test on every push/PR to main.
+#
+# Kept deliberately minimal: the Flutter tool covers formatting/analysis and
+# the test suite (104+ tests) exercises the bank, services and runners.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Test
+        run: flutter test

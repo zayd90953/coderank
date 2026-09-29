@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '99386983070',
     projectId: 'coderank-6e6eb',
     storageBucket: 'coderank-6e6eb.firebasestorage.app',
-    iosBundleId: 'com.example.coderank',
+    iosBundleId: 'in.coderank.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '99386983070',
     projectId: 'coderank-6e6eb',
     storageBucket: 'coderank-6e6eb.firebasestorage.app',
-    iosBundleId: 'com.example.coderank',
+    iosBundleId: 'in.coderank.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -131,7 +131,7 @@ class UserProgressData {
   // ── B-5: 100-question ranking gate ──────────────────────────────────
   /// Percentile and predicted-AIR estimates are meaningless noise until the
   /// user has answered a real sample of questions. Below this count the
-  /// user is "Unranked": the Leaderboard rank chip shows no number and the
+  /// user is "Unranked": rank-style chips show no number and the
   /// Analytics hero keeps its prediction locked.
   static const int rankingMinQuestions = 100;
 

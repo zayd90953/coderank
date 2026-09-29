@@ -31,7 +31,7 @@ DIAGRAM_DIR = Path(__file__).resolve().parent.parent / "diagrams"
 # ---------------------------------------------------------------------------
 def _mk(scene: Scene, chapter: str, ncert_class: int, topic: str, difficulty: str,
         bloom: str, stem: str, answers: list[str], cwr_values: dict[str, str],
-        explanation: str, pyq=None) -> Q:
+        explanation: str, pyq=None, subject: str = "Physics") -> Q:
     """Assemble a diagram question: letters are assigned by shuffling
     computed answer values; misconception letters are remapped to final
     positions; scene is written to diagrams/ and the filename returned."""
@@ -40,7 +40,7 @@ def _mk(scene: Scene, chapter: str, ncert_class: int, topic: str, difficulty: st
     fname = write_svg(DIAGRAM_DIR, f"D{DIAGRAM_DIR_FILES_ID[0]:04d}.svg", scene)
     DIAGRAM_DIR_FILES_ID[0] += 1
     return {
-        "id": "", "subject": "Physics", "chapter": chapter,
+        "id": "", "subject": subject, "chapter": chapter,
         "ncert_class": ncert_class, "topic": topic,
         "difficulty": difficulty, "bloom_level": bloom,
         "question_text": stem, "options": options,
@@ -96,8 +96,9 @@ def _v_circuit() -> Q:
             f"From the figure, the same current must pass through both resistors and "
             f"the ammeter, so I = EMF / R_eq = {u(emf)} / {u(req)} = {sig(i, 3)} A. "
             f"The ammeter (ideally zero resistance) reads this full current.")
-    stem = (f"The circuit shows two resistors R{chr(0x2081)} and R{chr(0x2082)} in series "
-            f"with an ideal battery. What does the ammeter read?")
+    stem = (f"In the circuit shown, R{chr(0x2081)} = {u(r1)} \u03a9 and R{chr(0x2082)} = {u(r2)} \u03a9 "
+            f"are in series with an ideal battery of EMF {u(emf)} V. "
+            f"What does the ammeter read?")
     return _mk(s, "Current Electricity", 12, "Series and parallel circuits",
                "Easy", "application", stem, answers, cwr, expl)
 
@@ -141,8 +142,9 @@ def _v_wheatstone() -> Q:
             f"P/Q = R/S. With the values read from the figure: {u(r1)}/{u(r2)} = "
             f"{u(r3)}/S, giving S = R·Q/P = {u(r3)} × {u(r2)} / {u(r1)} = "
             f"{sig(rx, 3)} Ω. Balance means no current flows through G.")
-    stem = ("The Wheatstone bridge in the figure is balanced (G shows zero "
-            "deflection). Find the unknown resistance S.")
+    stem = (f"The Wheatstone bridge shown is balanced (G reads zero), with "
+            f"P = {u(r1)} \u03a9, Q = {u(r2)} \u03a9 and R = {u(r3)} \u03a9 as labelled. "
+            f"Find the unknown resistance S.")
     return _mk(s, "Current Electricity", 12, "Wheatstone bridge and potentiometer",
                "Medium", "application", stem, answers, cwr, expl)
 
@@ -180,7 +182,8 @@ def _v_resistor_colour() -> Q:
             f"The third band is {colour_map[mult]}, i.e. ×10^{{{mult}}}. So "
             f"R = {dig1}{dig2} × 10^{{{mult}}} = {u(val)} Ω. The fourth (violet) band "
             f"is tolerance, which affects only the allowed spread, not the value.")
-    stem = "Decode the resistance value from the colour bands shown."
+    stem = (f"A resistor carries four colour bands: {band_cols[0]}, {band_cols[1]}, "
+            f"{band_cols[2]}, violet (as shown). Decode its resistance value.")
     return _mk(s, "Current Electricity", 12, "Resistance and resistivity",
                "Easy", "recall", stem, answers, cwr, expl)
 
@@ -228,8 +231,9 @@ def _v_moving_charge() -> Q:
             f"(or left-hand for conventional current) rule gives F straight "
             f"{f_dir}, perpendicular to both v and B. The magnitude is qvB since "
             f"v ⟂ B here, so the force is maximal, not zero.")
-    stem = ("A positive charge +q moves to the right with velocity v, as shown. "
-            "What is the direction of the magnetic force on it?")
+    stem = (f"A positive charge +q moves to the right with velocity v in a region where "
+            f"B is directed {'into the page' if by == 'into' else 'out of the page'} "
+            f"(convention shown in the figure). What is the direction of the magnetic force on it?")
     return _mk(s, "Moving Charges and Magnetism", 12, "Force on a moving charge",
                "Medium", "application", stem, answers, cwr, expl)
 
@@ -325,8 +329,9 @@ def _v_lens_ray() -> Q:
             f"on the far side. m = −v/u = {sig(m, 3)}: negative → inverted, "
             f"|m| = {sig(abs(m), 2)} < 1 → diminished. The traced rays in the figure "
             f"confirm: the image forms where the refracted rays meet.")
-    stem = ("An object stands beyond 2F of the converging lens shown (F marked). "
-            "Which describes the image formed?")
+    stem = (f"An object stands at a distance {u(do_cm)} cm from a converging lens of "
+            f"focal length {u(f_cm)} cm (figure to scale, F marked). "
+            f"Which describes the image formed?")
     return _mk(s, "Ray Optics and Optical Instruments", 12, "Refraction at spherical surfaces and lenses",
                "Medium", "analysis", stem, answers, cwr, expl)
 
@@ -371,8 +376,9 @@ def _v_ydse_fringe() -> Q:
     expl = (f"Fringe width β = λD/d = ({lam_nm} × 10⁻⁹ m × {u(D_m)} m) / "
             f"({u(d_mm)} × 10⁻³ m) = {sig(beta_mm, 3)} mm. This is the spacing "
             f"between successive bright (or dark) fringes on the screen.")
-    stem = ("Young's double-slit experiment is set up as labelled in the figure. "
-            "What is the fringe width on the screen?")
+    stem = (f"In the Young's double-slit arrangement shown, the light has wavelength "
+            f"{lam_nm} nm, the slit separation is d = {u(d_mm)} mm and the screen is at "
+            f"D = {u(D_m)} m. What is the fringe width on the screen?")
     return _mk(s, "Wave Optics", 12, "Interference of light waves",
                "Medium", "application", stem, answers, cwr, expl)
 
@@ -422,8 +428,9 @@ def _v_vt_graph() -> Q:
             f"{sig(0.5 * v1 * t1, 3)} m. Segment 2 is another triangle of base "
             f"{sig(t_end - t1, 3)} s → {sig(0.5 * v1 * (t_end - t1), 3)} m. Total = "
             f"{sig(total_d, 3)} m.")
-    stem = ("The v–t graph of a particle moving in a straight line is shown. "
-            "What total distance does it cover?")
+    stem = (f"The v–t graph of a particle shows acceleration from rest to "
+            f"{vmax_s} m/s in {u(t1)} s, then braking back to rest (as drawn). "
+            f"What total distance does it cover?")
     return _mk(s, "Motion in a Straight Line", 11, "Graphical analysis of motion",
                "Medium", "analysis", stem, answers, cwr, expl)
 
@@ -487,10 +494,10 @@ def _v_coord_complex() -> Q:
         expl = (f"Charge balance: x + 4(−1) = −1 (overall charge of the complex), so "
                 f"x = −1 + 4 = +{ox_state}. Each chlorido ligand carries −1; the metal "
                 f"must compensate to give the overall charge shown.")
-    stem = (f"The structure and formula of the complex are shown. What is the "
-            f"oxidation state of the {metal}?")
+    stem = (f"The complex {formula} is drawn with its ligands arranged octahedrally/square-planarly "
+            f"as shown. What is the oxidation state of the {metal}?")
     return _mk(s, "Coordination Compounds", 12, "Nomenclature and structure of coordination compounds",
-               "Easy", "application", stem, answers, cwr, expl)
+               "Easy", "application", stem, answers, cwr, expl, subject="Chemistry")
 
 
 def _v_titration_curve() -> Q:
@@ -534,10 +541,10 @@ def _v_titration_curve() -> Q:
             f"so pH = pKa + log([A⁻]/[HA]) = pKa. The figure marks pH = {u(pka)} at "
             f"VE/2, hence pKa = {u(pka)}. Equivalence pH for a weak acid–strong base "
             f"titration is > 7, not pKa.")
-    stem = ("The titration curve of a weak acid with strong base is shown, with the "
-            "half-equivalence point marked. What can be read directly from it?")
+    stem = (f"The titration curve of a weak acid with strong base is shown, with the "
+            f"half-equivalence point marked at pH = {u(pka)}. What can be read directly from it?")
     return _mk(s, "Equilibrium", 11, "Ionic equilibrium and pH",
-               "Medium", "analysis", stem, answers, cwr, expl)
+               "Medium", "analysis", stem, answers, cwr, expl, subject="Chemistry")
 
 
 def _v_beam_balance() -> Q:
@@ -584,8 +591,9 @@ def _v_beam_balance() -> Q:
             f"m{chr(0x2081)}d{chr(0x2081)} = m{chr(0x2082)}d{chr(0x2082)}. So "
             f"m{chr(0x2082)} = {u(m1)} × {u(d1)} / {u(d2)} = {sig(m2, 3)} kg. The "
             f"heavier mass must sit closer to the fulcrum, as drawn.")
-    stem = ("The see-saw/lever in the figure is balanced. What is the unknown "
-            "mass on the right?")
+    stem = (f"The lever shown is balanced: a known mass of {u(m1)} kg hangs {u(d1)} cm "
+            f"from the fulcrum, opposite the unknown mass at {u(d2)} cm. "
+            f"What is the unknown mass?")
     return _mk(s, "Laws of Motion", 11, "Torque and rotational equilibrium",
                "Easy", "application", stem, answers, cwr, expl)
 
@@ -625,7 +633,7 @@ def _v_dna_replication_fork() -> Q:
             "features. Which statement about synthesis at this fork is correct?")
     return _mk(s, "Molecular Basis of Inheritance", 12, "DNA replication",
                "Medium", "analysis", stem, answers, cwr, expl,
-               pyq=[2019])
+               pyq=[2019], subject="Biology")
 
 
 def _v_pedigree() -> Q:
@@ -678,10 +686,11 @@ def _v_pedigree() -> Q:
             f"child is aa. If the affected child is a daughter, the trait is autosomal "
             f"recessive (not X-linked, since an affected XX daughter would need an "
             f"affected father). {'The affected child is a daughter, so this pedigree indicates autosomal recessive inheritance.' if aff_child == 'daughter' else 'With an affected son, X-linked recessive is also consistent; autosomal recessive is the safest inference.'}")
-    stem = ("Study the pedigree: unaffected parents have one affected child as "
-            "shown. What is the most consistent conclusion?")
+    stem = (f"In the pedigree shown, unaffected parents have {n_sons} son(s) and {n_daus} "
+            f"daughter(s), and one {'son' if aff_child == 'son' else 'daughter'} is affected (filled). "
+            f"What is the most consistent conclusion?")
     return _mk(s, "Principles of Inheritance and Variation", 12, "Pedigree analysis",
-               "Medium", "analysis", stem, answers, cwr, expl)
+               "Medium", "analysis", stem, answers, cwr, expl, subject="Biology")
 
 
 def _v_food_chain() -> Q:
@@ -719,10 +728,10 @@ def _v_food_chain() -> Q:
             f"{sig(producers, 3)} → {sig(t2, 3)} → {sig(t3, 3)} → {sig(t4, 3)} kJ. "
             f"The top carnivore is the fourth trophic level, so it gets "
             f"{sig(t4, 3)} kJ.")
-    stem = ("The energy pyramid shows the producer-level energy. Using the 10% "
-            "law, how much energy reaches the top carnivores?")
+    stem = (f"The energy pyramid shown starts with {sig(producers, 3)} kJ fixed by producers. "
+            f"Using the 10% law, how much energy reaches the top carnivores?")
     return _mk(s, "Ecosystem", 12, "Energy flow in ecosystems",
-               "Easy", "application", stem, answers, cwr, expl)
+               "Easy", "application", stem, answers, cwr, expl, subject="Biology")
 
 
 def _v_pulse_rate_graph() -> Q:
@@ -757,9 +766,10 @@ def _v_pulse_rate_graph() -> Q:
     expl = (f"Heart rate = (number of QRS complexes / strip duration in seconds) × 60 "
             f"= ({n_qrs} / 3) × 60 = {rate} bpm. Equivalently, count in 3 s and "
             f"multiply by 20.")
-    stem = ("The ECG strip shows a 3.0-second recording. What is the heart rate?")
+    stem = (f"The ECG strip shown spans 3.0 seconds and contains {n_qrs} QRS complexes. "
+            f"What is the heart rate?")
     return _mk(s, "Body Fluids and Circulation", 11, "Cardiac cycle and ECG",
-               "Easy", "application", stem, answers, cwr, expl)
+               "Easy", "application", stem, answers, cwr, expl, subject="Biology")
 
 
 TEMPLATES: list = [

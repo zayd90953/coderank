@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-/// Design-system typography (A-1).
+/// Design-system typography (A-1, fonts localized in A-11).
 ///
 /// Two fonts per the design contract in `CODERANK.md`:
 ///   * **Nunito** (rounded, personality-forward) for display, headlines,
@@ -9,14 +8,15 @@ import 'package:google_fonts/google_fonts.dart';
 ///   * **Inter** (clean, highly legible) for body text, question
 ///     content, and anything read under time pressure.
 ///
-/// Bundled via `google_fonts` so the font files are loaded at runtime
-/// from the Google Fonts CDN (cached after first run). If the device
-/// is offline on first launch, `google_fonts` falls back to the system
-/// font — the app still renders cleanly, just with the default font.
+/// A-11: both families ship as bundled assets (see pubspec.yaml) and load
+/// synchronously from the app bundle — first launch offline renders the
+/// brand type with zero CDN dependency.
 class AppTypography {
   AppTypography._();
 
-  // ── Font families ──────────────────────────────────────────────────────
+  static const String _displayFamily = 'Nunito';
+  static const String _bodyFamily = 'Inter';
+
   static TextStyle _nunito({
     required double size,
     required FontWeight weight,
@@ -24,7 +24,8 @@ class AppTypography {
     double? letterSpacing,
     Color? color,
   }) {
-    return GoogleFonts.nunito(
+    return TextStyle(
+      fontFamily: _displayFamily,
       fontSize: size,
       fontWeight: weight,
       height: height,
@@ -40,7 +41,8 @@ class AppTypography {
     double? letterSpacing,
     Color? color,
   }) {
-    return GoogleFonts.inter(
+    return TextStyle(
+      fontFamily: _bodyFamily,
       fontSize: size,
       fontWeight: weight,
       height: height,

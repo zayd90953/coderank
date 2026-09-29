@@ -12,6 +12,17 @@ import 'app_typography.dart';
 class AppTheme {
   AppTheme._();
 
+  /// A-10 motion layer: one brand transition for every pushed route —
+  /// a 300ms fade-up (subtle slide from below). Cupertino's swipe-back is
+  /// kept on iOS so the native edge-swipe gesture still works.
+  static const PageTransitionsTheme _pageTransitions = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: _FadeUpTransitionsBuilder(),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+    },
+  );
+
   /// Dark theme — primary visual mode for CodeRank.
   static ThemeData buildDark(ColorPalette palette) {
     final base = ColorScheme.fromSeed(
@@ -36,6 +47,7 @@ class AppTheme {
       canvasColor: AppColors.background,
       cardColor: AppColors.surface,
       dividerColor: AppColors.border,
+      pageTransitionsTheme: _pageTransitions,
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
@@ -120,6 +132,7 @@ class AppTheme {
       canvasColor: Colors.white,
       cardColor: Colors.white,
       dividerColor: const Color(0xFFEDE8F5),
+      pageTransitionsTheme: _pageTransitions,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         foregroundColor: AppColors.text,
@@ -150,4 +163,30 @@ class AppTheme {
       buildDark(ColorPaletteController.instance.current);
   static ThemeData get lightTheme =>
       buildLight(ColorPaletteController.instance.current);
+}
+
+/// A-10: fade + slide-up route transition (see [_pageTransitions]).
+class _FadeUpTransitionsBuilder extends PageTransitionsBuilder {
+  const _FadeUpTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(curved),
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.06),
+          end: Offset.zero,
+        ).animate(curved),
+        child: child,
+      ),
+    );
+  }
 }

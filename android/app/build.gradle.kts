@@ -56,6 +56,17 @@ android {
         release {
             // Signs release builds with the upload keystore (see android/key.properties).
             signingConfig = signingConfigs.getByName("release")
+
+            // Release hardening: R8 shrinks + obfuscates, shrinking strips
+            // unused resources. The Flutter Gradle plugin appends its own
+            // engine/plugin keep rules automatically; proguard-rules.pro
+            // adds only what R8 cannot see reflectively.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
