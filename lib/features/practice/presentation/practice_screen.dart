@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../../../core/design/app_colors.dart';
 import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/user_progress_service.dart';
+import '../../../shared/services/weak_area_tracking_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../../shared/widgets/subject_icon_badge.dart';
 import '../../daily_challenge/presentation/daily_challenge_screen.dart';
 import '../../diagnostic/presentation/diagnostic_subject_chooser_sheet.dart';
 import '../../mock_test/presentation/mock_test_chooser_screen.dart';
+import 'question/review_mistakes.dart';
 import 'setup/practice_setup_screen.dart';
 
 /// A-6: Practice Hub — the game-like launchpad for all practice flows.
@@ -173,6 +175,36 @@ class PracticeScreen extends StatelessWidget {
                   icon: Icons.troubleshoot_rounded,
                   iconColor: const Color(0xFF8B5CF6),
                   onTap: () => showDiagnosticSubjectChooser(context),
+                ),
+
+                // ── M-7: mistake review (only when there's something to review) ──
+                ValueListenableBuilder<WeakAreaData>(
+                  valueListenable:
+                      WeakAreaTrackingService.instance.weakAreasNotifier,
+                  builder: (context, weakAreas, _) {
+                    final mistakes = weakAreas.recentMistakes.length;
+                    if (mistakes == 0) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: _QuickActionCard(
+                        label: "Review Mistakes",
+                        subtitle: mistakes == 1
+                            ? "Revisit the 1 question you missed"
+                            : "Revisit $mistakes questions you missed — untimed, with explanations",
+                        icon: Icons.history_edu_rounded,
+                        iconColor: AppColors.error,
+                        onTap: () async {
+                          final screen = await ReviewMistakes.buildScreen();
+                          if (screen != null && context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => screen),
+                            );
+                          }
+                        },
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

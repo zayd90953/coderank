@@ -6,6 +6,7 @@ import '../../../core/theme/color_palette.dart';
 import '../../../shared/services/firebase_user_util.dart';
 import '../../../shared/services/user_preferences_service.dart';
 import '../../../shared/services/user_progress_service.dart';
+import '../../practice/presentation/question/review_mistakes.dart';
 import '../../../shared/services/weak_area_tracking_service.dart';
 import '../../../shared/widgets/count_up.dart';
 import '../../../shared/widgets/staggered_entrance.dart';
@@ -107,6 +108,8 @@ class HomeScreen extends StatelessWidget {
                     onOpenSubject: (subject) => _openSubject(context, subject),
                     onOpenChapterDrill: (subject, chapter) =>
                         _openChapterDrill(context, subject, chapter),
+                    onOpenMistakeReview: () =>
+                        _openMistakeReview(context),
                   ),
                   const SizedBox(height: 28),
 
@@ -251,6 +254,22 @@ class HomeScreen extends StatelessWidget {
           questionCount: 10,
         ),
       ),
+    );
+  }
+
+  /// M-7: mistake review from the REVIEW recommendation card — opens the
+  /// dedicated untimed review session. Falls back to the Practice Hub if
+  /// the mistakes were all resolved between render and tap (no dead end).
+  Future<void> _openMistakeReview(BuildContext context) async {
+    final screen = await ReviewMistakes.buildScreen();
+    if (!context.mounted) return;
+    if (screen == null) {
+      _openPractice(context);
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => screen),
     );
   }
 
@@ -408,6 +427,9 @@ class _RecommendationSection extends StatelessWidget {
   final void Function(String subject) onOpenSubject;
   final void Function(String subject, String chapter) onOpenChapterDrill;
 
+  /// M-7: the mistake-review card opens the dedicated review session.
+  final VoidCallback onOpenMistakeReview;
+
   const _RecommendationSection({
     required this.recommendations,
     required this.onOpenPractice,
@@ -415,6 +437,7 @@ class _RecommendationSection extends StatelessWidget {
     required this.onOpenDiagnosticChooser,
     required this.onOpenSubject,
     required this.onOpenChapterDrill,
+    required this.onOpenMistakeReview,
   });
 
   void _open(BuildContext context, StudyRecommendation rec) {
@@ -433,8 +456,10 @@ class _RecommendationSection extends StatelessWidget {
         onOpenDiagnosticChooser();
         break;
       case RecommendationKind.streakKeeper:
-      case RecommendationKind.mistakeReview:
         onOpenPractice();
+        break;
+      case RecommendationKind.mistakeReview:
+        onOpenMistakeReview();
         break;
       case RecommendationKind.momentum:
         if (rec.subject != null) {

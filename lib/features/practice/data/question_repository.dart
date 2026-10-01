@@ -104,6 +104,17 @@ class QuestionRepository {
         .toList();
   }
 
+  /// The question with [id], or null when the bank doesn't contain it.
+  /// Linear scan over the cached bank — callers pass at most a handful of
+  /// IDs (mistake review), so a map isn't worth the memory.
+  Future<QuestionModel?> getQuestionById(String id) async {
+    final questions = await _loadQuestions();
+    for (final q in questions) {
+      if (q.id == id) return q;
+    }
+    return null;
+  }
+
   /// Every NCERT chapter that has at least one question for [subject],
   /// with its question count, sorted alphabetically. Feeds the diagnostic
   /// test (R-4) and weak-area tracking (R-3).

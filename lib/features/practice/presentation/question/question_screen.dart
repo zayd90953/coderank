@@ -30,6 +30,13 @@ class QuestionScreen extends StatefulWidget {
   /// the chapter payload). Null keeps the classic subject-wide draw.
   final String? chapter;
 
+  /// Mistake review (M-7): when set, the session runs EXACTLY these
+  /// questions (subject/difficulty/chapter/questionCount are ignored),
+  /// and [subject] only labels the session. The regular per-session
+  /// recording (XP, weak-area batch, cloud idempotency) applies as-is, so
+  /// a later correct answer resolves the mistake in the R-3 memory.
+  final List<QuestionModel>? questionsOverride;
+
   const QuestionScreen({
     super.key,
     required this.subject,
@@ -37,6 +44,7 @@ class QuestionScreen extends StatefulWidget {
     this.difficulty = 'Mixed',
     this.timeLimit = 60,
     this.chapter,
+    this.questionsOverride,
   });
 
   @override
@@ -90,6 +98,33 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<void> _loadQuestions() async {
     try {
+      // Mistake review (M-7): an exact question list overrides every
+      // other selection parameter.
+      if (widget.questionsOverride != null) {
+        final picked = List<QuestionModel>.from(widget.questionsOverride!);
+        if (picked.isEmpty) {
+          // Defensive: nothing left to review — show the standard retry
+          // error state rather than an empty session.
+          if (!mounted) return;
+          setState(() {
+            isLoading = false;
+            errorMessage = 'No questions to review.';
+          });
+          return;
+        }
+        picked.shuffle(Random());
+        setState(() {
+          questions = picked;
+          session = PracticeSession(
+            subject: widget.subject,
+            totalQuestions: picked.length,
+          );
+          isLoading = false;
+        });
+        _restartPaceClock();
+        return; // review sessions are untimed — no countdown pressure
+      }
+
       // R-5: chapter-focused drill vs classic subject-wide draw.
       final loadedQuestions = widget.chapter != null
           ? await _repository.getQuestionsByChapter(
