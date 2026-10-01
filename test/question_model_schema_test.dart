@@ -125,6 +125,22 @@ void main() {
       });
       expect(q.diagramId, 'BIO-D07');
     });
+
+    test('strips .svg from diagram filenames (merged demo bank convention)', () {
+      final q = QuestionModel.fromJson({
+        ...schemaExample,
+        'diagram': 'D0001.svg',
+      });
+      expect(q.diagramId, 'D0001');
+    });
+
+    test('leaves extensionless diagram ids untouched', () {
+      final q = QuestionModel.fromJson({
+        ...schemaExample,
+        'diagram': 'PHY-D25',
+      });
+      expect(q.diagramId, 'PHY-D25');
+    });
   });
 
   group('QuestionModel.fromJson — real demo bank (schema fixtures)', () {

@@ -92,13 +92,20 @@ class QuestionModel {
       correctAnswer = letter.codeUnitAt(0) - 65; // 'A' -> 0
     }
 
-    // Diagram assets are referenced without the extension in the app
-    // ('${question.diagramId}.png'), so strip a '.png' suffix if tagged.
+    // Diagram assets are referenced without the extension in the app —
+    // QuestionDiagram tries '.svg' then '.png' for the id — so strip any
+    // bundled-image suffix the schema data carries.
     final diagram = json['diagram'] as String?;
-    final diagramId =
-        (diagram != null && diagram.toLowerCase().endsWith('.png'))
-            ? diagram.substring(0, diagram.length - 4)
-            : diagram;
+    String? diagramId = diagram;
+    if (diagram != null) {
+      final lower = diagram.toLowerCase();
+      for (final ext in ['.svg', '.png', '.jpg', '.jpeg']) {
+        if (lower.endsWith(ext)) {
+          diagramId = diagram.substring(0, diagram.length - ext.length);
+          break;
+        }
+      }
+    }
 
     final pyqYears = json['neet_pyq_year'] != null
         ? List<int>.from(json['neet_pyq_year'] as List)

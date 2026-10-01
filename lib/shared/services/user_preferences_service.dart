@@ -257,4 +257,21 @@ class UserPreferencesService {
     prefsNotifier.value = next;
     await _persist(next);
   }
+
+  /// Account-deletion companion: wipes EVERY local preference + progress
+  /// key (everything `resetProgress` deliberately preserves). Called on
+  /// the way out of the delete-account flow so a new sign-in on this
+  /// device starts factory-fresh.
+  Future<void> clearAllLocalData() async {
+    await UserProgressService.instance.resetProgress();
+    await WeakAreaTrackingService.instance.reset();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_storageKey);
+    } catch (e) {
+      debugPrint('Error clearing UserPreferences: $e');
+    }
+    prefsNotifier.value = const UserPreferences();
+    await _persist(prefsNotifier.value);
+  }
 }

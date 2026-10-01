@@ -8,6 +8,7 @@ import '../../../shared/utils/app_haptics.dart';
 import '../../../shared/utils/numeric_display_formatter.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../../shared/widgets/explanation_card.dart';
+import '../../../shared/widgets/question_diagram.dart';
 import '../../practice/models/practice_session.dart';
 import '../../practice/models/question_model.dart';
 import '../data/diagnostic_test_builder.dart';
@@ -243,6 +244,11 @@ class _DiagnosticQuestionScreenState extends State<DiagnosticQuestionScreen> {
                       color: scheme.onSurface,
                     ),
                   ),
+                  // Diagram (SVG or PNG via shared widget; soft-fails if missing)
+                  if (question.diagramId != null) ...[
+                    const SizedBox(height: 16),
+                    QuestionDiagram(diagramId: question.diagramId),
+                  ],
                   const SizedBox(height: 24),
                   ...List.generate(question.options.length, (i) {
                     final isSelected = _selectedAnswer == i;

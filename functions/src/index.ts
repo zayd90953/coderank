@@ -72,5 +72,6 @@ export const SERVER_AUTHORITATIVE_PROGRESS_FIELDS = [
   'dailyChallengeXpEarned',
 ] as const;
 
-// ── The callable ──────────────────────────────────────────────────────────
+// ── The callables ─────────────────────────────────────────────────────────
 export { verifySession } from './verifySession';
+export { deleteUserData } from './deleteUserData';

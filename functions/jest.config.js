@@ -14,5 +14,6 @@ module.exports = {
     '^firebase-functions/v2/https$': '<rootDir>/__mocks__/firebase-functions/v2/https.ts',
     '^firebase-admin/app$': '<rootDir>/__mocks__/firebase-admin/app.ts',
     '^firebase-admin/firestore$': '<rootDir>/__mocks__/firebase-admin/firestore.ts',
+    '^firebase-admin/auth$': '<rootDir>/__mocks__/firebase-admin/auth.ts',
   },
 };

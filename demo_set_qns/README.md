@@ -2,9 +2,13 @@
 
 A demonstration bank of **5,891 questions** built to the structure defined in
 [`QUESTION_SCHEMA.md`](../QUESTION_SCHEMA.md), extended with three additional
-question formats. This folder is self-contained — nothing in the app code was
-modified. (The previous generated batch, NEET-9060…14041, has since been copied
+question formats. (The previous generated batch, NEET-9060…14041, has since been copied
 into the main bank, so all new IDs start at **NEET-15000**.)
+
+> **Status update:** this bank has since been MERGED into the shipped bank
+> (`lib/features/practice/data/questions.json`, 4,982 → 10,873 questions) via
+> [`merge_demo_bank.py`](merge_demo_bank.py), including all 220 SVG diagrams.
+> The folder remains the reproducible source of truth for those questions.
 
 ## Contents
 

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="240" viewBox="0 0 340 240">
+<rect x="2" y="2" width="336" height="236" rx="12" ry="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+<line x1="120" y1="32" x2="120" y2="190" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="180" y1="32" x2="180" y2="190" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="240" y1="32" x2="240" y2="190" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="300" y1="32" x2="300" y2="190" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="60" y1="152.5" x2="308" y2="152.5" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="60" y1="115" x2="308" y2="115" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="60" y1="77.5" x2="308" y2="77.5" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="60" y1="40" x2="308" y2="40" stroke="#CBD5E1" stroke-width="1.0" stroke-linecap="round"/>
+<line x1="54" y1="190" x2="314" y2="190" stroke="#334155" stroke-width="2.2" stroke-linecap="round"/>
+<polygon points="314,190 305.98,194.09 305.98,185.91" fill="#334155"/>
+<line x1="60" y1="196" x2="60" y2="26" stroke="#334155" stroke-width="2.2" stroke-linecap="round"/>
+<polygon points="60,26 64.09,34.02 55.91,34.02" fill="#334155"/>
+<text x="180" y="220" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#334155" text-anchor="middle">t (s)</text>
+<text x="46" y="115" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#334155" text-anchor="middle">v (m/s)</text>
+<polyline points="60,190 199.13,70 268.7,190" fill="none" stroke="#DC2626" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="199.13" y="58" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#DC2626" text-anchor="middle" font-weight="bold">20 m/s</text>
+<circle cx="199.13" cy="70" r="4" fill="#DC2626"/>
+<text x="199.13" y="206" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#475569" text-anchor="middle">4 s</text>
+<text x="268.7" y="206" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#475569" text-anchor="middle">6 s</text>
+</svg>

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -161,6 +162,22 @@ class AuthService {
   // Send password reset email
   Future<void> resetPassword(String email) async {
     await _auth.sendPasswordResetEmail(email: email.trim());
+  }
+
+  /// Full account deletion (store-review requirement).
+  ///
+  /// Order matters: the `deleteUserData` callable wipes the server-side
+  /// data and deletes the Auth record while the user is still signed in —
+  /// after `user.delete()` alone, Firestore data would survive with no
+  /// authenticated caller able to remove it.
+  ///
+  /// Throws the underlying [FirebaseFunctionsException] / [FirebaseAuthException]
+  /// on failure; callers should surface a retry, not a partial delete.
+  Future<void> deleteAccount() async {
+    await FirebaseFunctions.instance.httpsCallable('deleteUserData').call();
+    // Belt-and-braces: the callable already deleted the Auth record; this
+    // no-ops if so, and covers local-only (emulator/offline) auth backends.
+    await _auth.currentUser?.delete();
   }
 
   // ── Sensitive updates (P1-2 / P4-6) ─────────────────────────────────

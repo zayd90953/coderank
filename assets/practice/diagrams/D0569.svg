@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220">
+<rect x="2" y="2" width="356" height="216" rx="12" ry="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+<rect x="60" y="40" width="10" height="140" fill="#E2E8F0" stroke="#1F2937" stroke-width="1.5"/>
+<rect x="60" y="95" width="10" height="12" fill="none" stroke="#FFFFFF" stroke-width="0"/>
+<rect x="60" y="113" width="10" height="12" fill="none" stroke="#FFFFFF" stroke-width="0"/>
+<line x1="60" y1="101" x2="60" y2="107" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+<line x1="60" y1="119" x2="60" y2="125" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+<line x1="30" y1="101" x2="60" y2="101" stroke="#1F2937" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="30" y1="119" x2="60" y2="119" stroke="#1F2937" stroke-width="1.4" stroke-linecap="round"/>
+<text x="36" y="96" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1F2937" text-anchor="middle">S</text>
+<text x="80" y="103" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1F2937" text-anchor="middle">S₁</text>
+<text x="80" y="127" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1F2937" text-anchor="middle">S₂</text>
+<line x1="250" y1="105" x2="305" y2="105" stroke="#059669" stroke-width="2.0" stroke-linecap="round"/>
+<polygon points="305,105 296.98,109.09 296.98,100.91" fill="#059669"/>
+<text x="278" y="92" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#059669" text-anchor="middle">screen</text>
+<line x1="70" y1="110" x2="250" y2="110" stroke="#94A3B8" stroke-width="1.0" stroke-linecap="round" stroke-dasharray="6,5"/>
+<path d="M 79.74,111.32 A 18,18 0 0 0 79.74,90.68" fill="none" stroke="#2563EB" stroke-width="1.2"/>
+<path d="M 79.74,129.32 A 18,18 0 0 0 79.74,108.68" fill="none" stroke="#2563EB" stroke-width="1.2"/>
+<path d="M 91.21,119.35 A 32,32 0 0 0 91.21,82.65" fill="none" stroke="#2563EB" stroke-width="1.2"/>
+<path d="M 91.21,137.35 A 32,32 0 0 0 91.21,100.65" fill="none" stroke="#2563EB" stroke-width="1.2"/>
+<path d="M 102.68,127.38 A 46,46 0 0 0 102.68,74.62" fill="none" stroke="#2563EB" stroke-width="1.2"/>
+<path d="M 102.68,145.38 A 46,46 0 0 0 102.68,92.62" fill="none" stroke="#2563EB" stroke-width="1.2"/>
+<text x="150" y="200" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#1F2937" text-anchor="middle" font-weight="bold">λ = 480 nm,   d = 0.5 mm,   D = 1.5 m</text>
+</svg>

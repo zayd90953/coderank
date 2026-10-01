@@ -12,6 +12,7 @@ import '../../../../shared/utils/app_haptics.dart';
 import '../../../../shared/utils/numeric_display_formatter.dart';
 import '../../../../shared/widgets/back_button_to_home.dart';
 import '../../../../shared/widgets/explanation_card.dart';
+import '../../../../shared/widgets/question_diagram.dart';
 import '../../../../shared/utils/pacing_utils.dart';
 import '../../data/question_repository.dart';
 import '../../models/question_model.dart';
@@ -652,44 +653,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
               ),
             ),
 
-            // DIAGRAM
+            // DIAGRAM (SVG or PNG via shared widget; soft-fails if missing)
             if (question.diagramId != null) ...[
               const SizedBox(height: 20),
-
-              ClipRRect(
-                borderRadius:
-                BorderRadius.circular(16),
-
-                child: Container(
-                  width: double.infinity,
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  padding:
-                  const EdgeInsets.all(12),
-
-                  child: Image.asset(
-                    'assets/practice/diagrams/${question.diagramId}.png',
-
-                    fit: BoxFit.contain,
-
-                    errorBuilder:
-                        (context, error, stackTrace) {
-                      return Padding(
-                        padding:
-                        EdgeInsets.all(20),
-                        child: Text(
-                          'Diagram unavailable',
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                            color:
-                            Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+              QuestionDiagram(diagramId: question.diagramId),
             ],
 
             const SizedBox(height: 28),

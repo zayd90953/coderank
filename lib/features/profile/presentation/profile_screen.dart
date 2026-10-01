@@ -8,6 +8,7 @@ import '../../../shared/services/user_preferences_service.dart';
 import '../../../shared/services/user_progress_service.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
 import '../../auth/presentation/google_sign_in_flow.dart';
+import 'delete_account_screen.dart';
 import '../../navigation/main_nav_screen.dart';
 import '../../welcome/presentation/welcome_screen.dart';
 import 'sheets/avatar_picker_sheet.dart';
@@ -22,6 +23,62 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   // ── Auth flows (kept here so they stay co-located with their UI) ─────────
+
+  /// A-12: account deletion. One typed-confirmation step on a dedicated
+  /// screen — the irreversible action itself never lives inside a dialog.
+  void _confirmDeleteAccount(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: Row(
+          children: [
+            Icon(Icons.delete_forever_rounded,
+                color: AppColors.error, size: 24),
+            SizedBox(width: 10),
+            Text("Delete Account?",
+                style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface)),
+          ],
+        ),
+        content: Text(
+          "This permanently erases your profile, XP, streaks and every "
+          "practice record — on this device and on our servers. You will "
+          "not be able to sign in with this email again.",
+          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text("Cancel",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DeleteAccountScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text("Continue",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _confirmSignOut(BuildContext context) {
     showDialog(
@@ -832,6 +889,22 @@ class ProfileScreen extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               onTap: () => _confirmSignOut(context),
+                            ),
+                            // A-12: store-required self-service deletion.
+                            // Red-styled, last tile of the section.
+                            SettingsTile(
+                              icon: Icons.delete_forever_rounded,
+                              title: "Delete Account",
+                              subtitle: "Permanently erase your account and data",
+                              textColor: AppColors.error,
+                              iconColor: AppColors.error,
+                              palette: palette,
+                              trailing: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                              onTap: () => _confirmDeleteAccount(context),
                             ),
                             // P1-2: explicit note about the known account
                             // separation gap. This isn't a bug — it's a

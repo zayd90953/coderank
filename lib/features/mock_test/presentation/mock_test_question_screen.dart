@@ -11,6 +11,7 @@ import '../../../shared/services/weak_area_tracking_service.dart';
 import '../../../shared/utils/numeric_display_formatter.dart';
 import '../../../shared/utils/pacing_utils.dart';
 import '../../../shared/widgets/back_button_to_home.dart';
+import '../../../shared/widgets/question_diagram.dart';
 import 'mock_test_results_screen.dart';
 
 /// The exam-style question screen for the Full-Length Mock Test.
@@ -690,6 +691,12 @@ class _MockTestQuestionScreenState extends State<MockTestQuestionScreen> {
                         height: 1.5,
                       ),
                     ),
+
+                    // Diagram (SVG or PNG via shared widget; soft-fails if missing)
+                    if (q.diagramId != null) ...[
+                      const SizedBox(height: 20),
+                      QuestionDiagram(diagramId: q.diagramId),
+                    ],
 
                     const SizedBox(height: 28),
 
